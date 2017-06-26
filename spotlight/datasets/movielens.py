@@ -3,6 +3,7 @@ import os
 import h5py
 
 from spotlight.datasets import _transport
+from spotlight.interactions import Interactions
 
 VARIANTS = ('100K',
             '1M',
@@ -41,4 +42,4 @@ def get_movielens_dataset(variant='100K'):
 
     url = 'movielens_{}'.format(variant)
 
-    return _get_movielens(url)
+    return Interactions(*_get_movielens(url))
