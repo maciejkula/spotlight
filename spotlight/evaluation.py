@@ -27,3 +27,10 @@ def mrr_score(model, test, train=None):
         mrrs.append(mrr)
 
     return np.array(mrrs)
+
+
+def rmse_score(model, test):
+
+    predictions = model.predict(test.user_ids, test.item_ids)
+
+    return np.sqrt(((test.ratings - predictions) ** 2).mean())

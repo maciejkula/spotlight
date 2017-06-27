@@ -2,6 +2,8 @@ import torch
 
 import torch.nn.functional as F
 
+from spotlight.torch_utils import assert_no_grad
+
 
 def pointwise_loss(positive_predictions, negative_predictions):
 
@@ -30,6 +32,8 @@ def truncated_regression_loss(observed_rating,
                               predicted_rating_stddev,
                               negative_predicted_probability):
 
+    assert_no_grad(observed_rating)
+
     positives_likelihood = (torch.log(positive_observation_probability)
                             - 0.5 * torch.log(predicted_rating_stddev ** 2)
                             - (0.5 * (positive_predicted_rating -
@@ -43,4 +47,14 @@ def truncated_regression_loss(observed_rating,
 def regression_loss(observed_ratings,
                     predicted_ratings):
 
+    assert_no_grad(observed_ratings)
+
     return ((observed_ratings - predicted_ratings) ** 2).mean()
+
+
+def poisson_loss(observed_ratings,
+                 predicted_ratings):
+
+    assert_no_grad(observed_ratings)
+
+    return predicted_ratings - observed_ratings * torch.log(predicted_ratings)

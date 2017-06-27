@@ -2,49 +2,17 @@ import numpy as np
 
 import torch
 
-import torch.nn as nn
-
 import torch.optim as optim
 
 from torch.autograd import Variable
 
 
-from spotlight.layers import ScaledEmbedding, ZeroEmbedding
 from spotlight.losses import (bpr_loss,
                               hinge_loss,
                               pointwise_loss)
+from spotlight.factorization.representations import BilinearNet
 from spotlight.sampling import sample_items
 from spotlight.torch_utils import cpu, gpu, minibatch, shuffle
-
-
-class BilinearNet(nn.Module):
-
-    def __init__(self, num_users, num_items, embedding_dim, sparse=False):
-        super().__init__()
-
-        self.embedding_dim = embedding_dim
-
-        self.user_embeddings = ScaledEmbedding(num_users, embedding_dim,
-                                               sparse=sparse)
-        self.item_embeddings = ScaledEmbedding(num_items, embedding_dim,
-                                               sparse=sparse)
-        self.user_biases = ZeroEmbedding(num_users, 1, sparse=sparse)
-        self.item_biases = ZeroEmbedding(num_items, 1, sparse=sparse)
-
-    def forward(self, user_ids, item_ids):
-
-        user_embedding = self.user_embeddings(user_ids)
-        item_embedding = self.item_embeddings(item_ids)
-
-        user_embedding = user_embedding.view(-1, self.embedding_dim)
-        item_embedding = item_embedding.view(-1, self.embedding_dim)
-
-        user_bias = self.user_biases(user_ids).view(-1, 1)
-        item_bias = self.item_biases(item_ids).view(-1, 1)
-
-        dot = (user_embedding * item_embedding).sum(1)
-
-        return dot #user_bias + item_bias
 
 
 class ImplicitFactorizationModel(object):
@@ -105,6 +73,7 @@ class ImplicitFactorizationModel(object):
         if self._optimizer is None:
             self._optimizer = optim.Adam(
                 self._net.parameters(),
+                weight_decay=self._l2,
                 lr=self._learning_rate
             )
 

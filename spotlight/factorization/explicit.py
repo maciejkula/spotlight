@@ -2,81 +2,49 @@ import numpy as np
 
 import torch
 
-import torch.nn as nn
-import torch.nn.functional as F
-
 import torch.optim as optim
 
 from torch.autograd import Variable
 
 
-from spotlight.factorization.implicit import BilinearNet
-from spotlight.losses import (bpr_loss,
-                              hinge_loss,
-                              pointwise_loss)
+from spotlight.factorization.representations import (BilinearNet,
+                                                     TruncatedBilinearNet)
+from spotlight.losses import (regression_loss,
+                              poisson_loss,
+                              truncated_regression_loss)
+
 from spotlight.torch_utils import cpu, gpu, minibatch, shuffle
-
-
-class TruncatedBilinearNet(nn.Module):
-
-    def __init__(self, num_users, num_items, embedding_dim, sparse=False):
-        super().__init__()
-
-        self.embedding_dim = embedding_dim
-
-        self.rating_net = BilinearNet(num_users, num_items,
-                                      embedding_dim, sparse=sparse)
-        self.observed_net = BilinearNet(num_users, num_items,
-                                        embedding_dim, sparse=sparse)
-
-        self.stddev = nn.Embedding(1, 1)
-
-    def forward(self, user_ids, item_ids):
-
-        observed = F.sigmoid(self.observed_net(user_ids, item_ids))
-        rating = self.rating_net(user_ids, item_ids)
-        stddev = self.stddev((user_ids < -1).long()).view(-1, 1)
-
-        return observed, rating, stddev
 
 
 class ExplicitFactorizationModel(object):
     """
-    A number of classic factorization models, implemented in PyTorch.
-
-    Available loss functions:
-    - pointwise logistic
-    - BPR: Rendle's personalized Bayesian ranking
-    - adaptive: a variant of WARP with adaptive selection of negative samples
-    - regression: minimizing the regression loss between true and predicted ratings
-    - truncated_regression: truncated regression model, that jointly models
-                            the likelihood of a rating being given and the value
-                            of the rating itself.
-
-    Performance notes: neural network toolkits do not perform well on sparse tasks
-    like recommendations. To achieve acceptable speed, either use the `sparse` option
-    on a CPU or use CUDA with very big minibatches (1024+).
     """
 
     def __init__(self,
                  loss='regression',
-                 embedding_dim=64,
-                 n_iter=3,
-                 batch_size=64,
+                 embedding_dim=32,
+                 n_iter=10,
+                 batch_size=256,
+                 l2=0.0,
+                 learning_rate=1e-2,
                  optimizer=None,
                  use_cuda=False,
-                 sparse=False):
+                 sparse=False,
+                 random_state=None):
 
-        assert loss in ('regression'
-                        'truncated_regression')
+        assert loss in ('regression',
+                        'poisson')
 
         self._loss = loss
         self._embedding_dim = embedding_dim
         self._n_iter = n_iter
+        self._learning_rate = learning_rate
         self._batch_size = batch_size
+        self._l2 = l2
         self._use_cuda = use_cuda
         self._sparse = sparse
         self._optimizer = None
+        self._random_state = random_state or np.random.RandomState()
 
         self._num_users = None
         self._num_items = None
@@ -84,59 +52,45 @@ class ExplicitFactorizationModel(object):
 
     def fit(self, interactions, verbose=False):
         """
-        Fit the model.
-
-        Arguments
-        ---------
-
-        interactions: np.float32 coo_matrix of shape [n_users, n_items]
-             the matrix containing
-             user-item interactions. The entries can be binary
-             (for implicit tasks) or ratings (for regression
-             and truncated regression).
-        verbose: Bool, optional
-             Whether to print epoch loss statistics.
         """
 
-        self._num_users, self._num_items = interactions.shape
+        user_ids = interactions.user_ids.astype(np.int64)
+        item_ids = interactions.item_ids.astype(np.int64)
 
-        if self._loss == 'regression':
-            self._net = gpu(
-                BilinearNet(self._num_users,
-                            self._num_items,
-                            self._embedding_dim,
-                            sparse=self._sparse),
-                self._use_cuda
-            )
-        else:
-            self._net = gpu(
-                TruncatedBilinearNet(self._num_users,
-                                     self._num_items,
-                                     self._embedding_dim,
-                                     sparse=self._sparse),
-                self._use_cuda
-            )
+        (self._num_users,
+         self._num_items) = (interactions.num_users,
+                             interactions.num_items)
+
+        self._net = gpu(
+            BilinearNet(self._num_users,
+                        self._num_items,
+                        self._embedding_dim,
+                        sparse=self._sparse),
+            self._use_cuda
+        )
 
         if self._optimizer is None:
-            self._optimizer = optim.Adam(self._net.parameters())
+            self._optimizer = optim.Adam(
+                self._net.parameters(),
+                weight_decay=self._l2,
+                lr=self._learning_rate
+            )
 
-        if self._loss == 'pointwise':
-            loss_fnc = pointwise_loss
-        elif self._loss == 'bpr':
-            loss_fnc = bpr_loss
-        elif self._loss == 'hinge':
-            loss_fnc = hinge_loss
+        loss_fnc = regression_loss
 
         for epoch_num in range(self._n_iter):
 
-            users, items, ratings = shuffle(*(interactions.row,
-                                              interactions.col,
-                                              interactions.data))
+            users, items, ratings = shuffle(user_ids,
+                                            item_ids,
+                                            interactions.ratings,
+                                            random_state=self._random_state)
 
             user_ids_tensor = gpu(torch.from_numpy(users),
                                   self._use_cuda)
             item_ids_tensor = gpu(torch.from_numpy(items),
                                   self._use_cuda)
+            ratings_tensor = gpu(torch.from_numpy(ratings),
+                                 self._use_cuda)
 
             epoch_loss = 0.0
 
@@ -144,15 +98,21 @@ class ExplicitFactorizationModel(object):
                  batch_item,
                  batch_ratings) in minibatch(user_ids_tensor,
                                              item_ids_tensor,
+                                             ratings_tensor,
                                              batch_size=self._batch_size):
 
                 user_var = Variable(batch_user)
                 item_var = Variable(batch_item)
                 ratings_var = Variable(batch_ratings)
 
+                predictions = self._net(user_var, item_var)
+
+                if self._loss == 'poisson':
+                    predictions = torch.exp(predictions)
+
                 self._optimizer.zero_grad()
 
-                loss = loss_fnc(user_var, item_var, ratings_var)
+                loss = loss_fnc(ratings_var, predictions)
                 epoch_loss += loss.data[0]
 
                 loss.backward()
@@ -163,19 +123,6 @@ class ExplicitFactorizationModel(object):
 
     def predict(self, user_ids, item_ids):
         """
-        Compute the recommendation score for user-item pairs.
-
-        Arguments
-        ---------
-
-        user_ids: integer or np.int32 array of shape [n_pairs,]
-             single user id or an array containing the user ids for the user-item pairs for which
-             a prediction is to be computed
-        item_ids: np.int32 array of shape [n_pairs,]
-             an array containing the item ids for the user-item pairs for which
-             a prediction is to be computed.
-        ratings: bool, optional
-             Return predictions on ratings (rather than likelihood of rating)
         """
 
         user_ids = torch.from_numpy(user_ids.reshape(-1, 1).astype(np.int64))
@@ -185,5 +132,8 @@ class ExplicitFactorizationModel(object):
         item_var = Variable(gpu(item_ids, self._use_cuda))
 
         out = self._net(user_var, item_var)
+
+        if self._loss == 'poisson':
+            out = torch.exp(out)
 
         return cpu(out.data).numpy().flatten()

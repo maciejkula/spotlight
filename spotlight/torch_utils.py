@@ -41,3 +41,12 @@ def shuffle(*arrays, random_state=None):
     random_state.shuffle(shuffle_indices)
 
     return tuple(x[shuffle_indices] for x in arrays)
+
+
+def assert_no_grad(variable):
+
+    if variable.requires_grad:
+        raise ValueError(
+            "nn criterions don't compute the gradient w.r.t. targets - please "
+            "mark these variables as volatile or not requiring gradients"
+        )
