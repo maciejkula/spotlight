@@ -7,7 +7,7 @@ setup(
     install_requires=['numpy',
                       'scipy',
                       'h5py',
-                      'pytorch==0.1.11',
+                      'pytorch==0.1.12',
                       'requests'],
     packages=['spotlight'],
     license='MIT',
