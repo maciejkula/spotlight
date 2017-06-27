@@ -18,4 +18,4 @@ conda install -y python=$PYTHON_VERSION
 
 # Install dependencies
 conda install -y numpy scipy requests h5py scikit-learn pytest
-conda install -y conda install pytorch torchvision -c soumith
+conda install -y pytorch torchvision -c soumith
