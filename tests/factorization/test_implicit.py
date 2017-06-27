@@ -44,7 +44,7 @@ def test_bpr():
 
     mrr = mrr_score(model, test, train=train).mean()
 
-    assert mrr > 0.08
+    assert mrr > 0.07
 
 
 def test_hinge():
@@ -82,4 +82,4 @@ def test_adaptive_hinge():
 
     mrr = mrr_score(model, test, train=train).mean()
 
-    assert mrr > 0.08
+    assert mrr > 0.07
