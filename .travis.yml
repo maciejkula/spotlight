@@ -1,0 +1,23 @@
+matrix:
+  include:
+    - os: linux
+      language: generic
+      env: PYTHON_VERSION=2.7
+    - os: linux
+      language: generic
+      env: PYTHON_VERSION=3.3
+    - os: linux
+      language: generic
+      env: PYTHON_VERSION=3.4
+    - os: linux
+      language: generic
+      env: PYTHON_VERSION=3.5
+    - os: linux
+      language: generic
+      env: PYTHON_VERSION=3.6
+before_install:
+  - ./.travis/install.sh
+install:
+  - PATH="$HOME/miniconda/bin:$PATH" pip install -e .
+script:
+  - PATH="$HOME/miniconda/bin:$PATH" py.test tests/
