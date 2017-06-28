@@ -3,7 +3,7 @@ from setuptools import setup
 
 # Import version
 __builtins__.__SPOTLIGHT_SETUP__ = True
-from lightfm import __version__ as version  # NOQA
+from spotlight import __version__ as version  # NOQA
 
 
 setup(
