@@ -15,6 +15,7 @@ requirements:
     - numpy
     - scipy
     - h5py
+    - requests
     - pytorch 0.1.12
 
 test:
