@@ -3,3 +3,4 @@
 *.pyc
 *egg*
 *.cache
+*build*

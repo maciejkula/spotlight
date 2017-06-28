@@ -1,9 +1,14 @@
 from setuptools import setup
 
 
+# Import version
+__builtins__.__SPOTLIGHT_SETUP__ = True
+from spotlight import __version__ as version  # NOQA
+
+
 setup(
     name='spotlight',
-    version='0.1.0',
+    version=version,
     packages=['spotlight'],
     license='MIT',
     classifiers=['Development Status :: 3 - Alpha',
