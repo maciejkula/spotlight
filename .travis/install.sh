@@ -17,5 +17,5 @@ rm ~/miniconda.sh
 conda install -y python=$PYTHON_VERSION
 
 # Install dependencies
-conda install -y numpy scipy requests h5py scikit-learn pytest
+conda install -y numpy scipy requests h5py scikit-learn pytest flake8
 conda install -y pytorch torchvision -c soumith
