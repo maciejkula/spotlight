@@ -7,11 +7,10 @@ import torch.optim as optim
 from torch.autograd import Variable
 
 
-from spotlight.factorization.representations import (BilinearNet,
-                                                     TruncatedBilinearNet)
+from spotlight.factorization.representations import BilinearNet
+
 from spotlight.losses import (regression_loss,
-                              poisson_loss,
-                              truncated_regression_loss)
+                              poisson_loss)
 
 from spotlight.torch_utils import cpu, gpu, minibatch, shuffle
 
@@ -76,7 +75,12 @@ class ExplicitFactorizationModel(object):
                 lr=self._learning_rate
             )
 
-        loss_fnc = regression_loss
+        if self._loss == 'regression':
+            loss_fnc = regression_loss
+        elif self._loss == 'poisson':
+            loss_fnc = poisson_loss
+        else:
+            raise ValueError('Unknown loss: {}'.format(self._loss))
 
         for epoch_num in range(self._n_iter):
 

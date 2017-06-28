@@ -22,8 +22,8 @@ def bpr_loss(positive_predictions, negative_predictions):
 def hinge_loss(positive_predictions, negative_predictions):
 
     return torch.mean(torch.clamp(negative_predictions -
-                                  positive_predictions
-                                  + 1.0, 0.0))
+                                  positive_predictions +
+                                  1.0, 0.0))
 
 
 def truncated_regression_loss(observed_rating,
@@ -34,11 +34,11 @@ def truncated_regression_loss(observed_rating,
 
     assert_no_grad(observed_rating)
 
-    positives_likelihood = (torch.log(positive_observation_probability)
-                            - 0.5 * torch.log(predicted_rating_stddev ** 2)
-                            - (0.5 * (positive_predicted_rating -
-                                      observed_rating) ** 2
-                               / (predicted_rating_stddev ** 2)))
+    positives_likelihood = (torch.log(positive_observation_probability) -
+                            0.5 * torch.log(predicted_rating_stddev ** 2) -
+                            (0.5 * (positive_predicted_rating -
+                                    observed_rating) ** 2 /
+                             (predicted_rating_stddev ** 2)))
     negatives_likelihood = torch.log(1.0 - negative_predicted_probability)
 
     return torch.cat([-positives_likelihood, -negatives_likelihood]).mean()
@@ -57,4 +57,4 @@ def poisson_loss(observed_ratings,
 
     assert_no_grad(observed_ratings)
 
-    return predicted_ratings - observed_ratings * torch.log(predicted_ratings)
+    return (predicted_ratings - observed_ratings * torch.log(predicted_ratings)).mean()

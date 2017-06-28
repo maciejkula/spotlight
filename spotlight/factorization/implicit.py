@@ -17,6 +17,12 @@ from spotlight.torch_utils import cpu, gpu, minibatch, shuffle
 
 class ImplicitFactorizationModel(object):
     """
+    An implict matrix factorization model.
+
+    Parameters
+    ----------
+
+    loss: string, one of 'pointwise', 'bpr', 'hinge', or 'adaptive hinge'
     """
 
     def __init__(self,
@@ -144,7 +150,7 @@ class ImplicitFactorizationModel(object):
         negative_predictions = self._net(
             user_ids.repeat(num_neg_candidates, 1).transpose(0, 1),
             negatives
-            ).view(-1, num_neg_candidates)
+        ).view(-1, num_neg_candidates)
 
         best_negative_prediction, _ = negative_predictions.max(1)
 
