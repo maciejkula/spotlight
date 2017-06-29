@@ -2,6 +2,24 @@ import numpy as np
 
 import scipy.sparse as sp
 
+from spotlight.torch_utils import minibatch
+
+
+def _generate_sequences(item_ids, indices, max_sequence_length):
+
+    for i in range(len(indices)):
+
+        start_idx = indices[i]
+
+        if i >= len(indices) - 1:
+            stop_idx = None
+        else:
+            stop_idx = indices[i + 1]
+
+        for seq in minibatch(item_ids[start_idx:stop_idx],
+                             batch_size=max_sequence_length):
+            yield seq
+
 
 class Interactions(object):
 
@@ -56,3 +74,32 @@ class Interactions(object):
     def tocsr(self):
 
         return self.tocoo().tocsr()
+
+    def to_sequence(self, max_sequence_length=10):
+
+        # Sort
+        if self.timestamps is not None:
+            # Sort first by user id, then by timestamp
+            sort_indices = np.lexsort((self.timestamps,
+                                       self.user_ids))
+        else:
+            sort_indices = np.argsort(self.user_ids)
+
+        user_ids = self.user_ids[sort_indices]
+        item_ids = self.item_ids[sort_indices]
+
+        _, indices = np.unique(user_ids, return_index=True)
+
+        num_subsequences = sum(1 for _ in _generate_sequences(item_ids,
+                                                              indices,
+                                                              max_sequence_length))
+
+        matrix = np.zeros((num_subsequences, max_sequence_length),
+                          dtype=np.int32)
+
+        for i, seq in enumerate(_generate_sequences(item_ids,
+                                                    indices,
+                                                    max_sequence_length)):
+            matrix[i][-len(seq):] = seq
+
+        return matrix
