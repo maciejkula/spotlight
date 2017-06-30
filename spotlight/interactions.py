@@ -2,10 +2,14 @@ import numpy as np
 
 import scipy.sparse as sp
 
-from spotlight.torch_utils import minibatch
+
+def _sliding_window(tensor, window_size):
+
+    for i in range(len(tensor), 0, -1):
+        yield tensor[max(i - window_size, 0):i]
 
 
-def _generate_sequences(item_ids, indices, max_sequence_length):
+def _generate_sequences(user_ids, item_ids, indices, max_sequence_length):
 
     for i in range(len(indices)):
 
@@ -16,9 +20,10 @@ def _generate_sequences(item_ids, indices, max_sequence_length):
         else:
             stop_idx = indices[i + 1]
 
-        for seq in minibatch(item_ids[start_idx:stop_idx],
-                             batch_size=max_sequence_length):
-            yield seq
+        for seq in _sliding_window(item_ids[start_idx:stop_idx],
+                                   max_sequence_length):
+
+            yield (user_ids[i], seq)
 
 
 class Interactions(object):
@@ -75,31 +80,43 @@ class Interactions(object):
 
         return self.tocoo().tocsr()
 
-    def to_sequence(self, max_sequence_length=10):
+    def to_sequence(self, max_sequence_length=10, return_user_ids=False):
 
-        # Sort
-        if self.timestamps is not None:
-            # Sort first by user id, then by timestamp
-            sort_indices = np.lexsort((self.timestamps,
-                                       self.user_ids))
-        else:
-            sort_indices = np.argsort(self.user_ids)
+        if self.timestamps is None:
+            raise ValueError('Cannot convert to sequences, '
+                             'timestamps not available.')
+
+        if 0 in self.item_ids:
+            raise ValueError('0 is used as an item id, conflicting '
+                             'with the sequence padding value.')
+
+        # Sort first by user id, then by timestamp
+        sort_indices = np.lexsort((self.timestamps,
+                                   self.user_ids))
 
         user_ids = self.user_ids[sort_indices]
         item_ids = self.item_ids[sort_indices]
 
-        _, indices = np.unique(user_ids, return_index=True)
+        user_ids, indices = np.unique(user_ids, return_index=True)
 
-        num_subsequences = sum(1 for _ in _generate_sequences(item_ids,
-                                                              indices,
-                                                              max_sequence_length))
+        num_subsequences = len(self)
 
-        matrix = np.zeros((num_subsequences, max_sequence_length),
-                          dtype=np.int32)
+        max_sequence_length = min(max_sequence_length,
+                                  self.tocsr().getnnz(axis=1).max())
 
-        for i, seq in enumerate(_generate_sequences(item_ids,
-                                                    indices,
-                                                    max_sequence_length)):
-            matrix[i][-len(seq):] = seq
+        sequences = np.zeros((num_subsequences, max_sequence_length),
+                             dtype=np.int32)
+        sequence_users = np.empty(num_subsequences,
+                                  dtype=np.int32)
 
-        return matrix
+        for i, (uid, seq) in enumerate(_generate_sequences(user_ids,
+                                                           item_ids,
+                                                           indices,
+                                                           max_sequence_length)):
+            sequences[i][-len(seq):] = seq
+            sequence_users[i] = uid
+
+        if return_user_ids:
+            return sequences, sequence_users
+        else:
+            return sequences
