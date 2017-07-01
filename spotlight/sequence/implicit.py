@@ -10,15 +10,16 @@ from torch.autograd import Variable
 from spotlight.losses import (bpr_loss,
                               hinge_loss,
                               pointwise_loss)
-from spotlight.sequence.representations import PoolNet
+from spotlight.sequence.representations import LSTMNet, PoolNet
 from spotlight.sampling import sample_items
 from spotlight.torch_utils import cpu, gpu, minibatch, shuffle
 
 
-class ImplicitPoolingModel(object):
+class ImplicitSequenceModel(object):
 
     def __init__(self,
                  loss='pointwise',
+                 representation='pooling',
                  embedding_dim=32,
                  n_iter=10,
                  batch_size=256,
@@ -34,7 +35,11 @@ class ImplicitPoolingModel(object):
                         'hinge',
                         'adaptive_hinge')
 
+        assert representation in ('pooling',
+                                  'lstm')
+
         self._loss = loss
+        self._representation = representation
         self._embedding_dim = embedding_dim
         self._n_iter = n_iter
         self._learning_rate = learning_rate
@@ -57,9 +62,14 @@ class ImplicitPoolingModel(object):
 
         self._num_items = interactions.num_items
 
-        self._net = PoolNet(self._num_items,
-                            self._embedding_dim,
-                            self._sparse)
+        if self._representation == 'pooling':
+            self._net = PoolNet(self._num_items,
+                                self._embedding_dim,
+                                self._sparse)
+        else:
+            self._net = LSTMNet(self._num_items,
+                                self._embedding_dim,
+                                self._sparse)
 
         if self._optimizer is None:
             self._optimizer = optim.Adam(

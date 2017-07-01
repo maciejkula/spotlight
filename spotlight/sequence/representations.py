@@ -48,3 +48,42 @@ class PoolNet(nn.Module):
         dot = (user_representations * target_embedding).sum(1)
 
         return target_bias + dot
+
+
+class LSTMNet(nn.Module):
+
+    def __init__(self, num_items, embedding_dim, sparse=False):
+        super().__init__()
+
+        self.embedding_dim = embedding_dim
+
+        self.item_embeddings = ScaledEmbedding(num_items, embedding_dim,
+                                               sparse=sparse,
+                                               padding_idx=PADDING_IDX)
+        self.item_biases = ZeroEmbedding(num_items, 1, sparse=sparse,
+                                         padding_idx=PADDING_IDX)
+
+        self.lstm = nn.LSTM(batch_first=True,
+                            input_size=embedding_dim,
+                            hidden_size=embedding_dim)
+
+    def user_representation(self, item_sequences):
+
+        sequence_embeddings = self.item_embeddings(item_sequences)
+
+        user_representations, (hidden, cell) = self.lstm(sequence_embeddings)
+
+        return hidden.view(-1, self.embedding_dim)
+
+        return user_representations[:, -1, :]
+
+        return user_representations
+
+    def forward(self, user_representations, targets):
+
+        target_embedding = self.item_embeddings(targets)
+        target_bias = self.item_biases(targets)
+
+        dot = (user_representations * target_embedding).sum(1)
+
+        return target_bias + dot
