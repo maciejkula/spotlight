@@ -24,7 +24,7 @@ def _test_final_column_no_padding(sequences):
     assert np.all(sequences[:, -1] > 0)
 
 
-def _test_shifted(sequences):
+def _test_shifted(sequences, targets):
     """
     Unless there was a change of user, row i + 1's interactions
     should contain row i's interactions shifted to the right by
@@ -38,6 +38,9 @@ def _test_shifted(sequences):
             # are padding.
             continue
 
+        # The last element of the previous sequence
+        # is this sequence's target.
+        assert sequences[i - 1][-1] == targets[i]
         assert np.all(sequences[i][1:] == sequences[i - 1][:-1])
 
 
@@ -72,15 +75,20 @@ def test_to_sequence(max_sequence_length):
 
     interactions = movielens.get_movielens_dataset('100K')
 
-    sequences, sequence_users = interactions.to_sequence(
-        max_sequence_length=max_sequence_length,
-        return_user_ids=True)
+    sequences = interactions.to_sequence(
+        max_sequence_length=max_sequence_length)
 
-    assert sequences.shape == (len(interactions),
-                               min(max_sequence_length,
-                                   interactions.tocsr().getnnz(axis=1).max()))
+    assert sequences.sequences.shape == (len(interactions) -
+                                         len(np.unique(interactions.user_ids)),
+                                         min(max_sequence_length,
+                                             (interactions
+                                              .tocsr()
+                                              .getnnz(axis=1).max())))
 
-    _test_just_padding(sequences)
-    _test_final_column_no_padding(sequences)
-    _test_shifted(sequences)
-    _test_temporal_order(sequence_users, sequences, interactions)
+    _test_just_padding(sequences.sequences)
+    _test_final_column_no_padding(sequences.sequences)
+    _test_shifted(sequences.sequences,
+                  sequences.targets)
+    _test_temporal_order(sequences.user_ids,
+                         sequences.sequences,
+                         interactions)

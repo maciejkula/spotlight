@@ -1,5 +1,7 @@
 import numpy as np
 
+from dynarray import DynamicArray
+
 import scipy.sparse as sp
 
 
@@ -9,7 +11,10 @@ def _sliding_window(tensor, window_size):
         yield tensor[max(i - window_size, 0):i]
 
 
-def _generate_sequences(user_ids, item_ids, indices, max_sequence_length):
+def _generate_sequences(user_ids, item_ids,
+                        indices,
+                        max_sequence_length,
+                        min_sequence_length=1):
 
     for i in range(len(indices)):
 
@@ -23,7 +28,10 @@ def _generate_sequences(user_ids, item_ids, indices, max_sequence_length):
         for seq in _sliding_window(item_ids[start_idx:stop_idx],
                                    max_sequence_length):
 
-            yield (user_ids[i], seq)
+            if len(seq) <= min_sequence_length:
+                continue
+
+            yield (user_ids[i], seq[:-1], seq[-1])
 
 
 class Interactions(object):
@@ -80,7 +88,7 @@ class Interactions(object):
 
         return self.tocoo().tocsr()
 
-    def to_sequence(self, max_sequence_length=10, return_user_ids=False):
+    def to_sequence(self, max_sequence_length=10, min_sequence_length=1):
 
         if self.timestamps is None:
             raise ValueError('Cannot convert to sequences, '
@@ -99,8 +107,11 @@ class Interactions(object):
 
         user_ids, indices = np.unique(user_ids, return_index=True)
 
-        num_subsequences = len(self)
-
+        num_subsequences = sum(1 for _ in _generate_sequences(user_ids,
+                                                              item_ids,
+                                                              indices,
+                                                              max_sequence_length + 1,
+                                                              min_sequence_length))
         max_sequence_length = min(max_sequence_length,
                                   self.tocsr().getnnz(axis=1).max())
 
@@ -108,15 +119,39 @@ class Interactions(object):
                              dtype=np.int32)
         sequence_users = np.empty(num_subsequences,
                                   dtype=np.int32)
+        targets = np.empty(num_subsequences,
+                           dtype=np.int32)
 
-        for i, (uid, seq) in enumerate(_generate_sequences(user_ids,
-                                                           item_ids,
-                                                           indices,
-                                                           max_sequence_length)):
+        for i, (uid,
+                seq,
+                target) in enumerate(_generate_sequences(user_ids,
+                                                         item_ids,
+                                                         indices,
+                                                         max_sequence_length + 1,
+                                                         min_sequence_length)):
             sequences[i][-len(seq):] = seq
+            targets[i] = target
             sequence_users[i] = uid
 
-        if return_user_ids:
-            return sequences, sequence_users
+        return (SequenceInteractions(sequences,
+                                     targets,
+                                     user_ids=sequence_users,
+                                     num_items=self.num_items))
+
+
+class SequenceInteractions(object):
+
+    def __init__(self,
+                 sequences,
+                 targets,
+                 user_ids=None, num_items=None):
+
+        self.sequences = sequences
+        self.targets = targets
+        self.user_ids = user_ids
+        self.max_sequence_length = sequences.shape[1]
+
+        if num_items is None:
+            self.num_items = sequences.max() + 1
         else:
-            return sequences
+            self.num_items = num_items
