@@ -93,8 +93,8 @@ class CNNNet(nn.Module):
 
     def __init__(self, num_items,
                  embedding_dim,
-                 kernel_width=10,
-                 num_layers=1,
+                 kernel_width=5,
+                 num_layers=2,
                  sparse=False):
         super().__init__()
 
@@ -107,7 +107,7 @@ class CNNNet(nn.Module):
                                          padding_idx=PADDING_IDX)
 
         self.cnn_layers = [
-            nn.Conv2d(1, 32, (kernel_width, embedding_dim)) for
+            nn.Conv2d(embedding_dim, embedding_dim, (kernel_width, 1)) for
             _ in range(num_layers)
         ]
 
@@ -117,15 +117,19 @@ class CNNNet(nn.Module):
 
         (batch_size, seq_len, dim) = sequence_embeddings.size()
 
-        sequence_embeddings = sequence_embeddings.view((batch_size,
-                                                        1,
-                                                        seq_len,
-                                                        dim))
-        x = self.cnn_layers[0](sequence_embeddings)
+        # Move embedding dimensions to channels and add a fourth dim.
+        sequence_embeddings = (sequence_embeddings
+                               .permute(0, 2, 1)
+                               .contiguous()
+                               .view(batch_size, dim, seq_len, 1))
+
+        x = sequence_embeddings
+        for cnn_layer in self.cnn_layers:
+            x = cnn_layer(x)
 
         user_representations = x.view(batch_size, dim, -1)
         pooled_representations = (user_representations
-                                  .max(2)[0]
+                                  .max(-1)[0]
                                   .view(batch_size, dim))
 
         return pooled_representations

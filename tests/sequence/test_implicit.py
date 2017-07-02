@@ -80,7 +80,7 @@ def test_implicit_cnn_synthetic(randomness, expected_mrr):
 
     interactions = synthetic.generate_sequential(num_users=1000,
                                                  num_items=1000,
-                                                 num_interactions=10000,
+                                                 num_interactions=20000,
                                                  concentration_parameter=randomness,
                                                  random_state=RANDOM_STATE)
     train, test = user_based_train_test_split(interactions,
@@ -91,6 +91,7 @@ def test_implicit_cnn_synthetic(randomness, expected_mrr):
 
     model = ImplicitSequenceModel(loss='bpr',
                                   representation='cnn',
+                                  embedding_dim=64,
                                   batch_size=128,
                                   learning_rate=1e-2,
                                   l2=1e-7,
