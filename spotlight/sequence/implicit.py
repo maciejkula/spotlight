@@ -10,9 +10,9 @@ from torch.autograd import Variable
 from spotlight.losses import (bpr_loss,
                               hinge_loss,
                               pointwise_loss)
-from spotlight.sequence.representations import LSTMNet, PoolNet
+from spotlight.sequence.representations import CNNNet, LSTMNet, PoolNet
 from spotlight.sampling import sample_items
-from spotlight.torch_utils import cpu, gpu, minibatch, shuffle
+from spotlight.torch_utils import cpu, gpu, minibatch, set_seed, shuffle
 
 
 class ImplicitSequenceModel(object):
@@ -36,6 +36,7 @@ class ImplicitSequenceModel(object):
                         'adaptive_hinge')
 
         assert representation in ('pooling',
+                                  'cnn',
                                   'lstm')
 
         self._loss = loss
@@ -53,6 +54,9 @@ class ImplicitSequenceModel(object):
         self._num_items = None
         self._net = None
 
+        set_seed(self._random_state.randint(-10**8, 10**8),
+                 cuda=self._use_cuda)
+
     def fit(self, interactions, verbose=False):
         """
         """
@@ -65,11 +69,15 @@ class ImplicitSequenceModel(object):
         if self._representation == 'pooling':
             self._net = PoolNet(self._num_items,
                                 self._embedding_dim,
-                                self._sparse)
+                                sparse=self._sparse)
+        elif self._representation == 'cnn':
+            self._net = CNNNet(self._num_items,
+                               self._embedding_dim,
+                               sparse=self._sparse)
         else:
             self._net = LSTMNet(self._num_items,
                                 self._embedding_dim,
-                                self._sparse)
+                                sparse=self._sparse)
 
         if self._optimizer is None:
             self._optimizer = optim.Adam(

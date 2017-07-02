@@ -87,3 +87,54 @@ class LSTMNet(nn.Module):
         dot = (user_representations * target_embedding).sum(1)
 
         return target_bias + dot
+
+
+class CNNNet(nn.Module):
+
+    def __init__(self, num_items,
+                 embedding_dim,
+                 kernel_width=10,
+                 num_layers=1,
+                 sparse=False):
+        super().__init__()
+
+        self.embedding_dim = embedding_dim
+
+        self.item_embeddings = ScaledEmbedding(num_items, embedding_dim,
+                                               sparse=sparse,
+                                               padding_idx=PADDING_IDX)
+        self.item_biases = ZeroEmbedding(num_items, 1, sparse=sparse,
+                                         padding_idx=PADDING_IDX)
+
+        self.cnn_layers = [
+            nn.Conv2d(1, 32, (kernel_width, embedding_dim)) for
+            _ in range(num_layers)
+        ]
+
+    def user_representation(self, item_sequences):
+
+        sequence_embeddings = self.item_embeddings(item_sequences)
+
+        (batch_size, seq_len, dim) = sequence_embeddings.size()
+
+        sequence_embeddings = sequence_embeddings.view((batch_size,
+                                                        1,
+                                                        seq_len,
+                                                        dim))
+        x = self.cnn_layers[0](sequence_embeddings)
+
+        user_representations = x.view(batch_size, dim, -1)
+        pooled_representations = (user_representations
+                                  .max(2)[0]
+                                  .view(batch_size, dim))
+
+        return pooled_representations
+
+    def forward(self, user_representations, targets):
+
+        target_embedding = self.item_embeddings(targets)
+        target_bias = self.item_biases(targets)
+
+        dot = (user_representations * target_embedding).sum(1)
+
+        return target_bias + dot
