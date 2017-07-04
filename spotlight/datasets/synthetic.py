@@ -1,5 +1,3 @@
-import time
-
 import numpy as np
 
 from spotlight.interactions import Interactions
@@ -7,13 +5,25 @@ from spotlight.interactions import Interactions
 
 def _build_transition_matrix(num_items,
                              concentration_parameter,
-                             random_state):
+                             random_state,
+                             atol=0.001):
 
-    transition_matrix = np.cumsum(
-        random_state.dirichlet(
-            np.repeat(concentration_parameter, num_items),
-            num_items),
-        axis=1)
+    def _is_doubly_stochastic(matrix, atol):
+
+        return (np.all(np.abs(1.0 - matrix.sum(axis=0)) < atol)
+                and np.all(np.abs(1.0 - matrix.sum(axis=1)) < atol))
+
+    transition_matrix = random_state.dirichlet(
+        np.repeat(concentration_parameter, num_items),
+        num_items)
+
+    for _ in range(100):
+
+        if _is_doubly_stochastic(transition_matrix, atol):
+            break
+
+        transition_matrix /= transition_matrix.sum(axis=0)
+        transition_matrix /= transition_matrix.sum(1)[:, np.newaxis]
 
     return transition_matrix
 
@@ -24,15 +34,21 @@ def _generate_sequences(num_steps,
 
     elements = []
 
+    num_states = transition_matrix.shape[0]
+
+    transition_matrix = np.cumsum(transition_matrix,
+                                  axis=1)
+
     rvs = random_state.rand(num_steps)
     row_idx = random_state.randint(transition_matrix.shape[0])
 
     for rv in rvs:
 
-        elements.append(row_idx + 1)
+        elements.append(row_idx)
 
         row = transition_matrix[row_idx]
-        row_idx = np.searchsorted(row, rv)
+        row_idx = min(num_states - 1,
+                      np.searchsorted(row, rv))
 
     return np.array(elements, dtype=np.int32)
 
@@ -57,7 +73,7 @@ def generate_sequential(num_users=100,
                                             dtype=np.int32))
     item_ids = _generate_sequences(num_interactions,
                                    transition_matrix,
-                                   random_state)
+                                   random_state) + 1
     timestamps = np.arange(len(user_ids), dtype=np.int32)
     ratings = np.ones(len(user_ids), dtype=np.float32)
 
