@@ -5,18 +5,28 @@ import torch.nn.functional as F
 from spotlight.torch_utils import assert_no_grad
 
 
-def pointwise_loss(positive_predictions, negative_predictions):
+def pointwise_loss(positive_predictions, negative_predictions, mask=None):
 
     positives_loss = (1.0 - F.sigmoid(positive_predictions))
     negatives_loss = F.sigmoid(negative_predictions)
 
-    return torch.cat([positives_loss, negatives_loss]).mean()
+    loss = (positives_loss + negatives_loss)
+
+    if mask is not None:
+        loss = loss * mask.float()
+
+    return loss.mean()
 
 
-def bpr_loss(positive_predictions, negative_predictions):
+def bpr_loss(positive_predictions, negative_predictions, mask=None):
 
-    return (1.0 - F.sigmoid(positive_predictions -
-                            negative_predictions)).mean()
+    loss = (1.0 - F.sigmoid(positive_predictions -
+                            negative_predictions))
+
+    if mask is not None:
+        loss = loss * mask.float()
+
+    return loss.mean()
 
 
 def hinge_loss(positive_predictions, negative_predictions):

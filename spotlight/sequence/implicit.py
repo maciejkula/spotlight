@@ -10,7 +10,7 @@ from torch.autograd import Variable
 from spotlight.losses import (bpr_loss,
                               hinge_loss,
                               pointwise_loss)
-from spotlight.sequence.representations import CNNNet, LSTMNet, PoolNet
+from spotlight.sequence.representations import PADDING_IDX, CNNNet, LSTMNet, PoolNet
 from spotlight.sampling import sample_items
 from spotlight.torch_utils import cpu, gpu, minibatch, set_seed, shuffle
 
@@ -35,9 +35,10 @@ class ImplicitSequenceModel(object):
                         'hinge',
                         'adaptive_hinge')
 
-        assert representation in ('pooling',
-                                  'cnn',
-                                  'lstm')
+        if isinstance(representation, str):
+            assert representation in ('pooling',
+                                      'cnn',
+                                      'lstm')
 
         self._loss = loss
         self._representation = representation
@@ -62,7 +63,6 @@ class ImplicitSequenceModel(object):
         """
 
         sequences = interactions.sequences.astype(np.int64)
-        targets = interactions.targets.astype(np.int64)
 
         self._num_items = interactions.num_items
 
@@ -74,10 +74,12 @@ class ImplicitSequenceModel(object):
             self._net = CNNNet(self._num_items,
                                self._embedding_dim,
                                sparse=self._sparse)
-        else:
+        elif self._representation == 'lstm':
             self._net = LSTMNet(self._num_items,
                                 self._embedding_dim,
                                 sparse=self._sparse)
+        else:
+            self._net = self._representation
 
         if self._optimizer is None:
             self._optimizer = optim.Adam(
@@ -95,38 +97,32 @@ class ImplicitSequenceModel(object):
 
         for epoch_num in range(self._n_iter):
 
-            sequences, targets = shuffle(sequences,
-                                         targets,
-                                         random_state=self._random_state)
+            sequences = shuffle(sequences,
+                                random_state=self._random_state)
 
             sequences_tensor = gpu(torch.from_numpy(sequences),
                                    self._use_cuda)
-            targets_tensor = gpu(torch.from_numpy(targets),
-                                 self._use_cuda)
 
             epoch_loss = 0.0
 
-            for (batch_sequence,
-                 batch_target) in minibatch(sequences_tensor,
-                                            targets_tensor,
+            for batch_sequence in minibatch(sequences_tensor,
                                             batch_size=self._batch_size):
 
                 sequence_var = Variable(batch_sequence)
-                target_var = Variable(batch_target)
 
-                user_representation = self._net.user_representation(
+                user_representation, _ = self._net.user_representation(
                     sequence_var
                 )
 
                 positive_prediction = self._net(user_representation,
-                                                target_var)
+                                                sequence_var)
 
                 if self._loss == 'adaptive_hinge':
                     raise NotImplementedError
                 else:
                     negative_items = sample_items(
                         self._num_items,
-                        len(batch_target),
+                        batch_sequence.size(),
                         random_state=self._random_state)
                     negative_var = Variable(
                         gpu(torch.from_numpy(negative_items))
@@ -136,7 +132,9 @@ class ImplicitSequenceModel(object):
 
                 self._optimizer.zero_grad()
 
-                loss = loss_fnc(positive_prediction, negative_prediction)
+                loss = loss_fnc(positive_prediction,
+                                negative_prediction,
+                                mask=(sequence_var != PADDING_IDX))
                 epoch_loss += loss.data[0]
 
                 loss.backward()
@@ -168,8 +166,10 @@ class ImplicitSequenceModel(object):
         """
         """
 
+        sequences = np.atleast_2d(sequences)
+
         if item_ids is None:
-            item_ids = np.arange(self._num_items)
+            item_ids = np.arange(self._num_items).reshape(-1, 1)
 
         sequences = torch.from_numpy(sequences.astype(np.int64).reshape(1, -1))
         item_ids = torch.from_numpy(item_ids.astype(np.int64))
@@ -177,7 +177,7 @@ class ImplicitSequenceModel(object):
         sequence_var = Variable(gpu(sequences, self._use_cuda))
         item_var = Variable(gpu(item_ids, self._use_cuda))
 
-        sequence_representations = self._net.user_representation(sequence_var)
+        _, sequence_representations = self._net.user_representation(sequence_var)
         out = self._net(sequence_representations.repeat(len(item_var), 1),
                         item_var)
 

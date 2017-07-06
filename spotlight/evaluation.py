@@ -34,15 +34,14 @@ def mrr_score(model, test, train=None):
 
 def sequence_mrr_score(model, test):
 
-    sequences = test.sequences
-    targets = test.targets
+    sequences = test.sequences[:, :-1]
+    targets = test.sequences[:, -1:]
 
     mrrs = []
 
-    for i in range(len(targets)):
+    for i in range(len(sequences)):
 
         predictions = -model.predict(sequences[i])
-        # predictions[sequences[i]] = FLOAT_MAX
 
         mrr = (1.0 / st.rankdata(predictions)[targets[i]]).mean()
 

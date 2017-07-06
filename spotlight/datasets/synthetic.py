@@ -30,6 +30,7 @@ def _build_transition_matrix(num_items,
 
 def _generate_sequences(num_steps,
                         transition_matrix,
+                        order,
                         random_state):
 
     elements = []
@@ -40,15 +41,18 @@ def _generate_sequences(num_steps,
                                   axis=1)
 
     rvs = random_state.rand(num_steps)
-    row_idx = random_state.randint(transition_matrix.shape[0])
+    state = random_state.randint(transition_matrix.shape[0], size=order)
 
     for rv in rvs:
 
-        elements.append(row_idx)
+        row = transition_matrix[state].mean(axis=0)
+        new_state = min(num_states - 1,
+                        np.searchsorted(row, rv))
 
-        row = transition_matrix[row_idx]
-        row_idx = min(num_states - 1,
-                      np.searchsorted(row, rv))
+        state[:-1] = state[1:]
+        state[-1] = new_state
+
+        elements.append(new_state)
 
     return np.array(elements, dtype=np.int32)
 
@@ -57,6 +61,7 @@ def generate_sequential(num_users=100,
                         num_items=1000,
                         num_interactions=10000,
                         concentration_parameter=0.1,
+                        order=3,
                         random_state=None):
 
     if random_state is None:
@@ -73,6 +78,7 @@ def generate_sequential(num_users=100,
                                             dtype=np.int32))
     item_ids = _generate_sequences(num_interactions,
                                    transition_matrix,
+                                   order,
                                    random_state) + 1
     timestamps = np.arange(len(user_ids), dtype=np.int32)
     ratings = np.ones(len(user_ids), dtype=np.float32)

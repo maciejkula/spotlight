@@ -42,7 +42,10 @@ def shuffle(*arrays, random_state=None):
     shuffle_indices = np.arange(len(arrays[0]))
     random_state.shuffle(shuffle_indices)
 
-    return tuple(x[shuffle_indices] for x in arrays)
+    if len(arrays) == 1:
+        return arrays[0][shuffle_indices]
+    else:
+        return tuple(x[shuffle_indices] for x in arrays)
 
 
 def assert_no_grad(variable):
