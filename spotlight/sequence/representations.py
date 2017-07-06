@@ -113,6 +113,41 @@ class LSTMNet(nn.Module):
 
 
 class CNNNet(nn.Module):
+    """
+    Module representing users through stacked causal convolutions [1]_.
+
+    To represent a sequence, it runs a 1D convolution over the input sequence,
+    from left to right. At each timestep, the output of the convolution is
+    the representation of the sequence up to that point. The convoluion is causal
+    because future states are never part of the convolution's receptive field;
+    this is achieved by left-padding the sequence.
+
+    In order to increase the receptive field (and the capacity to encode states
+    further back in the sequence), one can increase the kernel width, or stack
+    more layers. Input dimensionality is preserved from layer to layer.
+
+    During training, representations for all timesteps of the sequence are
+    computed in one go. Loss functions using the outputs will therefore
+    be aggregating both across the minibatch and aross time in the sequence.
+
+    Parameters
+    ----------
+
+    num_items: int
+        number of items to be represented
+    embedding_dim: int, optional
+        embedding dimension of the embedding layer, and the number of filters
+        in each convlutonal layer
+    num_layers: int, optional
+        number of stacked convolutional layers
+
+    References
+    ----------
+
+    ..[1] Oord, Aaron van den, et al. "Wavenet: A generative model for raw audio."
+      arXiv preprint arXiv:1609.03499 (2016).
+
+    """
 
     def __init__(self, num_items,
                  embedding_dim=32,
@@ -140,6 +175,19 @@ class CNNNet(nn.Module):
                             layer)
 
     def user_representation(self, item_sequences):
+        """
+        Compute user representation from a given sequence.
+
+        Returns
+        -------
+
+        tuple (all_representations, final_representation)
+            The first element contains all representations from step
+            -1 (no items seen) to t - 1 (all but the last items seen).
+            The second element contains the final representation
+            at step t (all items seen). This final state can be used
+            for prediction or evaluation.
+        """
 
         # Make the embedding dimension the channel dimension
         sequence_embeddings = (self.item_embeddings(item_sequences)

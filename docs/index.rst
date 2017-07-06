@@ -8,6 +8,8 @@ Contents
    :maxdepth: 2
 
    Home <home>
+   Datasets <datasets/datasets>
+   Sequence <sequence/sequence>
 
 
 Indices and tables

@@ -1,3 +1,9 @@
+"""
+Module containing functions for generating synthetic
+datasets with known properties, for model testing and
+experimentation.
+"""
+
 import numpy as np
 
 from spotlight.interactions import Interactions
