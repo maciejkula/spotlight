@@ -12,7 +12,7 @@ from spotlight.losses import (bpr_loss,
                               pointwise_loss)
 from spotlight.factorization.representations import BilinearNet
 from spotlight.sampling import sample_items
-from spotlight.torch_utils import cpu, gpu, minibatch, shuffle
+from spotlight.torch_utils import cpu, gpu, minibatch, set_seed, shuffle
 
 
 class ImplicitFactorizationModel(object):
@@ -56,6 +56,9 @@ class ImplicitFactorizationModel(object):
         self._num_users = None
         self._num_items = None
         self._net = None
+
+        set_seed(self._random_state.randint(-10**8, 10**8),
+                 cuda=self._use_cuda)
 
     def fit(self, interactions, verbose=False):
         """
