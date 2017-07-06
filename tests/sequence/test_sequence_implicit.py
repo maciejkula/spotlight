@@ -14,6 +14,7 @@ NUM_EPOCHS = 5
 EMBEDDING_DIM = 32
 BATCH_SIZE = 128
 LOSS = 'bpr'
+VERBOSE = False
 
 
 def _get_synthetic_data(num_users=100,
@@ -71,7 +72,7 @@ def test_implicit_pooling_synthetic(randomness, expected_mrr):
                                   l2=1e-9,
                                   n_iter=NUM_EPOCHS,
                                   random_state=random_state)
-    model.fit(train, verbose=True)
+    model.fit(train, verbose=VERBOSE)
 
     mrr = _evaluate(model, test)
 
@@ -97,7 +98,7 @@ def test_implicit_lstm_synthetic(randomness, expected_mrr):
                                   n_iter=NUM_EPOCHS,
                                   random_state=random_state)
 
-    model.fit(train, verbose=True)
+    model.fit(train, verbose=VERBOSE)
 
     mrr = _evaluate(model, test)
 
@@ -125,7 +126,7 @@ def test_implicit_cnn_synthetic(randomness, expected_mrr):
                                   n_iter=NUM_EPOCHS,
                                   random_state=random_state)
 
-    model.fit(train, verbose=True)
+    model.fit(train, verbose=VERBOSE)
 
     mrr = _evaluate(model, test)
 

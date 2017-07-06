@@ -10,8 +10,8 @@ def _build_transition_matrix(num_items,
 
     def _is_doubly_stochastic(matrix, atol):
 
-        return (np.all(np.abs(1.0 - matrix.sum(axis=0)) < atol)
-                and np.all(np.abs(1.0 - matrix.sum(axis=1)) < atol))
+        return (np.all(np.abs(1.0 - matrix.sum(axis=0)) < atol) and
+                np.all(np.abs(1.0 - matrix.sum(axis=1)) < atol))
 
     transition_matrix = random_state.dirichlet(
         np.repeat(concentration_parameter, num_items),
