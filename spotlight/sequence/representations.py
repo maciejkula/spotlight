@@ -39,9 +39,9 @@ class PoolNet(nn.Module):
     References
     ----------
 
-    ..[1] Covington, Paul, Jay Adams, and Emre Sargin. "Deep neural networks for
-      youtube recommendations." Proceedings of the 10th ACM Conference
-      on Recommender Systems. ACM, 2016.
+    .. [1] Covington, Paul, Jay Adams, and Emre Sargin. "Deep neural networks for
+       youtube recommendations." Proceedings of the 10th ACM Conference
+       on Recommender Systems. ACM, 2016.
 
     """
 
@@ -131,7 +131,7 @@ class LSTMNet(nn.Module):
     """
     Module representing users through running a recurrent neural network
     over the sequence, using the hidden state at each timestep as the
-    sequence representation, a'la [1]_
+    sequence representation, a'la [2]_
 
     During training, representations for all timesteps of the sequence are
     computed in one go. Loss functions using the outputs will therefore
@@ -149,8 +149,8 @@ class LSTMNet(nn.Module):
     References
     ----------
 
-    ..[1] Hidasi, Balázs, et al. "Session-based recommendations with
-      recurrent neural networks." arXiv preprint arXiv:1511.06939 (2015).
+    .. [2] Hidasi, Balázs, et al. "Session-based recommendations with
+       recurrent neural networks." arXiv preprint arXiv:1511.06939 (2015).
     """
 
     def __init__(self, num_items, embedding_dim=32, sparse=False):
@@ -233,7 +233,7 @@ class LSTMNet(nn.Module):
 
 class CNNNet(nn.Module):
     """
-    Module representing users through stacked causal convolutions [1]_.
+    Module representing users through stacked causal convolutions [3]_.
 
     To represent a sequence, it runs a 1D convolution over the input sequence,
     from left to right. At each timestep, the output of the convolution is
@@ -265,9 +265,8 @@ class CNNNet(nn.Module):
     References
     ----------
 
-    ..[1] Oord, Aaron van den, et al. "Wavenet: A generative model for raw audio."
-      arXiv preprint arXiv:1609.03499 (2016).
-
+    .. [3] Oord, Aaron van den, et al. "Wavenet: A generative model for raw audio."
+       arXiv preprint arXiv:1609.03499 (2016).
     """
 
     def __init__(self, num_items,

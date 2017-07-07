@@ -8,8 +8,11 @@ Contents
    :maxdepth: 2
 
    Home <home>
+   Interactions <interactions>
    Datasets <datasets/datasets>
-   Sequence <sequence/sequence>
+   Sequence models <sequence/sequence>
+   Factorization models <factorization/factorization>
+   Loss functions <losses>
 
 
 Indices and tables

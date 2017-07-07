@@ -1,3 +1,8 @@
+"""
+Models for recommending items given a sequece of previous items
+a user has interacted with.
+"""
+
 import numpy as np
 
 import torch
@@ -16,6 +21,40 @@ from spotlight.torch_utils import cpu, gpu, minibatch, set_seed, shuffle
 
 
 class ImplicitSequenceModel(object):
+    """
+    Model for sequential recommendations using implicit feedback.
+
+    Parameters
+    ----------
+
+    loss: string, optional
+        The loss function for approximating a softmax with negative sampling.
+        One of 'pointwise', 'bpr', 'hinge', 'adaptive_hinge', corresponding
+        to losses from :class:`spotlight.losses`.
+    representation: string or instance of :class:`spotlight.sequence.representations`, optional
+        Sequence representation to use. If string, it must be one
+        of 'pooling', 'cnn', 'lstm'; otherwise must be one of the
+        representations from :class:`spotlight.sequence.representations`
+    embedding_dim: int, optional
+        Number of embedding dimensions to use for representing items.
+        Overriden if representation is an instance of a representation class.
+    n_iter: int, optional
+        Number of iterations to run.
+    batch_size: int, optional
+        Minibatch size.
+    l2: float, optional
+        L2 loss penalty.
+    learning_rate: float, optional
+        Initial learning rate.
+    optimizer: instance of a PyTorch optimizer, optional
+        Overrides l2 and learning rate if supplied.
+    use_cuda: boolean, optional
+        Run the model on a GPU.
+    sparse: boolean, optional
+        Use sparse gradients for embedding layers.
+    random_state: instance of numpy.random.RandomState, optional
+        Random state to use when fitting.
+    """
 
     def __init__(self,
                  loss='pointwise',
@@ -60,6 +99,13 @@ class ImplicitSequenceModel(object):
 
     def fit(self, interactions, verbose=False):
         """
+        Fit the model.
+
+        Parameters
+        ----------
+
+        interactions: :class:`spotlight.interactions.SequenceInteractions`
+            The input sequence dataset.
         """
 
         sequences = interactions.sequences.astype(np.int64)
@@ -164,6 +210,24 @@ class ImplicitSequenceModel(object):
 
     def predict(self, sequences, item_ids=None):
         """
+        Make predictions: given a sequence of interactions, predict
+        the next item in the sequence.
+
+        Parameters
+        ----------
+
+        sequences: array, (1 x max_sequence_length)
+            Array containing the indices of the items in the sequence.
+        item_ids: array (num_items x 1), optional
+            Array containing the item ids for which prediction scores
+            are desired. If not supplied, predictions for all items
+            will be computed.
+
+        Returns
+        -------
+
+        predictions: array
+            Predicted scores for all items in item_ids.
         """
 
         sequences = np.atleast_2d(sequences)

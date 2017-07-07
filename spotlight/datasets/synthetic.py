@@ -96,14 +96,14 @@ def generate_sequential(num_users=100,
         Controls how predictable the sequence is. Values
         closer to zero give more predictable sequences.
     order: int, optional
-        order of the generating Markov chain
+        order of the Markov chain
     random_state: numpy.random.RandomState, optional
         random state used to generate the data
 
     Returns
     -------
 
-    Interactions instance
+    Interactions: :class:`spotlight.interactions.Interactions`
         instance of the interactions class
     """
 

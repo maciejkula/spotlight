@@ -1,13 +1,12 @@
 Datasets
 ========
 
-Submodules:
+.. automodule:: spotlight.datasets
+   :members:
+   :undoc-members:
 
 .. toctree::
    :maxdepth: 2
 
    Synthetic <synthetic>
-
-.. automodule:: spotlight.datasets
-   :members:
-   :undoc-members:
+   Movielens <movielens>

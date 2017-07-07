@@ -1,3 +1,12 @@
+"""
+Utilities for fetching the Movielens datasets [1]_.
+
+References
+----------
+
+.. [1] https://grouplens.org/datasets/movielens/
+"""
+
 import os
 
 import h5py
@@ -35,6 +44,22 @@ def _get_movielens(dataset):
 
 
 def get_movielens_dataset(variant='100K'):
+    """
+    Download and return one of the Movielens datasets.
+
+    Parameters
+    ----------
+
+    variant: string, optional
+         String specifying which of the Movielens datasets
+         to download. One of ('100K', '1M', '10M', '20M').
+
+    Returns
+    -------
+
+    Interactions: :class:`spotlight.interactions.Interactions`
+        instance of the interactions class
+    """
 
     if variant not in VARIANTS:
         raise ValueError('Variant must be one of {}, '
