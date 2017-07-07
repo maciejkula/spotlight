@@ -1,4 +1,7 @@
-.. include:: home.rst
+Welcome to Spotlight's documentation!
+=====================================
+
+Spotlight is a package for building recommender models, built on top of PyTorch.
 
 
 Contents
@@ -7,7 +10,6 @@ Contents
 .. toctree::
    :maxdepth: 2
 
-   Home <home>
    Interactions <interactions>
    Datasets <datasets/datasets>
    Sequence models <sequence/sequence>
