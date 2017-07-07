@@ -1,5 +1,7 @@
 import numpy as np
 
+import torch
+
 
 def gpu(tensor, gpu=False):
 
@@ -40,7 +42,10 @@ def shuffle(*arrays, random_state=None):
     shuffle_indices = np.arange(len(arrays[0]))
     random_state.shuffle(shuffle_indices)
 
-    return tuple(x[shuffle_indices] for x in arrays)
+    if len(arrays) == 1:
+        return arrays[0][shuffle_indices]
+    else:
+        return tuple(x[shuffle_indices] for x in arrays)
 
 
 def assert_no_grad(variable):
@@ -50,3 +55,11 @@ def assert_no_grad(variable):
             "nn criterions don't compute the gradient w.r.t. targets - please "
             "mark these variables as volatile or not requiring gradients"
         )
+
+
+def set_seed(seed, cuda=False):
+
+    torch.manual_seed(seed)
+
+    if cuda:
+        torch.cuda.manual_seed(seed)

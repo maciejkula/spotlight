@@ -3,6 +3,9 @@ import numpy as np
 import scipy.stats as st
 
 
+FLOAT_MAX = np.finfo(np.float32).max
+
+
 def mrr_score(model, test, train=None):
 
     test = test.tocsr()
@@ -20,9 +23,27 @@ def mrr_score(model, test, train=None):
         predictions = -model.predict(user_id)
 
         if train is not None:
-            predictions[train[user_id].indices] = np.finfo(np.float32).max
+            predictions[train[user_id].indices] = FLOAT_MAX
 
         mrr = (1.0 / st.rankdata(predictions)[row.indices]).mean()
+
+        mrrs.append(mrr)
+
+    return np.array(mrrs)
+
+
+def sequence_mrr_score(model, test):
+
+    sequences = test.sequences[:, :-1]
+    targets = test.sequences[:, -1:]
+
+    mrrs = []
+
+    for i in range(len(sequences)):
+
+        predictions = -model.predict(sequences[i])
+
+        mrr = (1.0 / st.rankdata(predictions)[targets[i]]).mean()
 
         mrrs.append(mrr)
 

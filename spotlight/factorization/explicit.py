@@ -1,3 +1,7 @@
+"""
+Factorization models for explicit feedback problems.
+"""
+
 import numpy as np
 
 import torch
@@ -12,11 +16,47 @@ from spotlight.factorization.representations import BilinearNet
 from spotlight.losses import (regression_loss,
                               poisson_loss)
 
-from spotlight.torch_utils import cpu, gpu, minibatch, shuffle
+from spotlight.torch_utils import cpu, gpu, minibatch, set_seed, shuffle
 
 
 class ExplicitFactorizationModel(object):
     """
+    An explicit feedback matrix factorization model. Uses a classic
+    matrix factorization [1]_ approach, with latent vectors used
+    to represent both users and items. Their dot product gives the
+    predicted score for a user-item pair.
+
+    The latent representation is given by
+    :class:`spotlight.factorization.representations.BilinearNet`.
+
+    .. [1] Koren, Yehuda, Robert Bell, and Chris Volinsky.
+       "Matrix factorization techniques for recommender systems."
+       Computer 42.8 (2009).
+
+    Parameters
+    ----------
+
+    loss: string, optional
+        One of 'regression', 'poisson',
+        corresponding to losses from :class:`spotlight.losses`.
+    embedding_dim: int, optional
+        Number of embedding dimensions to use for users and items.
+    n_iter: int, optional
+        Number of iterations to run.
+    batch_size: int, optional
+        Minibatch size.
+    l2: float, optional
+        L2 loss penalty.
+    learning_rate: float, optional
+        Initial learning rate.
+    optimizer: instance of a PyTorch optimizer, optional
+        Overrides l2 and learning rate if supplied.
+    use_cuda: boolean, optional
+        Run the model on a GPU.
+    sparse: boolean, optional
+        Use sparse gradients for embedding layers.
+    random_state: instance of numpy.random.RandomState, optional
+        Random state to use when fitting.
     """
 
     def __init__(self,
@@ -49,8 +89,18 @@ class ExplicitFactorizationModel(object):
         self._num_items = None
         self._net = None
 
+        set_seed(self._random_state.randint(-10**8, 10**8),
+                 cuda=self._use_cuda)
+
     def fit(self, interactions, verbose=False):
         """
+        Fit the model.
+
+        Parameters
+        ----------
+
+        interactions: :class:`spotlight.interactions.Interactions`
+            The input dataset. Must have ratings.
         """
 
         user_ids = interactions.user_ids.astype(np.int64)
@@ -127,6 +177,27 @@ class ExplicitFactorizationModel(object):
 
     def predict(self, user_ids, item_ids):
         """
+        Make predictions: given a user id, compute the recommendation
+        scores for items.
+
+        Parameters
+        ----------
+
+        user_ids: int or array
+           If int, will predict the recommendation scores for this
+           user for all items in item_ids. If an array, will predict
+           scores for all (user, item) pairs defined by user_ids and
+           item_ids.
+        item_ids: array, optional
+            Array containing the item ids for which prediction scores
+            are desired. If not supplied, predictions for all items
+            will be computed.
+
+        Returns
+        -------
+
+        predictions: np.array
+            Predicted scores for all items in item_ids.
         """
 
         user_ids = torch.from_numpy(user_ids.reshape(-1, 1).astype(np.int64))

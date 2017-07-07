@@ -1,5 +1,7 @@
 import numpy as np
 
+from sklearn.utils import murmurhash3_32
+
 from spotlight.interactions import Interactions
 
 
@@ -62,6 +64,49 @@ def random_train_test_split(interactions,
                                                   test_idx),
                         weights=_index_or_none(interactions.weights,
                                                test_idx),
+                        num_users=interactions.num_users,
+                        num_items=interactions.num_items)
+
+    return train, test
+
+
+def user_based_train_test_split(interactions,
+                                test_percentage=0.2,
+                                random_state=None):
+
+    if random_state is None:
+        random_state = np.random.RandomState()
+
+    minint = np.iinfo(np.uint32).min
+    maxint = np.iinfo(np.uint32).max
+
+    seed = random_state.randint(minint, maxint)
+
+    in_test = ((murmurhash3_32(interactions.user_ids,
+                               seed=seed,
+                               positive=True) % 100 /
+                100) <
+               test_percentage)
+    in_train = np.logical_not(in_test)
+
+    train = Interactions(interactions.user_ids[in_train],
+                         interactions.item_ids[in_train],
+                         ratings=_index_or_none(interactions.ratings,
+                                                in_train),
+                         timestamps=_index_or_none(interactions.timestamps,
+                                                   in_train),
+                         weights=_index_or_none(interactions.weights,
+                                                in_train),
+                         num_users=interactions.num_users,
+                         num_items=interactions.num_items)
+    test = Interactions(interactions.user_ids[in_test],
+                        interactions.item_ids[in_test],
+                        ratings=_index_or_none(interactions.ratings,
+                                               in_test),
+                        timestamps=_index_or_none(interactions.timestamps,
+                                                  in_test),
+                        weights=_index_or_none(interactions.weights,
+                                               in_test),
                         num_users=interactions.num_users,
                         num_items=interactions.num_items)
 
