@@ -6,9 +6,10 @@ TARGET_BRANCH="gh-pages"
 
 function doCompile {
     echo "Building docs..." && \
-    mkdir out/ && \
+    mkdir -p out/ && \
     cd docs && make html && \
     cp -r _build/html/* ../out/ && \
+    cd .. && \
     echo "Docs built."
 }
 
