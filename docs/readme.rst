@@ -1,4 +1,4 @@
-.. image:: docs/_static/img/spotlight.png
+.. image:: _static/img/spotlight.png
 
 ---------------------------------------------------------------------
 
@@ -34,7 +34,7 @@ Factorization models
 
 To fit an explicit feedback model on the MovieLens dataset:
 
-.. code-block:: python
+.. testcode::
 
     from spotlight.cross_validation import random_train_test_split
     from spotlight.datasets.movielens import get_movielens_dataset
@@ -50,11 +50,12 @@ To fit an explicit feedback model on the MovieLens dataset:
 
     rmse = rmse_score(model, test)
 
-
+.. testoutput::
+   :hide:
 
 To fit an implicit ranking model with a BPR pairwise loss on the MovieLens dataset:
 
-.. code-block:: python
+.. testcode::
 
     from spotlight.cross_validation import random_train_test_split
     from spotlight.datasets.movielens import get_movielens_dataset
@@ -71,7 +72,8 @@ To fit an implicit ranking model with a BPR pairwise loss on the MovieLens datas
 
     mrr = mrr_score(model, test)
 
-
+.. testoutput::
+   :hide:
 
 
 Sequential models
@@ -86,7 +88,7 @@ recommendation models, including
 - LSTM models, as in `Session-based recommendations... <https://arxiv.org/pdf/1511.06939>`_, and
 - causal convolution models, as in `WaveNet <https://arxiv.org/pdf/1609.03499>`_.
 
-.. code-block:: python
+.. testcode::
 
     from spotlight.cross_validation import user_based_train_test_split
     from spotlight.datasets.synthetic import generate_sequential
@@ -111,7 +113,8 @@ recommendation models, including
 
     mrr = sequence_mrr_score(model, test)
 
-
+.. testoutput::
+   :hide:
   
 
 
@@ -123,7 +126,7 @@ It also incorporates utilities for creating synthetic datasets. For example, `ge
 generates a Markov-chain-derived interaction dataset, where the next item a user chooses is
 a function of their previous interactions:
 
-.. code-block:: python
+.. testcode::
 
     from spotlight.datasets.synthetic import generate_sequential
 
@@ -135,4 +138,5 @@ a function of their previous interactions:
                                   concentration_parameter=0.01,
                                   order=3)
 
-
+.. testoutput::
+   :hide:
