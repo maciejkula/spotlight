@@ -15,8 +15,6 @@ before_install:
 install:
   - PATH="$HOME/miniconda/bin:$PATH" flake8 .
   - PATH="$HOME/miniconda/bin:$PATH" pip install -e .
-script:
-  - PATH="$HOME/miniconda/bin:$PATH" py.test tests/
 
 after_success:
     - PATH="$HOME/miniconda/bin:$PATH" ./.travis/docs.sh
