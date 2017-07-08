@@ -1,0 +1,503 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>Sequence representations &mdash; Spotlight 0.1.0 documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  
+  
+    <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  
+
+  
+    <link rel="stylesheet" href="../_static/css/spotlight_theme.css" type="text/css" />
+  
+
+  
+        <link rel="index" title="Index"
+              href="../genindex.html"/>
+        <link rel="search" title="Search" href="../search.html"/>
+    <link rel="top" title="Spotlight 0.1.0 documentation" href="../index.html"/>
+        <link rel="up" title="Sequence" href="sequence.html"/>
+        <link rel="next" title="Factorization models" href="../factorization/factorization.html"/>
+        <link rel="prev" title="Implicit sequence models" href="implicit.html"/> 
+
+  
+  <script src="../_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+   
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+          
+            <a href="../index.html">
+          
+
+          
+            
+            <img src="../_static/spotlight.svg" class="logo" />
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                0.1.0
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../interactions.html">Interactions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../datasets/datasets.html">Datasets</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../datasets/synthetic.html">Synthetic</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../datasets/movielens.html">Movielens</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../cross_validation.html">Cross validation</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="sequence.html">Sequence models</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="implicit.html">Implicit feedback models</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">Sequence representations</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../factorization/factorization.html">Factorization models</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../factorization/implicit.html">Implicit feedback models</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../factorization/explicit.html">Explicit feedback models</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../factorization/representations.html">Latent representations</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../losses.html">Loss functions</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">Spotlight</a>
+        
+      </nav>
+
+
+      
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../index.html">Docs</a> &raquo;</li>
+        
+          <li><a href="sequence.html">Sequence</a> &raquo;</li>
+        
+      <li>Sequence representations</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            <a href="../_sources/sequence/representations.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="module-spotlight.sequence.representations">
+<span id="sequence-representations"></span><h1>Sequence representations<a class="headerlink" href="#module-spotlight.sequence.representations" title="Permalink to this headline">¶</a></h1>
+<p>This module contains prototypes of various ways of representing users
+as functions of the items they have interacted with in the past.</p>
+<dl class="class">
+<dt id="spotlight.sequence.representations.CNNNet">
+<em class="property">class </em><code class="descclassname">spotlight.sequence.representations.</code><code class="descname">CNNNet</code><span class="sig-paren">(</span><em>num_items</em>, <em>embedding_dim=32</em>, <em>kernel_width=5</em>, <em>num_layers=1</em>, <em>sparse=False</em><span class="sig-paren">)</span><a class="headerlink" href="#spotlight.sequence.representations.CNNNet" title="Permalink to this definition">¶</a></dt>
+<dd><p>Module representing users through stacked causal convolutions <a class="footnote-reference" href="#id2" id="id1">[3]</a>.</p>
+<p>To represent a sequence, it runs a 1D convolution over the input sequence,
+from left to right. At each timestep, the output of the convolution is
+the representation of the sequence up to that point. The convoluion is causal
+because future states are never part of the convolution’s receptive field;
+this is achieved by left-padding the sequence.</p>
+<p>In order to increase the receptive field (and the capacity to encode states
+further back in the sequence), one can increase the kernel width, or stack
+more layers. Input dimensionality is preserved from layer to layer.</p>
+<p>During training, representations for all timesteps of the sequence are
+computed in one go. Loss functions using the outputs will therefore
+be aggregating both across the minibatch and aross time in the sequence.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>num_items</strong> (<em>int</em>) – number of items to be represented</li>
+<li><strong>embedding_dim</strong> (<em>int</em><em>, </em><em>optional</em>) – embedding dimension of the embedding layer, and the number of filters
+in each convlutonal layer</li>
+<li><strong>kernel_width</strong> (<em>int</em><em>, </em><em>optional</em>) – the kernel width of the convolutional layers</li>
+<li><strong>num_layers</strong> (<em>int</em><em>, </em><em>optional</em>) – number of stacked convolutional layers</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+<p class="rubric">References</p>
+<table class="docutils footnote" frame="void" id="id2" rules="none">
+<colgroup><col class="label" /><col /></colgroup>
+<tbody valign="top">
+<tr><td class="label"><a class="fn-backref" href="#id1">[3]</a></td><td>Oord, Aaron van den, et al. “Wavenet: A generative model for raw audio.”
+arXiv preprint arXiv:1609.03499 (2016).</td></tr>
+</tbody>
+</table>
+<dl class="method">
+<dt id="spotlight.sequence.representations.CNNNet.forward">
+<code class="descname">forward</code><span class="sig-paren">(</span><em>user_representations</em>, <em>targets</em><span class="sig-paren">)</span><a class="headerlink" href="#spotlight.sequence.representations.CNNNet.forward" title="Permalink to this definition">¶</a></dt>
+<dd><p>Compute predictions for target items given user representations.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>user_representations</strong> (<em>tensor</em>) – result of the user_representation_method</li>
+<li><strong>targets</strong> (<em>tensor</em>) – a minibatch of item sequences of shape
+(minibatch_size, sequence_length)</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><strong>predictions</strong> – of shape (minibatch_size, sequence_length)</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">tensor</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="spotlight.sequence.representations.CNNNet.user_representation">
+<code class="descname">user_representation</code><span class="sig-paren">(</span><em>item_sequences</em><span class="sig-paren">)</span><a class="headerlink" href="#spotlight.sequence.representations.CNNNet.user_representation" title="Permalink to this definition">¶</a></dt>
+<dd><p>Compute user representation from a given sequence.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">The first element contains all representations from step
+-1 (no items seen) to t - 1 (all but the last items seen).
+The second element contains the final representation
+at step t (all items seen). This final state can be used
+for prediction or evaluation.</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body">tuple (all_representations, final_representation)</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="spotlight.sequence.representations.LSTMNet">
+<em class="property">class </em><code class="descclassname">spotlight.sequence.representations.</code><code class="descname">LSTMNet</code><span class="sig-paren">(</span><em>num_items</em>, <em>embedding_dim=32</em>, <em>sparse=False</em><span class="sig-paren">)</span><a class="headerlink" href="#spotlight.sequence.representations.LSTMNet" title="Permalink to this definition">¶</a></dt>
+<dd><p>Module representing users through running a recurrent neural network
+over the sequence, using the hidden state at each timestep as the
+sequence representation, a’la <a class="footnote-reference" href="#id4" id="id3">[2]</a></p>
+<p>During training, representations for all timesteps of the sequence are
+computed in one go. Loss functions using the outputs will therefore
+be aggregating both across the minibatch and aross time in the sequence.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>num_items</strong> (<em>int</em>) – number of items to be represented</li>
+<li><strong>embedding_dim</strong> (<em>int</em><em>, </em><em>optional</em>) – embedding dimension of the embedding layer, and the number of filters
+in each convlutonal layer</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+<p class="rubric">References</p>
+<table class="docutils footnote" frame="void" id="id4" rules="none">
+<colgroup><col class="label" /><col /></colgroup>
+<tbody valign="top">
+<tr><td class="label"><a class="fn-backref" href="#id3">[2]</a></td><td>Hidasi, Balázs, et al. “Session-based recommendations with
+recurrent neural networks.” arXiv preprint arXiv:1511.06939 (2015).</td></tr>
+</tbody>
+</table>
+<dl class="method">
+<dt id="spotlight.sequence.representations.LSTMNet.forward">
+<code class="descname">forward</code><span class="sig-paren">(</span><em>user_representations</em>, <em>targets</em><span class="sig-paren">)</span><a class="headerlink" href="#spotlight.sequence.representations.LSTMNet.forward" title="Permalink to this definition">¶</a></dt>
+<dd><p>Compute predictions for target items given user representations.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>user_representations</strong> (<em>tensor</em>) – result of the user_representation_method</li>
+<li><strong>targets</strong> (<em>tensor</em>) – a minibatch of item sequences of shape
+(minibatch_size, sequence_length)</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><strong>predictions</strong> – of shape (minibatch_size, sequence_length)</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">tensor</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="spotlight.sequence.representations.LSTMNet.user_representation">
+<code class="descname">user_representation</code><span class="sig-paren">(</span><em>item_sequences</em><span class="sig-paren">)</span><a class="headerlink" href="#spotlight.sequence.representations.LSTMNet.user_representation" title="Permalink to this definition">¶</a></dt>
+<dd><p>Compute user representation from a given sequence.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">The first element contains all representations from step
+-1 (no items seen) to t - 1 (all but the last items seen).
+The second element contains the final representation
+at step t (all items seen). This final state can be used
+for prediction or evaluation.</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body">tuple (all_representations, final_representation)</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="spotlight.sequence.representations.PoolNet">
+<em class="property">class </em><code class="descclassname">spotlight.sequence.representations.</code><code class="descname">PoolNet</code><span class="sig-paren">(</span><em>num_items</em>, <em>embedding_dim=32</em>, <em>sparse=False</em><span class="sig-paren">)</span><a class="headerlink" href="#spotlight.sequence.representations.PoolNet" title="Permalink to this definition">¶</a></dt>
+<dd><p>Module representing users through averaging the representations of items
+they have interacted with, a’la <a class="footnote-reference" href="#id6" id="id5">[1]</a>.</p>
+<p>To represent a sequence, it simply averages the representations of all
+the items that occur in the sequence up to that point.</p>
+<p>During training, representations for all timesteps of the sequence are
+computed in one go. Loss functions using the outputs will therefore
+be aggregating both across the minibatch and aross time in the sequence.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>num_items</strong> (<em>int</em>) – number of items to be represented</li>
+<li><strong>embedding_dim</strong> (<em>int</em><em>, </em><em>optional</em>) – embedding dimension of the embedding layer, and the number of filters
+in each convlutonal layer</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+<p class="rubric">References</p>
+<table class="docutils footnote" frame="void" id="id6" rules="none">
+<colgroup><col class="label" /><col /></colgroup>
+<tbody valign="top">
+<tr><td class="label"><a class="fn-backref" href="#id5">[1]</a></td><td>Covington, Paul, Jay Adams, and Emre Sargin. “Deep neural networks for
+youtube recommendations.” Proceedings of the 10th ACM Conference
+on Recommender Systems. ACM, 2016.</td></tr>
+</tbody>
+</table>
+<dl class="method">
+<dt id="spotlight.sequence.representations.PoolNet.forward">
+<code class="descname">forward</code><span class="sig-paren">(</span><em>user_representations</em>, <em>targets</em><span class="sig-paren">)</span><a class="headerlink" href="#spotlight.sequence.representations.PoolNet.forward" title="Permalink to this definition">¶</a></dt>
+<dd><p>Compute predictions for target items given user representations.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>user_representations</strong> (<em>tensor</em>) – result of the user_representation_method</li>
+<li><strong>targets</strong> (<em>tensor</em>) – a minibatch of item sequences of shape
+(minibatch_size, sequence_length)</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><strong>predictions</strong> – of shape (minibatch_size, sequence_length)</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">tensor</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="spotlight.sequence.representations.PoolNet.user_representation">
+<code class="descname">user_representation</code><span class="sig-paren">(</span><em>item_sequences</em><span class="sig-paren">)</span><a class="headerlink" href="#spotlight.sequence.representations.PoolNet.user_representation" title="Permalink to this definition">¶</a></dt>
+<dd><p>Compute user representation from a given sequence.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">The first element contains all representations from step
+-1 (no items seen) to t - 1 (all but the last items seen).
+The second element contains the final representation
+at step t (all items seen). This final state can be used
+for prediction or evaluation.</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body">tuple (all_representations, final_representation)</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+
+
+           </div>
+           <div class="articleComments">
+            
+           </div>
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="../factorization/factorization.html" class="btn btn-neutral float-right" title="Factorization models" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="implicit.html" class="btn btn-neutral" title="Implicit sequence models" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2017, Maciej Kula.
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/snide/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    <script type="text/javascript">
+        var DOCUMENTATION_OPTIONS = {
+            URL_ROOT:'../',
+            VERSION:'0.1.0',
+            COLLAPSE_INDEX:false,
+            FILE_SUFFIX:'.html',
+            HAS_SOURCE:  true,
+            SOURCELINK_SUFFIX: '.txt'
+        };
+    </script>
+      <script type="text/javascript" src="../_static/jquery.js"></script>
+      <script type="text/javascript" src="../_static/underscore.js"></script>
+      <script type="text/javascript" src="../_static/doctools.js"></script>
+
+  
+
+  
+  
+    <script type="text/javascript" src="../_static/js/theme.js"></script>
+  
+
+  
+  
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.StickyNav.enable();
+      });
+  </script>
+   
+
+</body>
+</html>

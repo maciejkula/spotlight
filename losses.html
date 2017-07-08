@@ -1,0 +1,393 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>Loss functions &mdash; Spotlight 0.1.0 documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  
+  
+    <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  
+
+  
+    <link rel="stylesheet" href="_static/css/spotlight_theme.css" type="text/css" />
+  
+
+  
+        <link rel="index" title="Index"
+              href="genindex.html"/>
+        <link rel="search" title="Search" href="search.html"/>
+    <link rel="top" title="Spotlight 0.1.0 documentation" href="index.html"/>
+        <link rel="prev" title="Latent representations" href="factorization/representations.html"/> 
+
+  
+  <script src="_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+   
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+          
+            <a href="index.html">
+          
+
+          
+            
+            <img src="_static/spotlight.svg" class="logo" />
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                0.1.0
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="interactions.html">Interactions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="datasets/datasets.html">Datasets</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="datasets/synthetic.html">Synthetic</a></li>
+<li class="toctree-l2"><a class="reference internal" href="datasets/movielens.html">Movielens</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="cross_validation.html">Cross validation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="sequence/sequence.html">Sequence models</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="sequence/implicit.html">Implicit feedback models</a></li>
+<li class="toctree-l2"><a class="reference internal" href="sequence/representations.html">Sequence representations</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="factorization/factorization.html">Factorization models</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="factorization/implicit.html">Implicit feedback models</a></li>
+<li class="toctree-l2"><a class="reference internal" href="factorization/explicit.html">Explicit feedback models</a></li>
+<li class="toctree-l2"><a class="reference internal" href="factorization/representations.html">Latent representations</a></li>
+</ul>
+</li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Loss functions</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">Spotlight</a>
+        
+      </nav>
+
+
+      
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="index.html">Docs</a> &raquo;</li>
+        
+      <li>Loss functions</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            <a href="_sources/losses.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="module-spotlight.losses">
+<span id="loss-functions"></span><h1>Loss functions<a class="headerlink" href="#module-spotlight.losses" title="Permalink to this headline">¶</a></h1>
+<p>Loss functions for recommender models.</p>
+<p>The pointwise, BPR, and hinge losses are a good fit for
+implicit feedback models trained through negative sampling.</p>
+<p>The regression and Poisson losses are used for explicit feedback
+models.</p>
+<dl class="function">
+<dt id="spotlight.losses.bpr_loss">
+<code class="descclassname">spotlight.losses.</code><code class="descname">bpr_loss</code><span class="sig-paren">(</span><em>positive_predictions</em>, <em>negative_predictions</em>, <em>mask=None</em><span class="sig-paren">)</span><a class="headerlink" href="#spotlight.losses.bpr_loss" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bayesian Personalised Ranking <a class="footnote-reference" href="#id2" id="id1">[1]</a> pairwise loss function.</p>
+<table class="docutils footnote" frame="void" id="id2" rules="none">
+<colgroup><col class="label" /><col /></colgroup>
+<tbody valign="top">
+<tr><td class="label"><a class="fn-backref" href="#id1">[1]</a></td><td>Rendle, Steffen, et al. “BPR: Bayesian personalized ranking from
+implicit feedback.” Proceedings of the twenty-fifth conference on
+uncertainty in artificial intelligence. AUAI Press, 2009.</td></tr>
+</tbody>
+</table>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>positive_predictions</strong> (<em>tensor</em>) – Tensor containing predictions for known positive items.</li>
+<li><strong>negative_predictions</strong> (<em>tensor</em>) – Tensor containing predictions for sampled negative items.</li>
+<li><strong>mask</strong> (<em>tensor</em><em>, </em><em>optional</em>) – A binary tensor used to zero the loss from some entries
+of the loss tensor.</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">The mean value of the loss function.</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">loss, float</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="spotlight.losses.hinge_loss">
+<code class="descclassname">spotlight.losses.</code><code class="descname">hinge_loss</code><span class="sig-paren">(</span><em>positive_predictions</em>, <em>negative_predictions</em><span class="sig-paren">)</span><a class="headerlink" href="#spotlight.losses.hinge_loss" title="Permalink to this definition">¶</a></dt>
+<dd><p>Hinge pairwise loss function.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>positive_predictions</strong> (<em>tensor</em>) – Tensor containing predictions for known positive items.</li>
+<li><strong>negative_predictions</strong> (<em>tensor</em>) – Tensor containing predictions for sampled negative items.</li>
+<li><strong>mask</strong> (<em>tensor</em><em>, </em><em>optional</em>) – A binary tensor used to zero the loss from some entries
+of the loss tensor.</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">The mean value of the loss function.</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">loss, float</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="spotlight.losses.pointwise_loss">
+<code class="descclassname">spotlight.losses.</code><code class="descname">pointwise_loss</code><span class="sig-paren">(</span><em>positive_predictions</em>, <em>negative_predictions</em>, <em>mask=None</em><span class="sig-paren">)</span><a class="headerlink" href="#spotlight.losses.pointwise_loss" title="Permalink to this definition">¶</a></dt>
+<dd><p>Logistic loss function.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>positive_predictions</strong> (<em>tensor</em>) – Tensor containing predictions for known positive items.</li>
+<li><strong>negative_predictions</strong> (<em>tensor</em>) – Tensor containing predictions for sampled negative items.</li>
+<li><strong>mask</strong> (<em>tensor</em><em>, </em><em>optional</em>) – A binary tensor used to zero the loss from some entries
+of the loss tensor.</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">The mean value of the loss function.</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">loss, float</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="spotlight.losses.poisson_loss">
+<code class="descclassname">spotlight.losses.</code><code class="descname">poisson_loss</code><span class="sig-paren">(</span><em>observed_ratings</em>, <em>predicted_ratings</em><span class="sig-paren">)</span><a class="headerlink" href="#spotlight.losses.poisson_loss" title="Permalink to this definition">¶</a></dt>
+<dd><p>Poisson loss.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>observed_ratings</strong> (<em>tensor</em>) – Tensor containing observed ratings.</li>
+<li><strong>negative_predictions</strong> (<em>tensor</em>) – Tensor containing rating predictions.</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">The mean value of the loss function.</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">loss, float</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="spotlight.losses.regression_loss">
+<code class="descclassname">spotlight.losses.</code><code class="descname">regression_loss</code><span class="sig-paren">(</span><em>observed_ratings</em>, <em>predicted_ratings</em><span class="sig-paren">)</span><a class="headerlink" href="#spotlight.losses.regression_loss" title="Permalink to this definition">¶</a></dt>
+<dd><p>Regression loss.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>observed_ratings</strong> (<em>tensor</em>) – Tensor containing observed ratings.</li>
+<li><strong>negative_predictions</strong> (<em>tensor</em>) – Tensor containing rating predictions.</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">The mean value of the loss function.</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">loss, float</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</div>
+
+
+           </div>
+           <div class="articleComments">
+            
+           </div>
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+      
+        <a href="factorization/representations.html" class="btn btn-neutral" title="Latent representations" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2017, Maciej Kula.
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/snide/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    <script type="text/javascript">
+        var DOCUMENTATION_OPTIONS = {
+            URL_ROOT:'./',
+            VERSION:'0.1.0',
+            COLLAPSE_INDEX:false,
+            FILE_SUFFIX:'.html',
+            HAS_SOURCE:  true,
+            SOURCELINK_SUFFIX: '.txt'
+        };
+    </script>
+      <script type="text/javascript" src="_static/jquery.js"></script>
+      <script type="text/javascript" src="_static/underscore.js"></script>
+      <script type="text/javascript" src="_static/doctools.js"></script>
+
+  
+
+  
+  
+    <script type="text/javascript" src="_static/js/theme.js"></script>
+  
+
+  
+  
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.StickyNav.enable();
+      });
+  </script>
+   
+
+</body>
+</html>

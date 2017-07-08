@@ -1,0 +1,349 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>Implicit factorization models &mdash; Spotlight 0.1.0 documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  
+  
+    <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  
+
+  
+    <link rel="stylesheet" href="../_static/css/spotlight_theme.css" type="text/css" />
+  
+
+  
+        <link rel="index" title="Index"
+              href="../genindex.html"/>
+        <link rel="search" title="Search" href="../search.html"/>
+    <link rel="top" title="Spotlight 0.1.0 documentation" href="../index.html"/>
+        <link rel="up" title="Factorization models" href="factorization.html"/>
+        <link rel="next" title="Explicit factorization models" href="explicit.html"/>
+        <link rel="prev" title="Factorization models" href="factorization.html"/> 
+
+  
+  <script src="../_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+   
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+          
+            <a href="../index.html">
+          
+
+          
+            
+            <img src="../_static/spotlight.svg" class="logo" />
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                0.1.0
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../interactions.html">Interactions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../datasets/datasets.html">Datasets</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../datasets/synthetic.html">Synthetic</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../datasets/movielens.html">Movielens</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../cross_validation.html">Cross validation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../sequence/sequence.html">Sequence models</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../sequence/implicit.html">Implicit feedback models</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../sequence/representations.html">Sequence representations</a></li>
+</ul>
+</li>
+<li class="toctree-l1 current"><a class="reference internal" href="factorization.html">Factorization models</a><ul class="current">
+<li class="toctree-l2 current"><a class="current reference internal" href="#">Implicit feedback models</a></li>
+<li class="toctree-l2"><a class="reference internal" href="explicit.html">Explicit feedback models</a></li>
+<li class="toctree-l2"><a class="reference internal" href="representations.html">Latent representations</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../losses.html">Loss functions</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">Spotlight</a>
+        
+      </nav>
+
+
+      
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../index.html">Docs</a> &raquo;</li>
+        
+          <li><a href="factorization.html">Factorization models</a> &raquo;</li>
+        
+      <li>Implicit factorization models</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            <a href="../_sources/factorization/implicit.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="module-spotlight.factorization.implicit">
+<span id="implicit-factorization-models"></span><h1>Implicit factorization models<a class="headerlink" href="#module-spotlight.factorization.implicit" title="Permalink to this headline">¶</a></h1>
+<p>Factorization models for implicit feedback problems.</p>
+<dl class="class">
+<dt id="spotlight.factorization.implicit.ImplicitFactorizationModel">
+<em class="property">class </em><code class="descclassname">spotlight.factorization.implicit.</code><code class="descname">ImplicitFactorizationModel</code><span class="sig-paren">(</span><em>loss=’pointwise’</em>, <em>embedding_dim=32</em>, <em>n_iter=10</em>, <em>batch_size=256</em>, <em>l2=0.0</em>, <em>learning_rate=0.01</em>, <em>optimizer=None</em>, <em>use_cuda=False</em>, <em>sparse=False</em>, <em>random_state=None</em><span class="sig-paren">)</span><a class="headerlink" href="#spotlight.factorization.implicit.ImplicitFactorizationModel" title="Permalink to this definition">¶</a></dt>
+<dd><p>An implict feedback matrix factorization model. Uses a classic
+matrix factorization <a class="footnote-reference" href="#id2" id="id1">[1]</a> approach, with latent vectors used
+to represent both users and items. Their dot product gives the
+predicted score for a user-item pair.</p>
+<p>The latent representation is given by
+<a class="reference internal" href="representations.html#spotlight.factorization.representations.BilinearNet" title="spotlight.factorization.representations.BilinearNet"><code class="xref py py-class docutils literal"><span class="pre">spotlight.factorization.representations.BilinearNet</span></code></a>.</p>
+<p>The model is trained through negative sampling: for any known
+user-item pair, one or more items are randomly sampled to act
+as negatives (expressing a lack of preference by the user for
+the sampled item).</p>
+<table class="docutils footnote" frame="void" id="id2" rules="none">
+<colgroup><col class="label" /><col /></colgroup>
+<tbody valign="top">
+<tr><td class="label"><a class="fn-backref" href="#id1">[1]</a></td><td>Koren, Yehuda, Robert Bell, and Chris Volinsky.
+“Matrix factorization techniques for recommender systems.”
+Computer 42.8 (2009).</td></tr>
+</tbody>
+</table>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>loss</strong> (<em>string</em><em>, </em><em>optional</em>) – One of ‘pointwise’, ‘bpr’, ‘hinge’, or ‘adaptive hinge’,
+corresponding to losses from <a class="reference internal" href="../losses.html#module-spotlight.losses" title="spotlight.losses"><code class="xref py py-class docutils literal"><span class="pre">spotlight.losses</span></code></a>.</li>
+<li><strong>embedding_dim</strong> (<em>int</em><em>, </em><em>optional</em>) – Number of embedding dimensions to use for users and items.</li>
+<li><strong>n_iter</strong> (<em>int</em><em>, </em><em>optional</em>) – Number of iterations to run.</li>
+<li><strong>batch_size</strong> (<em>int</em><em>, </em><em>optional</em>) – Minibatch size.</li>
+<li><strong>l2</strong> (<em>float</em><em>, </em><em>optional</em>) – L2 loss penalty.</li>
+<li><strong>learning_rate</strong> (<em>float</em><em>, </em><em>optional</em>) – Initial learning rate.</li>
+<li><strong>optimizer</strong> (<em>instance of a PyTorch optimizer</em><em>, </em><em>optional</em>) – Overrides l2 and learning rate if supplied.</li>
+<li><strong>use_cuda</strong> (<em>boolean</em><em>, </em><em>optional</em>) – Run the model on a GPU.</li>
+<li><strong>sparse</strong> (<em>boolean</em><em>, </em><em>optional</em>) – Use sparse gradients for embedding layers.</li>
+<li><strong>random_state</strong> (<em>instance of numpy.random.RandomState</em><em>, </em><em>optional</em>) – Random state to use when fitting.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+<dl class="method">
+<dt id="spotlight.factorization.implicit.ImplicitFactorizationModel.fit">
+<code class="descname">fit</code><span class="sig-paren">(</span><em>interactions</em>, <em>verbose=False</em><span class="sig-paren">)</span><a class="headerlink" href="#spotlight.factorization.implicit.ImplicitFactorizationModel.fit" title="Permalink to this definition">¶</a></dt>
+<dd><p>Fit the model.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>interactions</strong> (<a class="reference internal" href="../interactions.html#spotlight.interactions.Interactions" title="spotlight.interactions.Interactions"><code class="xref py py-class docutils literal"><span class="pre">spotlight.interactions.Interactions</span></code></a>) – The input dataset.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="spotlight.factorization.implicit.ImplicitFactorizationModel.predict">
+<code class="descname">predict</code><span class="sig-paren">(</span><em>user_ids</em>, <em>item_ids=None</em><span class="sig-paren">)</span><a class="headerlink" href="#spotlight.factorization.implicit.ImplicitFactorizationModel.predict" title="Permalink to this definition">¶</a></dt>
+<dd><p>Make predictions: given a user id, compute the recommendation
+scores for items.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>user_ids</strong> (<em>int</em><em> or </em><em>array</em>) – If int, will predict the recommendation scores for this
+user for all items in item_ids. If an array, will predict
+scores for all (user, item) pairs defined by user_ids and
+item_ids.</li>
+<li><strong>item_ids</strong> (<em>array</em><em>, </em><em>optional</em>) – Array containing the item ids for which prediction scores
+are desired. If not supplied, predictions for all items
+will be computed.</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><strong>predictions</strong> – Predicted scores for all items in item_ids.</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">np.array</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+
+
+           </div>
+           <div class="articleComments">
+            
+           </div>
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="explicit.html" class="btn btn-neutral float-right" title="Explicit factorization models" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="factorization.html" class="btn btn-neutral" title="Factorization models" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2017, Maciej Kula.
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/snide/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    <script type="text/javascript">
+        var DOCUMENTATION_OPTIONS = {
+            URL_ROOT:'../',
+            VERSION:'0.1.0',
+            COLLAPSE_INDEX:false,
+            FILE_SUFFIX:'.html',
+            HAS_SOURCE:  true,
+            SOURCELINK_SUFFIX: '.txt'
+        };
+    </script>
+      <script type="text/javascript" src="../_static/jquery.js"></script>
+      <script type="text/javascript" src="../_static/underscore.js"></script>
+      <script type="text/javascript" src="../_static/doctools.js"></script>
+
+  
+
+  
+  
+    <script type="text/javascript" src="../_static/js/theme.js"></script>
+  
+
+  
+  
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.StickyNav.enable();
+      });
+  </script>
+   
+
+</body>
+</html>
