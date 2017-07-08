@@ -188,16 +188,17 @@
 as functions of the items they have interacted with in the past.</p>
 <dl class="class">
 <dt id="spotlight.sequence.representations.CNNNet">
-<em class="property">class </em><code class="descclassname">spotlight.sequence.representations.</code><code class="descname">CNNNet</code><span class="sig-paren">(</span><em>num_items</em>, <em>embedding_dim=32</em>, <em>kernel_width=5</em>, <em>num_layers=1</em>, <em>sparse=False</em><span class="sig-paren">)</span><a class="headerlink" href="#spotlight.sequence.representations.CNNNet" title="Permalink to this definition">¶</a></dt>
-<dd><p>Module representing users through stacked causal convolutions <a class="footnote-reference" href="#id2" id="id1">[3]</a>.</p>
+<em class="property">class </em><code class="descclassname">spotlight.sequence.representations.</code><code class="descname">CNNNet</code><span class="sig-paren">(</span><em>num_items</em>, <em>embedding_dim=32</em>, <em>kernel_width=5</em>, <em>dilation=1</em>, <em>num_layers=1</em>, <em>sparse=False</em><span class="sig-paren">)</span><a class="headerlink" href="#spotlight.sequence.representations.CNNNet" title="Permalink to this definition">¶</a></dt>
+<dd><p>Module representing users through stacked causal atrous convolutions <a class="footnote-reference" href="#id2" id="id1">[3]</a>.</p>
 <p>To represent a sequence, it runs a 1D convolution over the input sequence,
 from left to right. At each timestep, the output of the convolution is
 the representation of the sequence up to that point. The convoluion is causal
 because future states are never part of the convolution’s receptive field;
 this is achieved by left-padding the sequence.</p>
 <p>In order to increase the receptive field (and the capacity to encode states
-further back in the sequence), one can increase the kernel width, or stack
-more layers. Input dimensionality is preserved from layer to layer.</p>
+further back in the sequence), one can increase the kernel width, stack
+more layers, or increase the dilation factor.
+Input dimensionality is preserved from layer to layer.</p>
 <p>During training, representations for all timesteps of the sequence are
 computed in one go. Loss functions using the outputs will therefore
 be aggregating both across the minibatch and aross time in the sequence.</p>
@@ -206,11 +207,14 @@ be aggregating both across the minibatch and aross time in the sequence.</p>
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>num_items</strong> (<em>int</em>) – number of items to be represented</li>
-<li><strong>embedding_dim</strong> (<em>int</em><em>, </em><em>optional</em>) – embedding dimension of the embedding layer, and the number of filters
-in each convlutonal layer</li>
-<li><strong>kernel_width</strong> (<em>int</em><em>, </em><em>optional</em>) – the kernel width of the convolutional layers</li>
-<li><strong>num_layers</strong> (<em>int</em><em>, </em><em>optional</em>) – number of stacked convolutional layers</li>
+<li><strong>num_items</strong> (<em>int</em>) – Number of items to be represented.</li>
+<li><strong>embedding_dim</strong> (<em>int</em><em>, </em><em>optional</em>) – Embedding dimension of the embedding layer, and the number of filters
+in each convlutonal layer.</li>
+<li><strong>kernel_width</strong> (<em>int</em><em>, </em><em>optional</em>) – The kernel width of the convolutional layers.</li>
+<li><strong>dilation</strong> (<em>int</em><em>, </em><em>optional</em>) – The dilation factor for atrous convolutions. Setting this to a number
+greater than 1 inserts gaps into the convolutional layers, increasing
+their receptive field without increasing the number of parameters.</li>
+<li><strong>num_layers</strong> (<em>int</em><em>, </em><em>optional</em>) – Number of stacked convolutional layers.</li>
 </ul>
 </td>
 </tr>
@@ -233,13 +237,13 @@ arXiv preprint arXiv:1609.03499 (2016).</td></tr>
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>user_representations</strong> (<em>tensor</em>) – result of the user_representation_method</li>
-<li><strong>targets</strong> (<em>tensor</em>) – a minibatch of item sequences of shape
-(minibatch_size, sequence_length)</li>
+<li><strong>user_representations</strong> (<em>tensor</em>) – Result of the user_representation_method.</li>
+<li><strong>targets</strong> (<em>tensor</em>) – Minibatch of item sequences of shape
+(minibatch_size, sequence_length).</li>
 </ul>
 </td>
 </tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><strong>predictions</strong> – of shape (minibatch_size, sequence_length)</p>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><strong>predictions</strong> – Of shape (minibatch_size, sequence_length).</p>
 </td>
 </tr>
 <tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">tensor</p>
@@ -285,9 +289,9 @@ be aggregating both across the minibatch and aross time in the sequence.</p>
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>num_items</strong> (<em>int</em>) – number of items to be represented</li>
-<li><strong>embedding_dim</strong> (<em>int</em><em>, </em><em>optional</em>) – embedding dimension of the embedding layer, and the number of filters
-in each convlutonal layer</li>
+<li><strong>num_items</strong> (<em>int</em>) – Number of items to be represented.</li>
+<li><strong>embedding_dim</strong> (<em>int</em><em>, </em><em>optional</em>) – Embedding dimension of the embedding layer, and the number of hidden
+units in the LSTM layer.</li>
 </ul>
 </td>
 </tr>
@@ -310,9 +314,9 @@ recurrent neural networks.” arXiv preprint arXiv:1511.06939 (2015).</td></tr>
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>user_representations</strong> (<em>tensor</em>) – result of the user_representation_method</li>
-<li><strong>targets</strong> (<em>tensor</em>) – a minibatch of item sequences of shape
-(minibatch_size, sequence_length)</li>
+<li><strong>user_representations</strong> (<em>tensor</em>) – Result of the user_representation_method.</li>
+<li><strong>targets</strong> (<em>tensor</em>) – A minibatch of item sequences of shape
+(minibatch_size, sequence_length).</li>
 </ul>
 </td>
 </tr>
@@ -363,9 +367,8 @@ be aggregating both across the minibatch and aross time in the sequence.</p>
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>num_items</strong> (<em>int</em>) – number of items to be represented</li>
-<li><strong>embedding_dim</strong> (<em>int</em><em>, </em><em>optional</em>) – embedding dimension of the embedding layer, and the number of filters
-in each convlutonal layer</li>
+<li><strong>num_items</strong> (<em>int</em>) – Number of items to be represented.</li>
+<li><strong>embedding_dim</strong> (<em>int</em><em>, </em><em>optional</em>) – Embedding dimension of the embedding layer.</li>
 </ul>
 </td>
 </tr>
@@ -389,9 +392,9 @@ on Recommender Systems. ACM, 2016.</td></tr>
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>user_representations</strong> (<em>tensor</em>) – result of the user_representation_method</li>
-<li><strong>targets</strong> (<em>tensor</em>) – a minibatch of item sequences of shape
-(minibatch_size, sequence_length)</li>
+<li><strong>user_representations</strong> (<em>tensor</em>) – Result of the user_representation_method.</li>
+<li><strong>targets</strong> (<em>tensor</em>) – Minibatch of item sequences of shape
+(minibatch_size, sequence_length).</li>
 </ul>
 </td>
 </tr>
