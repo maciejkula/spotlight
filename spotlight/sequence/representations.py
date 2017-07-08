@@ -31,10 +31,9 @@ class PoolNet(nn.Module):
     ----------
 
     num_items: int
-        number of items to be represented
+        Number of items to be represented.
     embedding_dim: int, optional
-        embedding dimension of the embedding layer, and the number of filters
-        in each convlutonal layer
+        Embedding dimension of the embedding layer.
 
     References
     ----------
@@ -104,10 +103,10 @@ class PoolNet(nn.Module):
         ----------
 
         user_representations: tensor
-            result of the user_representation_method
+            Result of the user_representation_method.
         targets: tensor
-            a minibatch of item sequences of shape
-            (minibatch_size, sequence_length)
+            Minibatch of item sequences of shape
+            (minibatch_size, sequence_length).
 
         Returns
         -------
@@ -141,10 +140,10 @@ class LSTMNet(nn.Module):
     ----------
 
     num_items: int
-        number of items to be represented
+        Number of items to be represented.
     embedding_dim: int, optional
-        embedding dimension of the embedding layer, and the number of filters
-        in each convlutonal layer
+        Embedding dimension of the embedding layer, and the number of hidden
+        units in the LSTM layer.
 
     References
     ----------
@@ -208,10 +207,10 @@ class LSTMNet(nn.Module):
         ----------
 
         user_representations: tensor
-            result of the user_representation_method
+            Result of the user_representation_method.
         targets: tensor
-            a minibatch of item sequences of shape
-            (minibatch_size, sequence_length)
+            A minibatch of item sequences of shape
+            (minibatch_size, sequence_length).
 
         Returns
         -------
@@ -233,7 +232,7 @@ class LSTMNet(nn.Module):
 
 class CNNNet(nn.Module):
     """
-    Module representing users through stacked causal convolutions [3]_.
+    Module representing users through stacked causal atrous convolutions [3]_.
 
     To represent a sequence, it runs a 1D convolution over the input sequence,
     from left to right. At each timestep, the output of the convolution is
@@ -242,8 +241,9 @@ class CNNNet(nn.Module):
     this is achieved by left-padding the sequence.
 
     In order to increase the receptive field (and the capacity to encode states
-    further back in the sequence), one can increase the kernel width, or stack
-    more layers. Input dimensionality is preserved from layer to layer.
+    further back in the sequence), one can increase the kernel width, stack
+    more layers, or increase the dilation factor.
+    Input dimensionality is preserved from layer to layer.
 
     During training, representations for all timesteps of the sequence are
     computed in one go. Loss functions using the outputs will therefore
@@ -253,14 +253,18 @@ class CNNNet(nn.Module):
     ----------
 
     num_items: int
-        number of items to be represented
+        Number of items to be represented.
     embedding_dim: int, optional
-        embedding dimension of the embedding layer, and the number of filters
-        in each convlutonal layer
+        Embedding dimension of the embedding layer, and the number of filters
+        in each convlutonal layer.
     kernel_width: int, optional
-        the kernel width of the convolutional layers
+        The kernel width of the convolutional layers.
+    dilation: int, optional
+        The dilation factor for atrous convolutions. Setting this to a number
+        greater than 1 inserts gaps into the convolutional layers, increasing
+        their receptive field without increasing the number of parameters.
     num_layers: int, optional
-        number of stacked convolutional layers
+        Number of stacked convolutional layers.
 
     References
     ----------
@@ -272,12 +276,14 @@ class CNNNet(nn.Module):
     def __init__(self, num_items,
                  embedding_dim=32,
                  kernel_width=5,
+                 dilation=1,
                  num_layers=1,
                  sparse=False):
         super().__init__()
 
         self.embedding_dim = embedding_dim
         self.kernel_width = kernel_width
+        self.dilation = dilation
 
         self.item_embeddings = ScaledEmbedding(num_items, embedding_dim,
                                                sparse=sparse,
@@ -286,7 +292,10 @@ class CNNNet(nn.Module):
                                          padding_idx=PADDING_IDX)
 
         self.cnn_layers = [
-            nn.Conv2d(embedding_dim, embedding_dim, (kernel_width, 1)) for
+            nn.Conv2d(embedding_dim,
+                      embedding_dim,
+                      (kernel_width, 1),
+                      dilation=(dilation, 1)) for
             _ in range(num_layers)
         ]
 
@@ -316,12 +325,20 @@ class CNNNet(nn.Module):
         sequence_embeddings = (sequence_embeddings
                                .unsqueeze(3))
 
-        x = sequence_embeddings
-        for i, cnn_layer in enumerate(self.cnn_layers):
-            # Pad so that the CNN doesn't have the future
-            # of the sequence in its receptive field.
-            x = F.pad(x, (0, 0, self.kernel_width - min(i, 1), 0))
-            x = F.relu(cnn_layer(x))
+        receptive_field_width = (self.kernel_width +
+                                 (self.kernel_width - 1) *
+                                 (self.dilation - 1))
+
+        # Pad so that the CNN doesn't have the future
+        # of the sequence in its receptive field.
+        x = F.pad(sequence_embeddings,
+                  (0, 0, receptive_field_width, 0))
+        x = F.tanh(self.cnn_layers[0](x))
+
+        for cnn_layer in self.cnn_layers[1:]:
+
+            x = F.pad(x, (0, 0, receptive_field_width - 1, 0))
+            x = F.tanh(cnn_layer(x))
 
         x = x.squeeze(3)
 
@@ -335,16 +352,16 @@ class CNNNet(nn.Module):
         ----------
 
         user_representations: tensor
-            result of the user_representation_method
+            Result of the user_representation_method.
         targets: tensor
-            a minibatch of item sequences of shape
-            (minibatch_size, sequence_length)
+            Minibatch of item sequences of shape
+            (minibatch_size, sequence_length).
 
         Returns
         -------
 
         predictions: tensor
-            of shape (minibatch_size, sequence_length)
+            Of shape (minibatch_size, sequence_length).
         """
 
         target_embedding = (self.item_embeddings(targets)
