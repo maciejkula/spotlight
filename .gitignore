@@ -4,3 +4,4 @@
 *egg*
 *.cache
 *build*
+*/.ipynb_checkpoints/*
