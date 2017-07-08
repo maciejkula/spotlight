@@ -21,4 +21,4 @@ conda install -y numpy scipy requests h5py scikit-learn pytest flake8
 conda install -y pytorch torchvision -c soumith
 
 # Pushing docs
-conda install -y sphinx sphinx-rtd-theme
+conda install -y sphinx sphinx_rtd_theme
