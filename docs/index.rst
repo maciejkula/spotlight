@@ -14,6 +14,7 @@ Contents
 
    Interactions <interactions>
    Datasets <datasets/datasets>
+   Cross validation <cross_validation>
    Sequence models <sequence/sequence>
    Factorization models <factorization/factorization>
    Loss functions <losses>

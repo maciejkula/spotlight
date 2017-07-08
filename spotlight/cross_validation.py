@@ -1,3 +1,7 @@
+"""
+Module with functionality for splitting and shuffling datasets.
+"""
+
 import numpy as np
 
 from sklearn.utils import murmurhash3_32
@@ -15,6 +19,23 @@ def _index_or_none(array, shuffle_index):
 
 def shuffle_interactions(interactions,
                          random_state=None):
+    """
+    Shuffle interactions.
+
+    Parameters
+    ----------
+
+    interactions: :class:`spotlight.interactions.Interactions`
+        The interactions to shuffle.
+    random_state: np.random.RandomState, optional
+        The random state used for the shuffle.
+
+    Returns
+    -------
+
+    interactions: :class:`spotlight.interactions.Interactions`
+        The shuffled interactions.
+    """
 
     if random_state is None:
         random_state = np.random.RandomState()
@@ -37,6 +58,26 @@ def shuffle_interactions(interactions,
 def random_train_test_split(interactions,
                             test_percentage=0.2,
                             random_state=None):
+    """
+    Randomly split interactions between training and testing.
+
+    Parameters
+    ----------
+
+    interactions: :class:`spotlight.interactions.Interactions`
+        The interactions to shuffle.
+    test_percentage: float, optional
+        The fraction of interactions to place in the test set.
+    random_state: np.random.RandomState, optional
+        The random state used for the shuffle.
+
+    Returns
+    -------
+
+    (train, test): (:class:`spotlight.interactions.Interactions`,
+                    :class:`spotlight.interactions.Interactions`)
+         A tuple of (train data, test data)
+    """
 
     interactions = shuffle_interactions(interactions,
                                         random_state=random_state)
@@ -73,6 +114,28 @@ def random_train_test_split(interactions,
 def user_based_train_test_split(interactions,
                                 test_percentage=0.2,
                                 random_state=None):
+    """
+    Split interactions between a train and a test set based on
+    user ids, so that a given user's entire interaction history
+    is either in the train, or the test set.
+
+    Parameters
+    ----------
+
+    interactions: :class:`spotlight.interactions.Interactions`
+        The interactions to shuffle.
+    test_percentage: float, optional
+        The fraction of users to place in the test set.
+    random_state: np.random.RandomState, optional
+        The random state used for the shuffle.
+
+    Returns
+    -------
+
+    (train, test): (:class:`spotlight.interactions.Interactions`,
+                    :class:`spotlight.interactions.Interactions`)
+         A tuple of (train data, test data)
+    """
 
     if random_state is None:
         random_state = np.random.RandomState()
