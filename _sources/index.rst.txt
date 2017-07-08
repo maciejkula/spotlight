@@ -20,6 +20,7 @@ Contents
    Sequence models <sequence/sequence>
    Factorization models <factorization/factorization>
    Loss functions <losses>
+   Evaluation <evaluation>
 
 
 Indices and tables

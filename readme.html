@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>Spotlight &mdash; Spotlight 0.1.0 documentation</title>
+  <title>Installation &mdash; Spotlight 0.1.0 documentation</title>
   
 
   
@@ -37,8 +37,7 @@
         <link rel="index" title="Index"
               href="genindex.html"/>
         <link rel="search" title="Search" href="search.html"/>
-    <link rel="top" title="Spotlight 0.1.0 documentation" href="#"/>
-        <link rel="next" title="Interactions" href="interactions.html"/> 
+    <link rel="top" title="Spotlight 0.1.0 documentation" href="index.html"/> 
 
   
   <script src="_static/js/modernizr.min.js"></script>
@@ -57,7 +56,7 @@
           
 
           
-            <a href="#">
+            <a href="index.html">
           
 
           
@@ -129,7 +128,7 @@
       <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
         
           <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
-          <a href="#">Spotlight</a>
+          <a href="index.html">Spotlight</a>
         
       </nav>
 
@@ -157,15 +156,15 @@
 
   <ul class="wy-breadcrumbs">
     
-      <li><a href="#">Docs</a> &raquo;</li>
+      <li><a href="index.html">Docs</a> &raquo;</li>
         
-      <li>Spotlight</li>
+      <li>Installation</li>
     
     
       <li class="wy-breadcrumbs-aside">
         
             
-            <a href="_sources/index.rst.txt" rel="nofollow"> View page source</a>
+            <a href="_sources/readme.rst.txt" rel="nofollow"> View page source</a>
           
         
       </li>
@@ -203,10 +202,10 @@ and prototyping of new recommender models.</p>
 <div class="section" id="factorization-models">
 <h1>Factorization models<a class="headerlink" href="#factorization-models" title="Permalink to this headline">¶</a></h1>
 <p>To fit an explicit feedback model on the MovieLens dataset:</p>
-<div class="highlight-python"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">spotlight.cross_validation</span> <span class="kn">import</span> <span class="n">random_train_test_split</span>
-<span class="kn">from</span> <span class="nn">spotlight.datasets.movielens</span> <span class="kn">import</span> <span class="n">get_movielens_dataset</span>
-<span class="kn">from</span> <span class="nn">spotlight.evaluation</span> <span class="kn">import</span> <span class="n">rmse_score</span>
-<span class="kn">from</span> <span class="nn">spotlight.factorization.explicit</span> <span class="kn">import</span> <span class="n">ExplicitFactorizationModel</span>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">spotlight.cross_validation</span> <span class="k">import</span> <span class="n">random_train_test_split</span>
+<span class="kn">from</span> <span class="nn">spotlight.datasets.movielens</span> <span class="k">import</span> <span class="n">get_movielens_dataset</span>
+<span class="kn">from</span> <span class="nn">spotlight.evaluation</span> <span class="k">import</span> <span class="n">rmse_score</span>
+<span class="kn">from</span> <span class="nn">spotlight.factorization.explicit</span> <span class="k">import</span> <span class="n">ExplicitFactorizationModel</span>
 
 <span class="n">dataset</span> <span class="o">=</span> <span class="n">get_movielens_dataset</span><span class="p">(</span><span class="n">variant</span><span class="o">=</span><span class="s1">&#39;100K&#39;</span><span class="p">)</span>
 
@@ -219,10 +218,10 @@ and prototyping of new recommender models.</p>
 </pre></div>
 </div>
 <p>To fit an implicit ranking model with a BPR pairwise loss on the MovieLens dataset:</p>
-<div class="highlight-python"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">spotlight.cross_validation</span> <span class="kn">import</span> <span class="n">random_train_test_split</span>
-<span class="kn">from</span> <span class="nn">spotlight.datasets.movielens</span> <span class="kn">import</span> <span class="n">get_movielens_dataset</span>
-<span class="kn">from</span> <span class="nn">spotlight.evaluation</span> <span class="kn">import</span> <span class="n">mrr_score</span>
-<span class="kn">from</span> <span class="nn">spotlight.factorization.implicit</span> <span class="kn">import</span> <span class="n">ImplicitFactorizationModel</span>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">spotlight.cross_validation</span> <span class="k">import</span> <span class="n">random_train_test_split</span>
+<span class="kn">from</span> <span class="nn">spotlight.datasets.movielens</span> <span class="k">import</span> <span class="n">get_movielens_dataset</span>
+<span class="kn">from</span> <span class="nn">spotlight.evaluation</span> <span class="k">import</span> <span class="n">mrr_score</span>
+<span class="kn">from</span> <span class="nn">spotlight.factorization.implicit</span> <span class="k">import</span> <span class="n">ImplicitFactorizationModel</span>
 
 <span class="n">dataset</span> <span class="o">=</span> <span class="n">get_movielens_dataset</span><span class="p">(</span><span class="n">variant</span><span class="o">=</span><span class="s1">&#39;100K&#39;</span><span class="p">)</span>
 
@@ -247,10 +246,10 @@ recommendation models, including</p>
 <li>LSTM models, as in <a class="reference external" href="https://arxiv.org/pdf/1511.06939">Session-based recommendations…</a>, and</li>
 <li>causal convolution models, as in <a class="reference external" href="https://arxiv.org/pdf/1609.03499">WaveNet</a>.</li>
 </ul>
-<div class="highlight-python"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">spotlight.cross_validation</span> <span class="kn">import</span> <span class="n">user_based_train_test_split</span>
-<span class="kn">from</span> <span class="nn">spotlight.datasets.synthetic</span> <span class="kn">import</span> <span class="n">generate_sequential</span>
-<span class="kn">from</span> <span class="nn">spotlight.evaluation</span> <span class="kn">import</span> <span class="n">sequence_mrr_score</span>
-<span class="kn">from</span> <span class="nn">spotlight.sequence.implicit</span> <span class="kn">import</span> <span class="n">ImplicitSequenceModel</span>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">spotlight.cross_validation</span> <span class="k">import</span> <span class="n">user_based_train_test_split</span>
+<span class="kn">from</span> <span class="nn">spotlight.datasets.synthetic</span> <span class="k">import</span> <span class="n">generate_sequential</span>
+<span class="kn">from</span> <span class="nn">spotlight.evaluation</span> <span class="k">import</span> <span class="n">sequence_mrr_score</span>
+<span class="kn">from</span> <span class="nn">spotlight.sequence.implicit</span> <span class="k">import</span> <span class="n">ImplicitSequenceModel</span>
 
 <span class="n">dataset</span> <span class="o">=</span> <span class="n">generate_sequential</span><span class="p">(</span><span class="n">num_users</span><span class="o">=</span><span class="mi">100</span><span class="p">,</span>
                               <span class="n">num_items</span><span class="o">=</span><span class="mi">1000</span><span class="p">,</span>
@@ -278,7 +277,7 @@ recommendation models, including</p>
 It also incorporates utilities for creating synthetic datasets. For example, <cite>generate_sequential</cite>
 generates a Markov-chain-derived interaction dataset, where the next item a user chooses is
 a function of their previous interactions:</p>
-<div class="highlight-python"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">spotlight.datasets.synthetic</span> <span class="kn">import</span> <span class="n">generate_sequential</span>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">spotlight.datasets.synthetic</span> <span class="k">import</span> <span class="n">generate_sequential</span>
 
 <span class="c1"># Concentration parameter governs how predictable the chain is;</span>
 <span class="c1"># order determins the order of the Markov chain.</span>
@@ -290,41 +289,6 @@ a function of their previous interactions:</p>
 </pre></div>
 </div>
 </div>
-<div class="section" id="contents">
-<h1>Contents<a class="headerlink" href="#contents" title="Permalink to this headline">¶</a></h1>
-<div class="toctree-wrapper compound">
-<ul>
-<li class="toctree-l1"><a class="reference internal" href="interactions.html">Interactions</a></li>
-<li class="toctree-l1"><a class="reference internal" href="datasets/datasets.html">Datasets</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="datasets/synthetic.html">Synthetic</a></li>
-<li class="toctree-l2"><a class="reference internal" href="datasets/movielens.html">Movielens</a></li>
-</ul>
-</li>
-<li class="toctree-l1"><a class="reference internal" href="cross_validation.html">Cross validation</a></li>
-<li class="toctree-l1"><a class="reference internal" href="sequence/sequence.html">Sequence models</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="sequence/implicit.html">Implicit feedback models</a></li>
-<li class="toctree-l2"><a class="reference internal" href="sequence/representations.html">Sequence representations</a></li>
-</ul>
-</li>
-<li class="toctree-l1"><a class="reference internal" href="factorization/factorization.html">Factorization models</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="factorization/implicit.html">Implicit feedback models</a></li>
-<li class="toctree-l2"><a class="reference internal" href="factorization/explicit.html">Explicit feedback models</a></li>
-<li class="toctree-l2"><a class="reference internal" href="factorization/representations.html">Latent representations</a></li>
-</ul>
-</li>
-<li class="toctree-l1"><a class="reference internal" href="losses.html">Loss functions</a></li>
-<li class="toctree-l1"><a class="reference internal" href="evaluation.html">Evaluation</a></li>
-</ul>
-</div>
-</div>
-<div class="section" id="indices-and-tables">
-<h1>Indices and tables<a class="headerlink" href="#indices-and-tables" title="Permalink to this headline">¶</a></h1>
-<ul class="simple">
-<li><a class="reference internal" href="genindex.html"><span class="std std-ref">Index</span></a></li>
-<li><a class="reference internal" href="py-modindex.html"><span class="std std-ref">Module Index</span></a></li>
-<li><a class="reference internal" href="search.html"><span class="std std-ref">Search Page</span></a></li>
-</ul>
-</div>
 
 
            </div>
@@ -333,13 +297,6 @@ a function of their previous interactions:</p>
            </div>
           </div>
           <footer>
-  
-    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
-      
-        <a href="interactions.html" class="btn btn-neutral float-right" title="Interactions" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
-      
-      
-    </div>
   
 
   <hr/>
