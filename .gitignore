@@ -1,0 +1,6 @@
+*~
+*#*
+*.pyc
+*egg*
+*.cache
+*build*
