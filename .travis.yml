@@ -1,3 +1,7 @@
+env:
+  global:
+  - ENCRYPTION_LABEL: "bdeaeb305a10"
+  - COMMIT_AUTHOR_EMAIL: "travis@travis.com"
 matrix:
   include:
     - os: linux
@@ -13,3 +17,6 @@ install:
   - PATH="$HOME/miniconda/bin:$PATH" pip install -e .
 script:
   - PATH="$HOME/miniconda/bin:$PATH" py.test tests/
+
+after_success:
+    - PATH="$HOME/miniconda/bin:$PATH" ./.travis/docs.sh
