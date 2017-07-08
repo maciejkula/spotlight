@@ -17,7 +17,8 @@ factorization representations, deep sequence models), and utilities for fetching
 and prototyping of new recommender models.
 
 Installation
-------------
+============
+
 .. code-block:: python
 
    conda install -c maciejkula -c soumith spotlight=0.1.0
@@ -25,6 +26,11 @@ Installation
 
 Usage
 -----
+
+Factorization models
+====================
+
+To fit an explicit feedback model on the MovieLens dataset:
 
 .. testcode::
 
@@ -43,4 +49,92 @@ Usage
     rmse = rmse_score(model, test)
 
 .. testoutput::
-   :hidden:
+   :hide:
+
+To fit an implicit ranking model with a BPR pairwise loss on the MovieLens dataset:
+
+.. testcode::
+
+    from spotlight.cross_validation import random_train_test_split
+    from spotlight.datasets.movielens import get_movielens_dataset
+    from spotlight.evaluation import mrr_score
+    from spotlight.factorization.implicit import ImplicitFactorizationModel
+
+    dataset = get_movielens_dataset(variant='100K')
+
+    train, test = random_train_test_split(dataset)
+
+    model = ImplicitFactorizationModel(n_iter=3,
+                                       loss='bpr')
+    model.fit(train)
+
+    mrr = mrr_score(model, test)
+
+.. testoutput::
+   :hide:
+
+
+Sequential models
+=================
+
+Recommendations can be seen as a sequence prediction task: given the items a user
+has interacted with in the past, what will be the next item they will interact
+with? Spotlight provides a range of models and utilities for fitting next item
+recommendation models, including
+
+- pooling models, as in `YouTube recommendations <https://pdfs.semanticscholar.org/bcdb/4da4a05f0e7bc17d1600f3a91a338cd7ffd3.pdf>`_,
+- LSTM models, as in `Session-based recommendations... <https://arxiv.org/pdf/1511.06939>`_, and
+- causal convolution models, as in `WaveNet <https://arxiv.org/pdf/1609.03499>`_.
+
+.. testcode::
+
+    from spotlight.cross_validation import user_based_train_test_split
+    from spotlight.datasets.synthetic import generate_sequential
+    from spotlight.evaluation import sequence_mrr_score
+    from spotlight.sequence.implicit import ImplicitSequenceModel
+
+    dataset = generate_sequential(num_users=100,
+                                  num_items=1000,
+                                  num_interactions=10000,
+                                  concentration_parameter=0.01,
+                                  order=3)
+
+    train, test = user_based_train_test_split(dataset)
+
+    train = train.to_sequence()
+    test = test.to_sequence()
+
+    model = ImplicitSequenceModel(n_iter=3,
+                                  representation='cnn',
+                                  loss='bpr')
+    model.fit(train)
+
+    mrr = sequence_mrr_score(model, test)
+
+.. testoutput::
+   :hide:
+  
+
+
+Datasets
+========
+
+Spotlight offers a slew of popular datasets, including Movielens 100K, 1M, 10M, and 20M.
+It also incorporates utilities for creating synthetic datasets. For example, `generate_sequential`
+generates a Markov-chain-derived interaction dataset, where the next item a user chooses is
+a function of their previous interactions:
+
+.. testcode::
+
+    from spotlight.datasets.synthetic import generate_sequential
+
+    # Concentration parameter governs how predictable the chain is;
+    # order determins the order of the Markov chain.
+    dataset = generate_sequential(num_users=100,
+                                  num_items=1000,
+                                  num_interactions=10000,
+                                  concentration_parameter=0.01,
+                                  order=3)
+
+.. testoutput::
+   :hide:
