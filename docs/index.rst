@@ -1,7 +1,9 @@
-Welcome to Spotlight's documentation!
-=====================================
+.. image:: _static/img/spotlight.png
 
-Spotlight is a package for building recommender models, built on top of PyTorch.
+---------------------------------------------------------------------
+
+.. include:: ../readme.rst
+   :start-after: inclusion-marker-do-not-remove
 
 
 Contents
