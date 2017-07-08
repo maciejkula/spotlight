@@ -72,6 +72,16 @@ class Interactions(object):
 
         self._check()
 
+    def __repr__(self):
+
+        return ('<Interactions dataset ({num_users} users x {num_items} items '
+                'x {num_interactions} interactions)>'
+                .format(
+                    num_users=self.num_users,
+                    num_items=self.num_items,
+                    num_interactions=len(self)
+                ))
+
     def __len__(self):
 
         return len(self.user_ids)
