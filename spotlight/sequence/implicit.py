@@ -127,6 +127,8 @@ class ImplicitSequenceModel(object):
         else:
             self._net = self._representation
 
+        self._net = gpu(self._net, self._use_cuda)
+
         if self._optimizer is None:
             self._optimizer = optim.Adam(
                 self._net.parameters(),
@@ -171,7 +173,7 @@ class ImplicitSequenceModel(object):
                         batch_sequence.size(),
                         random_state=self._random_state)
                     negative_var = Variable(
-                        gpu(torch.from_numpy(negative_items))
+                        gpu(torch.from_numpy(negative_items), self._use_cuda)
                     )
                     negative_prediction = self._net(user_representation,
                                                     negative_var)
@@ -187,7 +189,8 @@ class ImplicitSequenceModel(object):
                 self._optimizer.step()
 
             if verbose:
-                print('Epoch {}: loss {}'.format(epoch_num, epoch_loss))
+                print('Epoch {}: loss {}'.format(epoch_num,
+                                                 epoch_loss / (epoch_num + 1)))
 
     # def _get_adaptive_negatives(self, user_ids, num_neg_candidates=5):
 

@@ -83,7 +83,7 @@ def bpr_loss(positive_predictions, negative_predictions, mask=None):
     return loss.mean()
 
 
-def hinge_loss(positive_predictions, negative_predictions):
+def hinge_loss(positive_predictions, negative_predictions, mask=None):
     """
     Hinge pairwise loss function.
 
@@ -105,9 +105,14 @@ def hinge_loss(positive_predictions, negative_predictions):
         The mean value of the loss function.
     """
 
-    return torch.mean(torch.clamp(negative_predictions -
-                                  positive_predictions +
-                                  1.0, 0.0))
+    loss = torch.clamp(negative_predictions -
+                       positive_predictions +
+                       1.0, 0.0)
+
+    if mask is not None:
+        loss = loss * mask.float()
+
+    return loss.mean()
 
 
 def regression_loss(observed_ratings, predicted_ratings):
