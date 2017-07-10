@@ -139,6 +139,7 @@ def test_implicit_cnn_synthetic(randomness, expected_mrr):
     (2, 1, 0.65),
     (2, 2, 0.65),
     (3, 1, 0.65),
+    (3, (1, 2, 3), 0.65),
 ])
 def test_implicit_cnn_dilation_synthetic(num_layers, dilation, expected_mrr):
 
@@ -150,7 +151,7 @@ def test_implicit_cnn_dilation_synthetic(num_layers, dilation, expected_mrr):
     model = ImplicitSequenceModel(loss=LOSS,
                                   representation=CNNNet(train.num_items,
                                                         embedding_dim=EMBEDDING_DIM,
-                                                        kernel_width=1,
+                                                        kernel_width=3,
                                                         dilation=dilation,
                                                         num_layers=num_layers),
                                   batch_size=BATCH_SIZE,
