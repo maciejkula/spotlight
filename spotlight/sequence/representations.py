@@ -254,6 +254,8 @@ class CNNNet(nn.Module):
     more layers, or increase the dilation factor.
     Input dimensionality is preserved from layer to layer.
 
+    Residual connections are added between all layers.
+
     During training, representations for all timesteps of the sequence are
     computed in one go. Loss functions using the outputs will therefore
     be aggregating both across the minibatch and aross time in the sequence.
