@@ -184,7 +184,8 @@ class ImplicitFactorizationModel(object):
                 self._optimizer.step()
 
             if verbose:
-                print('Epoch {}: loss {}'.format(epoch_num, epoch_loss))
+                print('Epoch {}: loss {}'.format(epoch_num,
+                                                 epoch_loss / (epoch_num + 1)))
 
     def _get_adaptive_negatives(self, user_ids, num_neg_candidates=5):
 

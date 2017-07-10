@@ -348,9 +348,11 @@ class CNNNet(nn.Module):
         receptive_field_width = (self.kernel_width[0] +
                                  (self.kernel_width[0] - 1) *
                                  (self.dilation[0] - 1))
+        residual = F.pad(sequence_embeddings,
+                         (0, 0, 1, 0))
         x = F.pad(sequence_embeddings,
                   (0, 0, receptive_field_width, 0))
-        x = F.tanh(self.cnn_layers[0](x))
+        x = F.tanh(self.cnn_layers[0](x)) + residual
 
         for (cnn_layer, kernel_width, dilation) in zip(self.cnn_layers[1:],
                                                        self.kernel_width[1:],
@@ -358,9 +360,9 @@ class CNNNet(nn.Module):
             receptive_field_width = (kernel_width +
                                      (kernel_width - 1) *
                                      (dilation - 1))
-
+            residual = x
             x = F.pad(x, (0, 0, receptive_field_width - 1, 0))
-            x = F.tanh(cnn_layer(x))
+            x = F.tanh(cnn_layer(x)) + residual
 
         x = x.squeeze(3)
 
