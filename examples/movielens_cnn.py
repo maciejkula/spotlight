@@ -15,15 +15,15 @@ from spotlight.sequence.representations import CNNNet
 from spotlight.evaluation import sequence_mrr_score
 
 
-CUDA = (os.environ.get('CUDA') is not None
-        or shutil.which('nvidia-smi') is not None)
+CUDA = (os.environ.get('CUDA') is not None or
+        shutil.which('nvidia-smi') is not None)
 
 
 def sample_hyperparameters(random_state, num):
 
     space = {
         'n_iter': distributions.randint(5, 30),
-        'batch_size': [1024, 2048, 4096, 8192],
+        'batch_size': [256, 512, 1024],
         'l2': [1e-6, 1e-5, 1e-4, 1e-3, 1e-2, 0.0],
         'learning_rate': [1e-3, 1e-2, 5 * 1e-2],
         'loss': ['bpr', 'hinge', 'pointwise'],
@@ -104,7 +104,7 @@ if __name__ == '__main__':
     validation = validation.to_sequence(sequence_length)
 
     with open('results.txt', 'a') as output:
-        for hyperparams in sample_hyperparameters(random_state, 100):
+        for hyperparams in sample_hyperparameters(random_state, 1000):
 
             if is_saved('results.txt', hyperparams):
                 print('Already computed')
@@ -115,3 +115,4 @@ if __name__ == '__main__':
                                     test,
                                     random_state)
             output.write(json.dumps(result) + '\n')
+            output.flush()
