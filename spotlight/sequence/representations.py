@@ -15,6 +15,15 @@ from spotlight.layers import ScaledEmbedding, ZeroEmbedding
 PADDING_IDX = 0
 
 
+def _to_iterable(val, num):
+
+    try:
+        iter(val)
+        return val
+    except TypeError:
+        return (val,) * num
+
+
 class PoolNet(nn.Module):
     """
     Module representing users through averaging the representations of items
@@ -232,7 +241,7 @@ class LSTMNet(nn.Module):
 
 class CNNNet(nn.Module):
     """
-    Module representing users through stacked causal atrous convolutions [3]_.
+    Module representing users through stacked causal atrous convolutions ([3]_, [4]_).
 
     To represent a sequence, it runs a 1D convolution over the input sequence,
     from left to right. At each timestep, the output of the convolution is
@@ -257,12 +266,17 @@ class CNNNet(nn.Module):
     embedding_dim: int, optional
         Embedding dimension of the embedding layer, and the number of filters
         in each convlutonal layer.
-    kernel_width: int, optional
-        The kernel width of the convolutional layers.
-    dilation: int, optional
+    kernel_width: tuple or int, optional
+        The kernel width of the convolutional layers. If tuple, should contain
+        the kernel widths for all convolutional layers. If int, it will be
+        expanded into a tuple to match the number of layers.
+    dilation: tuple or int, optional
         The dilation factor for atrous convolutions. Setting this to a number
         greater than 1 inserts gaps into the convolutional layers, increasing
         their receptive field without increasing the number of parameters.
+        If tuple, should contain the dilation factors for all convolutional
+        layers. If int, it will be expanded into a tuple to match the number
+        of layers.
     num_layers: int, optional
         Number of stacked convolutional layers.
 
@@ -271,6 +285,8 @@ class CNNNet(nn.Module):
 
     .. [3] Oord, Aaron van den, et al. "Wavenet: A generative model for raw audio."
        arXiv preprint arXiv:1609.03499 (2016).
+    .. [4] Kalchbrenner, Nal, et al. "Neural machine translation in linear time."
+       arXiv preprint arXiv:1610.10099 (2016).
     """
 
     def __init__(self, num_items,
@@ -279,11 +295,12 @@ class CNNNet(nn.Module):
                  dilation=1,
                  num_layers=1,
                  sparse=False):
+
         super().__init__()
 
         self.embedding_dim = embedding_dim
-        self.kernel_width = kernel_width
-        self.dilation = dilation
+        self.kernel_width = _to_iterable(kernel_width, num_layers)
+        self.dilation = _to_iterable(dilation, num_layers)
 
         self.item_embeddings = ScaledEmbedding(num_items, embedding_dim,
                                                sparse=sparse,
@@ -296,7 +313,8 @@ class CNNNet(nn.Module):
                       embedding_dim,
                       (kernel_width, 1),
                       dilation=(dilation, 1)) for
-            _ in range(num_layers)
+            (kernel_width, dilation) in zip(self.kernel_width,
+                                            self.dilation)
         ]
 
         for i, layer in enumerate(self.cnn_layers):
@@ -325,17 +343,21 @@ class CNNNet(nn.Module):
         sequence_embeddings = (sequence_embeddings
                                .unsqueeze(3))
 
-        receptive_field_width = (self.kernel_width +
-                                 (self.kernel_width - 1) *
-                                 (self.dilation - 1))
-
         # Pad so that the CNN doesn't have the future
         # of the sequence in its receptive field.
+        receptive_field_width = (self.kernel_width[0] +
+                                 (self.kernel_width[0] - 1) *
+                                 (self.dilation[0] - 1))
         x = F.pad(sequence_embeddings,
                   (0, 0, receptive_field_width, 0))
         x = F.tanh(self.cnn_layers[0](x))
 
-        for cnn_layer in self.cnn_layers[1:]:
+        for (cnn_layer, kernel_width, dilation) in zip(self.cnn_layers[1:],
+                                                       self.kernel_width[1:],
+                                                       self.dilation[1:]):
+            receptive_field_width = (kernel_width +
+                                     (kernel_width - 1) *
+                                     (dilation - 1))
 
             x = F.pad(x, (0, 0, receptive_field_width - 1, 0))
             x = F.tanh(cnn_layer(x))
