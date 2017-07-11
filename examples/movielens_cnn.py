@@ -1,10 +1,10 @@
+import hashlib
 import json
 import os
 import shutil
+import sys
 
 import numpy as np
-
-from scipy.stats import distributions
 
 from sklearn.model_selection import ParameterSampler
 
@@ -19,15 +19,68 @@ CUDA = (os.environ.get('CUDA') is not None or
         shutil.which('nvidia-smi') is not None)
 
 
-def sample_hyperparameters(random_state, num):
+class Results:
+
+    def __init__(self, filename):
+
+        self._filename = filename
+
+        open(self._filename, 'a+')
+
+    def _hash(self, x):
+
+        return hashlib.md5(json.dumps(x, sort_keys=True).encode('utf-8')).hexdigest()
+
+    def save(self, hyperparams, mrr):
+
+        result = {'mrr': mrr, 'hash': self._hash(hyperparams)}
+        result.update(hyperparams)
+
+        with open(self._filename, 'a+') as out:
+            out.write(json.dumps(result) + '\n')
+
+    def __getitem__(self, hyperparams):
+
+        params_hash = self._hash(hyperparams)
+
+        with open(self._filename, 'r+') as fle:
+            for line in fle:
+                datum = json.loads(line)
+
+                if datum['hash'] == params_hash:
+                    del datum['hash']
+                    return datum
+
+        raise KeyError
+
+    def __contains__(self, x):
+
+        try:
+            self[x]
+            return True
+        except KeyError:
+            return False
+
+    def __iter__(self):
+
+        with open(self._filename, 'r+') as fle:
+            for line in fle:
+                datum = json.loads(line)
+
+                del datum['hash']
+
+                yield datum
+
+
+def sample_cnn_hyperparameters(random_state, num):
 
     space = {
-        'n_iter': distributions.randint(5, 30),
+        'n_iter': list(range(5, 30)),
         'batch_size': [256, 512, 1024],
         'l2': [1e-6, 1e-5, 1e-4, 1e-3, 1e-2, 0.0],
         'learning_rate': [1e-3, 1e-2, 5 * 1e-2],
         'loss': ['bpr', 'hinge', 'pointwise'],
-        'num_layers': distributions.randint(1, 10),
+        'num_layers': list(range(1, 10)),
         'embedding_dim': [8, 16, 32, 64, 128, 256]
     }
 
@@ -41,10 +94,29 @@ def sample_hyperparameters(random_state, num):
         yield params
 
 
-def evaluate_model(hyperparameters, train, test, random_state):
+def sample_pooling_hyperparameters(random_state, num):
+
+    space = {
+        'n_iter': list(range(5, 30)),
+        'batch_size': [256, 512, 1024],
+        'l2': [1e-6, 1e-5, 1e-4, 1e-3, 1e-2, 0.0],
+        'learning_rate': [1e-3, 1e-2, 5 * 1e-2],
+        'loss': ['bpr', 'hinge', 'pointwise'],
+        'embedding_dim': [8, 16, 32, 64, 128, 256]
+    }
+
+    sampler = ParameterSampler(space,
+                               n_iter=num,
+                               random_state=random_state)
+
+    for params in sampler:
+
+        yield params
+
+
+def evaluate_cnn_model(hyperparameters, train, test, random_state):
 
     h = hyperparameters
-    print('Evaluating {}'.format(hyperparameters))
 
     net = CNNNet(train.num_items,
                  embedding_dim=h['embedding_dim'],
@@ -65,27 +137,79 @@ def evaluate_model(hyperparameters, train, test, random_state):
 
     test_mrr = sequence_mrr_score(model, test)
 
-    print('Test MRR {}'.format(
-        test_mrr.mean()
-    ))
-
-    h['mrr'] = test_mrr.mean()
-
-    return h
+    return test_mrr
 
 
-def is_saved(filename, hyperparams):
+def evaluate_pooling_model(hyperparameters, train, test, random_state):
 
-    with open(filename, 'r') as result_file:
-        for line in result_file:
+    h = hyperparameters
 
-            line_result = json.loads(line)
-            del line_result['mrr']
+    model = ImplicitSequenceModel(loss=h['loss'],
+                                  representation='pooling',
+                                  batch_size=h['batch_size'],
+                                  learning_rate=h['learning_rate'],
+                                  l2=h['l2'],
+                                  n_iter=h['n_iter'],
+                                  use_cuda=CUDA,
+                                  random_state=random_state)
 
-            if line_result == hyperparams:
-                return True
+    model.fit(train, verbose=True)
 
-    return False
+    test_mrr = sequence_mrr_score(model, test)
+
+    return test_mrr
+
+
+def run_cnn(train, test, random_state):
+
+    results = Results('cnn_results.txt')
+
+    for hyperparameters in sample_cnn_hyperparameters(random_state, 1000):
+
+        if hyperparameters in results:
+            print('Already computed, skipping...')
+            continue
+
+        print('Evaluating {}'.format(hyperparameters))
+
+        mrr = evaluate_cnn_model(hyperparameters,
+                                 train,
+                                 test,
+                                 random_state)
+
+        print('Test MRR {}'.format(
+            mrr.mean()
+        ))
+
+        results.save(hyperparameters, mrr.mean())
+
+    return results
+
+
+def run_pooling(train, test, random_state):
+
+    results = Results('pooling_results.txt')
+
+    for hyperparameters in sample_pooling_hyperparameters(random_state, 1000):
+
+        if hyperparameters in results:
+            print('Already computed, skipping...')
+            continue
+
+        print('Evaluating {}'.format(hyperparameters))
+
+        mrr = evaluate_pooling_model(hyperparameters,
+                                     train,
+                                     test,
+                                     random_state)
+
+        print('Test MRR {}'.format(
+            mrr.mean()
+        ))
+
+        results.save(hyperparameters, mrr.mean())
+
+    return results
 
 
 if __name__ == '__main__':
@@ -103,21 +227,18 @@ if __name__ == '__main__':
                                                    random_state=random_state)
     train = train.to_sequence(max_sequence_length=max_sequence_length,
                               min_sequence_length=min_sequence_length)
+    train.sequences = train.sequences[:100]
     test = test.to_sequence(max_sequence_length=max_sequence_length,
                             min_sequence_length=min_sequence_length)
+    test.sequences = test.sequences[:100]
     validation = validation.to_sequence(max_sequence_length=max_sequence_length,
                                         min_sequence_length=min_sequence_length)
 
-    with open('results.txt', 'a') as output:
-        for hyperparams in sample_hyperparameters(random_state, 1000):
+    mode = sys.argv[1]
 
-            if is_saved('results.txt', hyperparams):
-                print('Already computed')
-                continue
-
-            result = evaluate_model(hyperparams,
-                                    train,
-                                    test,
-                                    random_state)
-            output.write(json.dumps(result) + '\n')
-            output.flush()
+    if mode == 'cnn':
+        run_cnn(train, test, random_state)
+    elif mode == 'pooling':
+        run_pooling(train, test, random_state)
+    else:
+        raise ValueError('Unknown model type')
