@@ -134,12 +134,8 @@ def test_implicit_cnn_synthetic(randomness, expected_mrr):
 
 
 @pytest.mark.parametrize('num_layers, dilation, expected_mrr', [
-    (1, 1, 0.65),
-    (1, 2, 0.65),
-    (2, 1, 0.65),
-    (2, 2, 0.65),
-    (3, 1, 0.65),
-    (3, (1, 2, 3), 0.65),
+    (1, (1,), 0.65),
+    (2, (1, 2), 0.65),
 ])
 def test_implicit_cnn_dilation_synthetic(num_layers, dilation, expected_mrr):
 
