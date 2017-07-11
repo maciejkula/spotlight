@@ -164,10 +164,10 @@ def test_implicit_cnn_dilation_synthetic(num_layers, dilation, expected_mrr):
 
 
 @pytest.mark.parametrize('loss, expected_mrr', [
-    ('pointwise', 0.16),
-    ('hinge', 0.17),
-    ('bpr', 0.19),
-    ('adaptive_hinge', 0.17),
+    ('pointwise', 0.15),
+    ('hinge', 0.16),
+    ('bpr', 0.18),
+    ('adaptive_hinge', 0.16),
 ])
 def test_implicit_pooling_losses(loss, expected_mrr):
 
