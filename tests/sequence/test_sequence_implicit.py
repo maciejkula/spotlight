@@ -161,3 +161,29 @@ def test_implicit_cnn_dilation_synthetic(num_layers, dilation, expected_mrr):
     mrr = _evaluate(model, test)
 
     assert mrr.mean() > expected_mrr
+
+
+@pytest.mark.parametrize('loss, expected_mrr', [
+    ('pointwise', 0.16),
+    ('hinge', 0.17),
+    ('bpr', 0.19),
+    ('adaptive_hinge', 0.17),
+])
+def test_implicit_pooling_losses(loss, expected_mrr):
+
+    random_state = np.random.RandomState(RANDOM_SEED)
+    train, test = _get_synthetic_data(randomness=1e-3,
+                                      random_state=random_state)
+
+    model = ImplicitSequenceModel(loss=loss,
+                                  batch_size=BATCH_SIZE,
+                                  embedding_dim=EMBEDDING_DIM,
+                                  learning_rate=1e-1,
+                                  l2=1e-9,
+                                  n_iter=NUM_EPOCHS,
+                                  random_state=random_state)
+    model.fit(train, verbose=VERBOSE)
+
+    mrr = _evaluate(model, test)
+
+    assert mrr.mean() > expected_mrr

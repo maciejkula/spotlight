@@ -11,8 +11,8 @@ import torch.optim as optim
 
 from torch.autograd import Variable
 
-
-from spotlight.losses import (bpr_loss,
+from spotlight.losses import (adaptive_hinge_loss,
+                              bpr_loss,
                               hinge_loss,
                               pointwise_loss)
 from spotlight.sequence.representations import PADDING_IDX, CNNNet, LSTMNet, PoolNet
@@ -140,8 +140,10 @@ class ImplicitSequenceModel(object):
             loss_fnc = pointwise_loss
         elif self._loss == 'bpr':
             loss_fnc = bpr_loss
-        else:
+        elif self._loss == 'hinge':
             loss_fnc = hinge_loss
+        else:
+            loss_fnc = adaptive_hinge_loss
 
         for epoch_num in range(self._n_iter):
 
@@ -166,17 +168,12 @@ class ImplicitSequenceModel(object):
                                                 sequence_var)
 
                 if self._loss == 'adaptive_hinge':
-                    raise NotImplementedError
+                    negative_prediction = [self._get_negative_prediction(sequence_var.size(),
+                                                                         user_representation)
+                                           for _ in range(5)]
                 else:
-                    negative_items = sample_items(
-                        self._num_items,
-                        batch_sequence.size(),
-                        random_state=self._random_state)
-                    negative_var = Variable(
-                        gpu(torch.from_numpy(negative_items), self._use_cuda)
-                    )
-                    negative_prediction = self._net(user_representation,
-                                                    negative_var)
+                    negative_prediction = self._get_negative_prediction(sequence_var.size(),
+                                                                        user_representation)
 
                 self._optimizer.zero_grad()
 
@@ -193,24 +190,18 @@ class ImplicitSequenceModel(object):
             if verbose:
                 print('Epoch {}: loss {}'.format(epoch_num, epoch_loss))
 
-    # def _get_adaptive_negatives(self, user_ids, num_neg_candidates=5):
+    def _get_negative_prediction(self, shape, user_representation):
 
-    #     negatives = Variable(
-    #         gpu(
-    #             torch.from_numpy(
-    #                 self._random_state
-    #                 .randint(0, self._num_items,
-    #                          (len(user_ids), num_neg_candidates))),
-    #             self._use_cuda)
-    #     )
-    #     negative_predictions = self._net(
-    #         user_ids.repeat(num_neg_candidates, 1).transpose(0, 1),
-    #         negatives
-    #     ).view(-1, num_neg_candidates)
+        negative_items = sample_items(
+            self._num_items,
+            shape,
+            random_state=self._random_state)
+        negative_var = Variable(
+            gpu(torch.from_numpy(negative_items))
+        )
+        negative_prediction = self._net(user_representation, negative_var)
 
-    #     best_negative_prediction, _ = negative_predictions.max(1)
-
-    #     return best_negative_prediction
+        return negative_prediction
 
     def predict(self, sequences, item_ids=None):
         """
