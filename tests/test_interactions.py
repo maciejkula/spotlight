@@ -3,6 +3,7 @@ import numpy as np
 import pytest
 
 from spotlight.datasets import movielens
+from spotlight.interactions import Interactions
 
 
 def _test_just_padding(sequences):
@@ -63,6 +64,24 @@ def _test_temporal_order(sequence_users, sequences, interactions):
             assert item_timestamp <= next_item_timestamp
 
 
+def test_known_output():
+
+    interactions = Interactions(np.zeros(5),
+                                np.arange(5) + 1,
+                                timestamps=np.arange(5))
+    sequences = interactions.to_sequence(max_sequence_length=5).sequences
+
+    expected = np.array([
+        [1, 2, 3, 4, 5],
+        [0, 1, 2, 3, 4],
+        [0, 0, 1, 2, 3],
+        [0, 0, 0, 1, 2],
+        [0, 0, 0, 0, 1]
+    ])
+
+    assert np.all(sequences == expected)
+
+
 @pytest.mark.parametrize("max_sequence_length", [
     5,
     20,
@@ -84,3 +103,19 @@ def test_to_sequence(max_sequence_length):
     _test_temporal_order(sequences.user_ids,
                          sequences.sequences,
                          interactions)
+
+
+def test_to_sequence_min_length():
+
+    min_sequence_length = 10
+    interactions = movielens.get_movielens_dataset('100K')
+
+    # Check that with default arguments there are sequences
+    # that are shorter than we want
+    sequences = interactions.to_sequence(max_sequence_length=20)
+    assert np.any((sequences.sequences != 0).sum(axis=1) < min_sequence_length)
+
+    # But no such sequences after we specify min length.
+    sequences = interactions.to_sequence(max_sequence_length=20,
+                                         min_sequence_length=min_sequence_length)
+    assert not np.any((sequences.sequences != 0).sum(axis=1) < min_sequence_length)

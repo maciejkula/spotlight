@@ -153,8 +153,8 @@ class ImplicitSequenceModel(object):
 
             epoch_loss = 0.0
 
-            for batch_sequence in minibatch(sequences_tensor,
-                                            batch_size=self._batch_size):
+            for minibatch_num, batch_sequence in enumerate(minibatch(sequences_tensor,
+                                                                     batch_size=self._batch_size)):
 
                 sequence_var = Variable(batch_sequence)
 
@@ -188,9 +188,10 @@ class ImplicitSequenceModel(object):
                 loss.backward()
                 self._optimizer.step()
 
+            epoch_loss /= minibatch_num + 1
+
             if verbose:
-                print('Epoch {}: loss {}'.format(epoch_num,
-                                                 epoch_loss / (epoch_num + 1)))
+                print('Epoch {}: loss {}'.format(epoch_num, epoch_loss))
 
     # def _get_adaptive_negatives(self, user_ids, num_neg_candidates=5):
 

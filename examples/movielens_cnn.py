@@ -90,7 +90,8 @@ def is_saved(filename, hyperparams):
 
 if __name__ == '__main__':
 
-    sequence_length = 50
+    max_sequence_length = 100
+    min_sequence_length = 20
     random_state = np.random.RandomState(100)
 
     dataset = get_movielens_dataset('100K')
@@ -98,10 +99,14 @@ if __name__ == '__main__':
     train, rest = user_based_train_test_split(dataset,
                                               random_state=random_state)
     test, validation = user_based_train_test_split(rest,
+                                                   test_percentage=0.5,
                                                    random_state=random_state)
-    train = train.to_sequence(sequence_length)
-    test = test.to_sequence(sequence_length)
-    validation = validation.to_sequence(sequence_length)
+    train = train.to_sequence(max_sequence_length=max_sequence_length,
+                              min_sequence_length=min_sequence_length)
+    test = test.to_sequence(max_sequence_length=max_sequence_length,
+                            min_sequence_length=min_sequence_length)
+    validation = validation.to_sequence(max_sequence_length=max_sequence_length,
+                                        min_sequence_length=min_sequence_length)
 
     with open('results.txt', 'a') as output:
         for hyperparams in sample_hyperparameters(random_state, 1000):
