@@ -227,10 +227,8 @@ if __name__ == '__main__':
                                                    random_state=random_state)
     train = train.to_sequence(max_sequence_length=max_sequence_length,
                               min_sequence_length=min_sequence_length)
-    train.sequences = train.sequences[:100]
     test = test.to_sequence(max_sequence_length=max_sequence_length,
                             min_sequence_length=min_sequence_length)
-    test.sequences = test.sequences[:100]
     validation = validation.to_sequence(max_sequence_length=max_sequence_length,
                                         min_sequence_length=min_sequence_length)
 

@@ -191,7 +191,7 @@ class ImplicitFactorizationModel(object):
             len(user_ids),
             random_state=self._random_state)
         negative_var = Variable(
-            gpu(torch.from_numpy(negative_items))
+            gpu(torch.from_numpy(negative_items), self._use_cuda)
         )
         negative_prediction = self._net(user_ids, negative_var)
 
