@@ -148,12 +148,13 @@ class ExplicitFactorizationModel(object):
 
             epoch_loss = 0.0
 
-            for (batch_user,
-                 batch_item,
-                 batch_ratings) in minibatch(user_ids_tensor,
-                                             item_ids_tensor,
-                                             ratings_tensor,
-                                             batch_size=self._batch_size):
+            for (minibatch_num,
+                 (batch_user,
+                  batch_item,
+                  batch_ratings)) in enumerate(minibatch(user_ids_tensor,
+                                                         item_ids_tensor,
+                                                         ratings_tensor,
+                                                         batch_size=self._batch_size)):
 
                 user_var = Variable(batch_user)
                 item_var = Variable(batch_item)
@@ -172,9 +173,10 @@ class ExplicitFactorizationModel(object):
                 loss.backward()
                 self._optimizer.step()
 
+            epoch_loss /= minibatch_num + 1
+
             if verbose:
-                print('Epoch {}: loss {}'.format(epoch_num,
-                                                 epoch_loss / (epoch_num + 1)))
+                print('Epoch {}: loss {}'.format(epoch_num, epoch_loss))
 
     def predict(self, user_ids, item_ids):
         """

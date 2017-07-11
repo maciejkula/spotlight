@@ -122,7 +122,7 @@ class Interactions(object):
 
         return self.tocoo().tocsr()
 
-    def to_sequence(self, max_sequence_length=10):
+    def to_sequence(self, max_sequence_length=10, min_sequence_length=None):
         """
         Transform to sequence form.
 
@@ -148,6 +148,9 @@ class Interactions(object):
         max_sequence_length: int, optional
             maximum sequence length. Subsequences shorter than this
             will be left-padded with zeros.
+        min_sequence_length: int, optional
+            If set, only sequences with at least min_sequence_length
+            non-padding elements will be returned.
 
         Returns
         -------
@@ -186,6 +189,11 @@ class Interactions(object):
                                                       max_sequence_length)):
             sequences[i][-len(seq):] = seq
             sequence_users[i] = uid
+
+        if min_sequence_length is not None:
+            long_enough = sequences[:, -min_sequence_length] != 0
+            sequences = sequences[long_enough]
+            sequence_users = sequence_users[long_enough]
 
         return (SequenceInteractions(sequences,
                                      user_ids=sequence_users,
