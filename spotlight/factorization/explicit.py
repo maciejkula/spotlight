@@ -10,12 +10,10 @@ import torch.optim as optim
 
 from torch.autograd import Variable
 
-
+from spotlight.helpers import _repr_model
 from spotlight.factorization.representations import BilinearNet
-
 from spotlight.losses import (regression_loss,
                               poisson_loss)
-
 from spotlight.torch_utils import cpu, gpu, minibatch, set_seed, shuffle
 
 
@@ -91,6 +89,10 @@ class ExplicitFactorizationModel(object):
 
         set_seed(self._random_state.randint(-10**8, 10**8),
                  cuda=self._use_cuda)
+
+    def __repr__(self):
+
+        return _repr_model(self)
 
     def fit(self, interactions, verbose=False):
         """
