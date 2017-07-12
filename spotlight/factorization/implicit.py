@@ -10,7 +10,7 @@ import torch.optim as optim
 
 from torch.autograd import Variable
 
-
+from spotlight.helpers import _repr_model
 from spotlight.losses import (adaptive_hinge_loss,
                               bpr_loss,
                               hinge_loss,
@@ -99,6 +99,10 @@ class ImplicitFactorizationModel(object):
 
         set_seed(self._random_state.randint(-10**8, 10**8),
                  cuda=self._use_cuda)
+
+    def __repr__(self):
+
+        return _repr_model(self)
 
     def fit(self, interactions, verbose=False):
         """

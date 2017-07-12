@@ -39,6 +39,16 @@ class Interactions(object):
     interactions, but can also be enriched with ratings, timestamps,
     and interaction weights.
 
+    For *implicit feedback* scenarios, user ids and item ids should
+    only be provided for user-item pairs where an interaction was
+    observed. All pairs that are not provided are treated as missing
+    observations, and often interpreted as (implicit) negative
+    signals.
+
+    For *explicit feedback* scenarios, user ids, item ids, and
+    ratings should be provided for all user-item-rating triplets
+    that were observed in the dataset.
+
     Parameters
     ----------
 
@@ -52,6 +62,32 @@ class Interactions(object):
         array of timestamps
     weights: array of np.float32, optional
         array of weights
+    num_users: int, optional
+        Number of distinct users in the dataset.
+        Must be larger than the maximum user id
+        in user_ids.
+    num_items: int, optional
+        Number of distinct items in the dataset.
+        Must be larger than the maximum item id
+        in item_ids.
+
+    Attributes
+    ----------
+
+    user_ids: array of np.int32
+        array of user ids of the user-item pairs
+    item_ids: array of np.int32
+        array of item ids of the user-item pairs
+    ratings: array of np.float32, optional
+        array of ratings
+    timestamps: array of np.int32, optional
+        array of timestamps
+    weights: array of np.float32, optional
+        array of weights
+    num_users: int, optional
+        Number of distinct users in the dataset.
+    num_items: int, optional
+        Number of distinct items in the dataset.
     """
 
     def __init__(self, user_ids, item_ids,
@@ -87,6 +123,13 @@ class Interactions(object):
         return len(self.user_ids)
 
     def _check(self):
+
+        if self.user_ids.max() >= self.num_users:
+            raise ValueError('Maximum user id greater '
+                             'than declared number of users.')
+        if self.item_ids.max() >= self.num_items:
+            raise ValueError('Maximum item id greater '
+                             'than declared number of items.')
 
         num_interactions = len(self.user_ids)
 
@@ -212,6 +255,13 @@ class SequenceInteractions(object):
         :func:`~Interactions.to_sequence`
     num_items: int, optional
         The number of distinct items in the data
+
+    Attributes
+    ----------
+
+    sequences: array of np.int32 of shape (num_sequences x max_sequence_length)
+        The interactions sequence matrix, as produced by
+        :func:`~Interactions.to_sequence`
     """
 
     def __init__(self,
