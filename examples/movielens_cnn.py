@@ -81,6 +81,29 @@ def sample_cnn_hyperparameters(random_state, num):
         'learning_rate': [1e-3, 1e-2, 5 * 1e-2],
         'loss': ['bpr', 'hinge', 'pointwise'],
         'num_layers': list(range(1, 10)),
+        'embedding_dim': [8, 16, 32, 64, 128, 256],
+        'dilation_multiplier': [1, 2, 3],
+    }
+
+    sampler = ParameterSampler(space,
+                               n_iter=num,
+                               random_state=random_state)
+
+    for params in sampler:
+        params['dilation'] = list(params['dilation_multiplier'] ** i
+                                  for i in range(params['num_layers']))
+
+        yield params
+
+
+def sample_lstm_hyperparameters(random_state, num):
+
+    space = {
+        'n_iter': list(range(5, 30)),
+        'batch_size': [256, 512, 1024],
+        'l2': [1e-6, 1e-5, 1e-4, 1e-3, 1e-2, 0.0],
+        'learning_rate': [1e-3, 1e-2, 5 * 1e-2],
+        'loss': ['bpr', 'hinge', 'pointwise'],
         'embedding_dim': [8, 16, 32, 64, 128, 256]
     }
 
@@ -89,7 +112,6 @@ def sample_cnn_hyperparameters(random_state, num):
                                random_state=random_state)
 
     for params in sampler:
-        params['dilation'] = list(2 ** i for i in range(params['num_layers']))
 
         yield params
 
@@ -126,6 +148,26 @@ def evaluate_cnn_model(hyperparameters, train, test, random_state):
 
     model = ImplicitSequenceModel(loss=h['loss'],
                                   representation=net,
+                                  batch_size=h['batch_size'],
+                                  learning_rate=h['learning_rate'],
+                                  l2=h['l2'],
+                                  n_iter=h['n_iter'],
+                                  use_cuda=CUDA,
+                                  random_state=random_state)
+
+    model.fit(train, verbose=True)
+
+    test_mrr = sequence_mrr_score(model, test)
+
+    return test_mrr
+
+
+def evaluate_lstm_model(hyperparameters, train, test, random_state):
+
+    h = hyperparameters
+
+    model = ImplicitSequenceModel(loss=h['loss'],
+                                  representation='lstm',
                                   batch_size=h['batch_size'],
                                   learning_rate=h['learning_rate'],
                                   l2=h['l2'],
@@ -212,6 +254,32 @@ def run_pooling(train, test, random_state):
     return results
 
 
+def run_lstm(train, test, random_state):
+
+    results = Results('lstm_results.txt')
+
+    for hyperparameters in sample_pooling_hyperparameters(random_state, 1000):
+
+        if hyperparameters in results:
+            print('Already computed, skipping...')
+            continue
+
+        print('Evaluating {}'.format(hyperparameters))
+
+        mrr = evaluate_lstm_model(hyperparameters,
+                                  train,
+                                  test,
+                                  random_state)
+
+        print('Test MRR {}'.format(
+            mrr.mean()
+        ))
+
+        results.save(hyperparameters, mrr.mean())
+
+    return results
+
+
 if __name__ == '__main__':
 
     max_sequence_length = 100
@@ -238,5 +306,7 @@ if __name__ == '__main__':
         run_cnn(train, test, random_state)
     elif mode == 'pooling':
         run_pooling(train, test, random_state)
+    elif mode == 'lstm':
+        run_lstm(train, test, random_state)
     else:
         raise ValueError('Unknown model type')
