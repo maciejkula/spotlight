@@ -5,9 +5,9 @@ as functions of the items they have interacted with in the past.
 
 import torch
 
+from torch.backends import cudnn
 import torch.nn as nn
 import torch.nn.functional as F
-
 
 from spotlight.layers import ScaledEmbedding, ZeroEmbedding
 
@@ -296,9 +296,12 @@ class CNNNet(nn.Module):
                  kernel_width=5,
                  dilation=1,
                  num_layers=1,
-                 sparse=False):
+                 sparse=False,
+                 benchmark=True):
 
         super().__init__()
+
+        cudnn.benchmark = benchmark
 
         self.embedding_dim = embedding_dim
         self.kernel_width = _to_iterable(kernel_width, num_layers)

@@ -18,6 +18,13 @@ from spotlight.evaluation import sequence_mrr_score
 CUDA = (os.environ.get('CUDA') is not None or
         shutil.which('nvidia-smi') is not None)
 
+LEARNING_RATES = [1e-3, 1e-2, 5 * 1e-2, 1e-1]
+LOSSES = ['bpr', 'hinge', 'adaptive_hinge', 'pointwise']
+BATCH_SIZE = [8, 16, 32, 256]
+EMBEDDING_DIM = [8, 16, 32, 64, 128, 256]
+N_ITER = list(range(5, 20))
+L2 = [1e-6, 1e-5, 1e-4, 1e-3, 1e-2, 0.0]
+
 
 class Results:
 
@@ -75,14 +82,14 @@ class Results:
 def sample_cnn_hyperparameters(random_state, num):
 
     space = {
-        'n_iter': list(range(5, 30)),
-        'batch_size': [256, 512, 1024],
-        'l2': [1e-6, 1e-5, 1e-4, 1e-3, 1e-2, 0.0],
-        'learning_rate': [1e-3, 1e-2, 5 * 1e-2],
-        'loss': ['bpr', 'hinge', 'pointwise'],
+        'n_iter': N_ITER,
+        'batch_size': BATCH_SIZE,
+        'l2': L2,
+        'learning_rate': LEARNING_RATES,
+        'loss': LOSSES,
+        'embedding_dim': EMBEDDING_DIM,
         'num_layers': list(range(1, 10)),
-        'embedding_dim': [8, 16, 32, 64, 128, 256],
-        'dilation_multiplier': [1, 2, 3],
+        'dilation_multiplier': [1, 2],
     }
 
     sampler = ParameterSampler(space,
@@ -90,7 +97,7 @@ def sample_cnn_hyperparameters(random_state, num):
                                random_state=random_state)
 
     for params in sampler:
-        params['dilation'] = list(params['dilation_multiplier'] ** i
+        params['dilation'] = list(params['dilation_multiplier'] ** (i % 8)
                                   for i in range(params['num_layers']))
 
         yield params
@@ -99,12 +106,12 @@ def sample_cnn_hyperparameters(random_state, num):
 def sample_lstm_hyperparameters(random_state, num):
 
     space = {
-        'n_iter': list(range(5, 30)),
-        'batch_size': [256, 512, 1024],
-        'l2': [1e-6, 1e-5, 1e-4, 1e-3, 1e-2, 0.0],
-        'learning_rate': [1e-3, 1e-2, 5 * 1e-2],
-        'loss': ['bpr', 'hinge', 'pointwise'],
-        'embedding_dim': [8, 16, 32, 64, 128, 256]
+        'n_iter': N_ITER,
+        'batch_size': BATCH_SIZE,
+        'l2': L2,
+        'learning_rate': LEARNING_RATES,
+        'loss': LOSSES,
+        'embedding_dim': EMBEDDING_DIM,
     }
 
     sampler = ParameterSampler(space,
@@ -119,12 +126,12 @@ def sample_lstm_hyperparameters(random_state, num):
 def sample_pooling_hyperparameters(random_state, num):
 
     space = {
-        'n_iter': list(range(5, 30)),
-        'batch_size': [256, 512, 1024],
-        'l2': [1e-6, 1e-5, 1e-4, 1e-3, 1e-2, 0.0],
-        'learning_rate': [1e-3, 1e-2, 5 * 1e-2],
-        'loss': ['bpr', 'hinge', 'pointwise'],
-        'embedding_dim': [8, 16, 32, 64, 128, 256]
+        'n_iter': N_ITER,
+        'batch_size': BATCH_SIZE,
+        'l2': L2,
+        'learning_rate': LEARNING_RATES,
+        'loss': LOSSES,
+        'embedding_dim': EMBEDDING_DIM,
     }
 
     sampler = ParameterSampler(space,
@@ -282,8 +289,9 @@ def run_lstm(train, test, random_state):
 
 if __name__ == '__main__':
 
-    max_sequence_length = 100
+    max_sequence_length = 200
     min_sequence_length = 20
+    step_size = 200
     random_state = np.random.RandomState(100)
 
     dataset = get_movielens_dataset('100K')
@@ -294,13 +302,14 @@ if __name__ == '__main__':
                                                    test_percentage=0.5,
                                                    random_state=random_state)
     train = train.to_sequence(max_sequence_length=max_sequence_length,
-                              min_sequence_length=min_sequence_length)
+                              min_sequence_length=min_sequence_length,
+                              step_size=step_size)
     test = test.to_sequence(max_sequence_length=max_sequence_length,
                             min_sequence_length=min_sequence_length,
-                            step_size=1)
+                            step_size=step_size)
     validation = validation.to_sequence(max_sequence_length=max_sequence_length,
                                         min_sequence_length=min_sequence_length,
-                                        step_size=1)
+                                        step_size=step_size)
 
     mode = sys.argv[1]
 
