@@ -230,6 +230,8 @@ class ImplicitSequenceModel(object):
             Predicted scores for all items in item_ids.
         """
 
+        self._net.train(False)
+
         sequences = np.atleast_2d(sequences)
 
         if item_ids is None:
