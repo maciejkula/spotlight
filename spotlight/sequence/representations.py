@@ -254,7 +254,7 @@ class CNNNet(nn.Module):
     more layers, or increase the dilation factor.
     Input dimensionality is preserved from layer to layer.
 
-    Residual connections are added between all layers.
+    Residual connections can be added between all layers.
 
     During training, representations for all timesteps of the sequence are
     computed in one go. Loss functions using the outputs will therefore
@@ -281,6 +281,11 @@ class CNNNet(nn.Module):
         of layers.
     num_layers: int, optional
         Number of stacked convolutional layers.
+    nonlinearity: string, optional
+        One of ('tanh', 'relu'). Denotes the type of non-linearity to apply
+        after each convolutional layer.
+    residual_connections: boolean, optional
+        Whether to use reisdual connections between convolutional layers.
 
     References
     ----------
@@ -293,9 +298,11 @@ class CNNNet(nn.Module):
 
     def __init__(self, num_items,
                  embedding_dim=32,
-                 kernel_width=5,
+                 kernel_width=3,
                  dilation=1,
                  num_layers=1,
+                 nonlinearity='tanh',
+                 residual_connections=True,
                  sparse=False,
                  benchmark=True):
 
@@ -306,6 +313,13 @@ class CNNNet(nn.Module):
         self.embedding_dim = embedding_dim
         self.kernel_width = _to_iterable(kernel_width, num_layers)
         self.dilation = _to_iterable(dilation, num_layers)
+        if nonlinearity == 'tanh':
+            self.nonlinearity = F.tanh
+        elif nonlinearity == 'relu':
+            self.nonlinearity = F.relu
+        else:
+            raise ValueError('Nonlinearity must be one of (tanh, relu)')
+        self.residual_connections = residual_connections
 
         self.item_embeddings = ScaledEmbedding(num_items, embedding_dim,
                                                sparse=sparse,
@@ -353,11 +367,15 @@ class CNNNet(nn.Module):
         receptive_field_width = (self.kernel_width[0] +
                                  (self.kernel_width[0] - 1) *
                                  (self.dilation[0] - 1))
-        residual = F.pad(sequence_embeddings,
-                         (0, 0, 1, 0))
+
         x = F.pad(sequence_embeddings,
                   (0, 0, receptive_field_width, 0))
-        x = F.tanh(self.cnn_layers[0](x)) + residual
+        x = self.nonlinearity(self.cnn_layers[0](x))
+
+        if self.residual_connections:
+            residual = F.pad(sequence_embeddings,
+                             (0, 0, 1, 0))
+            x = x + residual
 
         for (cnn_layer, kernel_width, dilation) in zip(self.cnn_layers[1:],
                                                        self.kernel_width[1:],
@@ -367,7 +385,10 @@ class CNNNet(nn.Module):
                                      (dilation - 1))
             residual = x
             x = F.pad(x, (0, 0, receptive_field_width - 1, 0))
-            x = F.tanh(cnn_layer(x)) + residual
+            x = self.nonlinearity(cnn_layer(x))
+
+            if self.residual_connections:
+                x = x + residual
 
         x = x.squeeze(3)
 

@@ -46,6 +46,16 @@ class Results:
         with open(self._filename, 'a+') as out:
             out.write(json.dumps(result) + '\n')
 
+    def best(self):
+
+        results = sorted([x for x in self],
+                         key=lambda x: -x['mrr'])
+
+        if results:
+            return results[0]
+        else:
+            return None
+
     def __getitem__(self, hyperparams):
 
         params_hash = self._hash(hyperparams)
@@ -88,8 +98,11 @@ def sample_cnn_hyperparameters(random_state, num):
         'learning_rate': LEARNING_RATES,
         'loss': LOSSES,
         'embedding_dim': EMBEDDING_DIM,
+        'kernel_width': [3, 5, 7],
         'num_layers': list(range(1, 10)),
         'dilation_multiplier': [1, 2],
+        'nonlinearity': ['tanh', 'relu'],
+        'residual': [True, False]
     }
 
     sampler = ParameterSampler(space,
@@ -149,9 +162,11 @@ def evaluate_cnn_model(hyperparameters, train, test, random_state):
 
     net = CNNNet(train.num_items,
                  embedding_dim=h['embedding_dim'],
-                 kernel_width=3,
+                 kernel_width=h['kernel_width'],
                  dilation=h['dilation'],
-                 num_layers=h['num_layers'])
+                 num_layers=h['num_layers'],
+                 nonlinearity=h['nonlinearity'],
+                 residual_connections=h['residual'])
 
     model = ImplicitSequenceModel(loss=h['loss'],
                                   representation=net,
@@ -212,6 +227,7 @@ def evaluate_pooling_model(hyperparameters, train, test, random_state):
 def run_cnn(train, test, random_state):
 
     results = Results('cnn_results.txt')
+    print('Best CNN result: {}'.format(results.best()))
 
     for hyperparameters in sample_cnn_hyperparameters(random_state, 1000):
 
@@ -238,6 +254,7 @@ def run_cnn(train, test, random_state):
 def run_pooling(train, test, random_state):
 
     results = Results('pooling_results.txt')
+    print('Best pooling result: {}'.format(results.best()))
 
     for hyperparameters in sample_pooling_hyperparameters(random_state, 1000):
 
@@ -264,6 +281,7 @@ def run_pooling(train, test, random_state):
 def run_lstm(train, test, random_state):
 
     results = Results('lstm_results.txt')
+    print('Best LSTM result: {}'.format(results.best()))
 
     for hyperparameters in sample_pooling_hyperparameters(random_state, 1000):
 
