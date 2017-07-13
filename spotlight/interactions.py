@@ -8,15 +8,16 @@ import numpy as np
 import scipy.sparse as sp
 
 
-def _sliding_window(tensor, window_size):
+def _sliding_window(tensor, window_size, step_size=1):
 
-    for i in range(len(tensor), 0, -1):
+    for i in range(len(tensor), 0, -step_size):
         yield tensor[max(i - window_size, 0):i]
 
 
 def _generate_sequences(user_ids, item_ids,
                         indices,
-                        max_sequence_length):
+                        max_sequence_length,
+                        step_size):
 
     for i in range(len(indices)):
 
@@ -28,7 +29,8 @@ def _generate_sequences(user_ids, item_ids,
             stop_idx = indices[i + 1]
 
         for seq in _sliding_window(item_ids[start_idx:stop_idx],
-                                   max_sequence_length):
+                                   max_sequence_length,
+                                   step_size):
 
             yield (user_ids[i], seq)
 
@@ -165,7 +167,7 @@ class Interactions(object):
 
         return self.tocoo().tocsr()
 
-    def to_sequence(self, max_sequence_length=10, min_sequence_length=None):
+    def to_sequence(self, max_sequence_length=10, min_sequence_length=None, step_size=None):
         """
         Transform to sequence form.
 
@@ -174,26 +176,41 @@ class Interactions(object):
         into a (zero-padded from the left) matrix with dimensions
         (num_sequences x max_sequence_length).
 
-        All valid subsequences of users' interactions are returned. For
-        example, if a user interacted with items [5, 2, 6, 3], the
-        returned interactions matrix at sequence length 5 be given by:
+        Valid subsequences of users' interactions are returned. For
+        example, if a user interacted with items [1, 2, 3, 4, 5], the
+        returned interactions matrix at sequence length 5 and step size
+        1 will be be given by:
 
         .. code-block:: python
 
-           [[0, 5, 2, 6, 3],
-            [0, 0, 5, 2, 6],
-            [0, 0, 0, 5, 2],
-            [0, 0, 0, 0, 5]]
+           [[1, 2, 3, 4, 5],
+            [0, 1, 2, 3, 4],
+            [0, 0, 1, 2, 3],
+            [0, 0, 0, 1, 2],
+            [0, 0, 0, 0, 1]]
+
+        At step size 2:
+
+        .. code-block:: python
+
+           [[1, 2, 3, 4, 5],
+            [0, 0, 1, 2, 3],
+            [0, 0, 0, 0, 1]]
 
         Parameters
         ----------
 
         max_sequence_length: int, optional
-            maximum sequence length. Subsequences shorter than this
+            Maximum sequence length. Subsequences shorter than this
             will be left-padded with zeros.
         min_sequence_length: int, optional
             If set, only sequences with at least min_sequence_length
             non-padding elements will be returned.
+        step-size: int, optional
+            The returned subsequences are the effect of moving a
+            a sliding window over the input. This parameter
+            governs the stride of that window. Increasing it will
+            result in fewer subsequences being returned.
 
         Returns
         -------
@@ -210,6 +227,9 @@ class Interactions(object):
             raise ValueError('0 is used as an item id, conflicting '
                              'with the sequence padding value.')
 
+        if step_size is None:
+            step_size = max_sequence_length
+
         # Sort first by user id, then by timestamp
         sort_indices = np.lexsort((self.timestamps,
                                    self.user_ids))
@@ -217,9 +237,11 @@ class Interactions(object):
         user_ids = self.user_ids[sort_indices]
         item_ids = self.item_ids[sort_indices]
 
-        user_ids, indices = np.unique(user_ids, return_index=True)
+        user_ids, indices, counts = np.unique(user_ids,
+                                              return_index=True,
+                                              return_counts=True)
 
-        num_subsequences = len(self)
+        num_subsequences = int(np.ceil(counts / step_size).sum())
 
         sequences = np.zeros((num_subsequences, max_sequence_length),
                              dtype=np.int32)
@@ -229,7 +251,8 @@ class Interactions(object):
                 seq) in enumerate(_generate_sequences(user_ids,
                                                       item_ids,
                                                       indices,
-                                                      max_sequence_length)):
+                                                      max_sequence_length,
+                                                      step_size)):
             sequences[i][-len(seq):] = seq
             sequence_users[i] = uid
 

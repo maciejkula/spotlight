@@ -296,9 +296,11 @@ if __name__ == '__main__':
     train = train.to_sequence(max_sequence_length=max_sequence_length,
                               min_sequence_length=min_sequence_length)
     test = test.to_sequence(max_sequence_length=max_sequence_length,
-                            min_sequence_length=min_sequence_length)
+                            min_sequence_length=min_sequence_length,
+                            step_size=1)
     validation = validation.to_sequence(max_sequence_length=max_sequence_length,
-                                        min_sequence_length=min_sequence_length)
+                                        min_sequence_length=min_sequence_length,
+                                        step_size=1)
 
     mode = sys.argv[1]
 

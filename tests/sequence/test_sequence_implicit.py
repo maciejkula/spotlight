@@ -22,6 +22,7 @@ def _get_synthetic_data(num_users=100,
                         num_interactions=10000,
                         randomness=0.01,
                         order=2,
+                        max_sequence_length=10,
                         random_state=None):
 
     interactions = synthetic.generate_sequential(num_users=num_users,
@@ -38,8 +39,10 @@ def _get_synthetic_data(num_users=100,
     train, test = user_based_train_test_split(interactions,
                                               random_state=random_state)
 
-    train = train.to_sequence(max_sequence_length=10)
-    test = test.to_sequence(max_sequence_length=10)
+    train = train.to_sequence(max_sequence_length=max_sequence_length,
+                              step_size=None)
+    test = test.to_sequence(max_sequence_length=max_sequence_length,
+                            step_size=None)
 
     return train, test
 
@@ -95,7 +98,7 @@ def test_implicit_lstm_synthetic(randomness, expected_mrr):
                                   embedding_dim=EMBEDDING_DIM,
                                   learning_rate=1e-2,
                                   l2=1e-7,
-                                  n_iter=NUM_EPOCHS,
+                                  n_iter=NUM_EPOCHS * 5,
                                   random_state=random_state)
 
     model.fit(train, verbose=VERBOSE)
@@ -123,7 +126,7 @@ def test_implicit_cnn_synthetic(randomness, expected_mrr):
                                   batch_size=BATCH_SIZE,
                                   learning_rate=1e-2,
                                   l2=0.0,
-                                  n_iter=NUM_EPOCHS,
+                                  n_iter=NUM_EPOCHS * 5,
                                   random_state=random_state)
 
     model.fit(train, verbose=VERBOSE)
@@ -153,7 +156,7 @@ def test_implicit_cnn_dilation_synthetic(num_layers, dilation, expected_mrr):
                                   batch_size=BATCH_SIZE,
                                   learning_rate=1e-2,
                                   l2=0.0,
-                                  n_iter=NUM_EPOCHS * num_layers,
+                                  n_iter=NUM_EPOCHS * 5 * num_layers,
                                   random_state=random_state)
 
     model.fit(train, verbose=VERBOSE)

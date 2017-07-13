@@ -43,7 +43,9 @@ def pointwise_loss(positive_predictions, negative_predictions, mask=None):
     loss = (positives_loss + negatives_loss)
 
     if mask is not None:
-        loss = loss * mask.float()
+        mask = mask.float()
+        loss = loss * mask
+        return loss.sum() / mask.sum()
 
     return loss.mean()
 
@@ -81,7 +83,9 @@ def bpr_loss(positive_predictions, negative_predictions, mask=None):
                             negative_predictions))
 
     if mask is not None:
-        loss = loss * mask.float()
+        mask = mask.float()
+        loss = loss * mask
+        return loss.sum() / mask.sum()
 
     return loss.mean()
 
@@ -113,7 +117,9 @@ def hinge_loss(positive_predictions, negative_predictions, mask=None):
                        1.0, 0.0)
 
     if mask is not None:
-        loss = loss * mask.float()
+        mask = mask.float()
+        loss = loss * mask
+        return loss.sum() / mask.sum()
 
     return loss.mean()
 
