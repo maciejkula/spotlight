@@ -55,6 +55,26 @@ class ImplicitSequenceModel(object):
         Use sparse gradients for embedding layers.
     random_state: instance of numpy.random.RandomState, optional
         Random state to use when fitting.
+
+    Notes
+    -----
+
+    During fitting, the model computes the loss for each timestep of the
+    supplied sequence. For example, suppose the following sequences are
+    passed to the ``fit`` function:
+
+    .. code-block:: python
+
+       [[1, 2, 3, 4, 5],
+        [0, 0, 7, 1, 4]]
+
+
+    In this case, the loss for the first example will be the mean loss
+    of trying to predict ``2`` from ``[1]``, ``3`` from ``[1, 2]``,
+    ``4`` from ``[1, 2, 3]`` and so on. This means that explicit padding
+    of all subsequences is not necessary (although it is possible by using
+    the ``step_size`` parameter of
+    :func:`spotlight.interactions.Interactions.to_sequence`.
     """
 
     def __init__(self,
