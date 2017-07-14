@@ -239,6 +239,35 @@ class LSTMNet(nn.Module):
         return target_bias + dot
 
 
+class GatedCNN(nn.Module):
+
+    def __init__(self,
+                 embedding_dim=32,
+                 kernel_width=3,
+                 dilation=1):
+
+        super().__init__()
+
+        self.cnn = nn.Conv2d(embedding_dim,
+                             embedding_dim,
+                             (kernel_width, 1),
+                             dilation=(dilation, 1))
+        self.gate = nn.Conv2d(embedding_dim,
+                              embedding_dim,
+                              (kernel_width, 1),
+                              dilation=(dilation, 1))
+        self.final = nn.Conv2d(embedding_dim,
+                               embedding_dim,
+                               (1, 1))
+
+    def forward(self, x):
+
+        gate = F.sigmoid(self.gate(x))
+        cnn = F.tanh(self.cnn(x))
+
+        return self.final(gate * cnn)
+
+
 class CNNNet(nn.Module):
     """
     Module representing users through stacked causal atrous convolutions ([3]_, [4]_).
@@ -328,10 +357,9 @@ class CNNNet(nn.Module):
                                          padding_idx=PADDING_IDX)
 
         self.cnn_layers = [
-            nn.Conv2d(embedding_dim,
-                      embedding_dim,
-                      (kernel_width, 1),
-                      dilation=(dilation, 1)) for
+            GatedCNN(embedding_dim,
+                     kernel_width,
+                     dilation) for
             (kernel_width, dilation) in zip(self.kernel_width,
                                             self.dilation)
         ]
@@ -370,7 +398,7 @@ class CNNNet(nn.Module):
 
         x = F.pad(sequence_embeddings,
                   (0, 0, receptive_field_width, 0))
-        x = self.nonlinearity(self.cnn_layers[0](x))
+        x = self.cnn_layers[0](x)
 
         if self.residual_connections:
             residual = F.pad(sequence_embeddings,
@@ -385,7 +413,7 @@ class CNNNet(nn.Module):
                                      (dilation - 1))
             residual = x
             x = F.pad(x, (0, 0, receptive_field_width - 1, 0))
-            x = self.nonlinearity(cnn_layer(x))
+            x = cnn_layer(x)
 
             if self.residual_connections:
                 x = x + residual

@@ -101,7 +101,6 @@ def sample_cnn_hyperparameters(random_state, num):
         'kernel_width': [3, 5, 7],
         'num_layers': list(range(1, 10)),
         'dilation_multiplier': [1, 2],
-        'nonlinearity': ['tanh', 'relu'],
         'residual': [True, False]
     }
 
@@ -165,7 +164,6 @@ def evaluate_cnn_model(hyperparameters, train, test, random_state):
                  kernel_width=h['kernel_width'],
                  dilation=h['dilation'],
                  num_layers=h['num_layers'],
-                 nonlinearity=h['nonlinearity'],
                  residual_connections=h['residual'])
 
     model = ImplicitSequenceModel(loss=h['loss'],
