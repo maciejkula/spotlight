@@ -46,13 +46,13 @@ class Results:
         with open(self._filename, 'a+') as out:
             out.write(json.dumps(result) + '\n')
 
-    def best(self):
+    def best(self, num=3):
 
         results = sorted([x for x in self],
                          key=lambda x: -x['mrr'])
 
         if results:
-            return results[0]
+            return results[:num]
         else:
             return None
 
@@ -102,7 +102,8 @@ def sample_cnn_hyperparameters(random_state, num):
         'num_layers': list(range(1, 10)),
         'dilation_multiplier': [1, 2],
         'nonlinearity': ['tanh', 'relu'],
-        'residual': [True, False]
+        'residual': [True, False],
+        'batch_norm': [True, False]
     }
 
     sampler = ParameterSampler(space,
@@ -166,7 +167,8 @@ def evaluate_cnn_model(hyperparameters, train, test, random_state):
                  dilation=h['dilation'],
                  num_layers=h['num_layers'],
                  nonlinearity=h['nonlinearity'],
-                 residual_connections=h['residual'])
+                 residual_connections=h['residual'],
+                 batch_norm=h['batch_norm'])
 
     model = ImplicitSequenceModel(loss=h['loss'],
                                   representation=net,
@@ -232,7 +234,7 @@ def run_cnn(train, test, random_state):
     for hyperparameters in sample_cnn_hyperparameters(random_state, 1000):
 
         if hyperparameters in results:
-            print('Already computed, skipping...')
+            # print('.', end='.')
             continue
 
         print('Evaluating {}'.format(hyperparameters))
@@ -259,7 +261,7 @@ def run_pooling(train, test, random_state):
     for hyperparameters in sample_pooling_hyperparameters(random_state, 1000):
 
         if hyperparameters in results:
-            print('Already computed, skipping...')
+            # print('.', end='.')
             continue
 
         print('Evaluating {}'.format(hyperparameters))
@@ -286,7 +288,7 @@ def run_lstm(train, test, random_state):
     for hyperparameters in sample_pooling_hyperparameters(random_state, 1000):
 
         if hyperparameters in results:
-            print('Already computed, skipping...')
+            # print('.', end='.')
             continue
 
         print('Evaluating {}'.format(hyperparameters))

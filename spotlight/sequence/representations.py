@@ -303,6 +303,7 @@ class CNNNet(nn.Module):
                  num_layers=1,
                  nonlinearity='tanh',
                  residual_connections=True,
+                 batch_norm=True,
                  sparse=False,
                  benchmark=True):
 
@@ -320,6 +321,7 @@ class CNNNet(nn.Module):
         else:
             raise ValueError('Nonlinearity must be one of (tanh, relu)')
         self.residual_connections = residual_connections
+        self.batch_norm = batch_norm
 
         self.item_embeddings = ScaledEmbedding(num_items, embedding_dim,
                                                sparse=sparse,
@@ -336,9 +338,18 @@ class CNNNet(nn.Module):
                                             self.dilation)
         ]
 
+        if self.batch_norm:
+            self.bn = [nn.BatchNorm2d(embedding_dim) for _
+                       in range(len(self.cnn_layers))]
+
         for i, layer in enumerate(self.cnn_layers):
             self.add_module('cnn_{}'.format(i),
                             layer)
+
+        if self.batch_norm:
+            for i, layer in enumerate(self.bn):
+                self.add_module('bn_{}'.format(i),
+                                layer)
 
     def user_representation(self, item_sequences):
         """
@@ -372,20 +383,26 @@ class CNNNet(nn.Module):
                   (0, 0, receptive_field_width, 0))
         x = self.nonlinearity(self.cnn_layers[0](x))
 
+        if self.batch_norm:
+            x = self.bn[0](x)
+
         if self.residual_connections:
             residual = F.pad(sequence_embeddings,
                              (0, 0, 1, 0))
             x = x + residual
 
-        for (cnn_layer, kernel_width, dilation) in zip(self.cnn_layers[1:],
-                                                       self.kernel_width[1:],
-                                                       self.dilation[1:]):
+        for i, (cnn_layer, kernel_width, dilation) in enumerate(zip(self.cnn_layers[1:],
+                                                                    self.kernel_width[1:],
+                                                                    self.dilation[1:])):
             receptive_field_width = (kernel_width +
                                      (kernel_width - 1) *
                                      (dilation - 1))
             residual = x
             x = F.pad(x, (0, 0, receptive_field_width - 1, 0))
             x = self.nonlinearity(cnn_layer(x))
+
+            if self.batch_norm:
+                x = self.bn[i](x)
 
             if self.residual_connections:
                 x = x + residual
