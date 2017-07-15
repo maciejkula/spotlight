@@ -1,5 +1,6 @@
 import pandas as pd
-import pytablewriter
+
+from tabulate import tabulate
 
 
 def _load_data(filename, columns=None):
@@ -21,10 +22,9 @@ def _load_data(filename, columns=None):
 
 def _print_df(df):
 
-    writer = pytablewriter.MarkdownTableWriter()
-    writer.header_list = list(df.columns.values)
-    writer.value_matrix = df.values.tolist()
-    writer.write_table()
+    print(tabulate(df, headers=df.columns,
+                   showindex=False,
+                   tablefmt='pipe'))
 
 
 def print_data():

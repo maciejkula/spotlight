@@ -159,15 +159,17 @@ The results are as follows:
 
 ---
 
-<center> __Causal convolution results__ </center>
+_Causal convolution results_
 
-validation_mrr|test_mrr|residual|nonlinearity|     loss     |num_layers|kernel_width|         dilation          |embedding_dim
--------------:|-------:|--------|------------|--------------|---------:|-----------:|---------------------------|------------:
-       0.07221| 0.07951|True    |relu        |adaptive_hinge|         3|           3|[1, 2, 4]            |          256
-       0.06583| 0.06624|True    |relu        |adaptive_hinge|         5|           5|[1, 2, 4, 8, 16]|           32
-       0.06563| 0.07177|True    |relu        |adaptive_hinge|         5|           5|[1, 1, 1, 1, 1]  |          128
-       0.05832| 0.06827|True    |relu        |hinge         |         4|           5|[1, 1, 1, 1]       |          128
-       0.05771| 0.04971|True    |tanh        |hinge         |         9|           7|[1, 1, 1, 1, 1, 1, 1, 1, 1]|           64
+|   validation_mrr |   test_mrr | residual   | nonlinearity   | loss           |   num_layers |   kernel_width | dilation                    |   embedding_dim |
+|-----------------:|-----------:|:-----------|:---------------|:---------------|-------------:|---------------:|:----------------------------|----------------:|
+|        0.0722109 |  0.0795061 | True       | relu           | adaptive_hinge |            3 |              3 | [1, 2, 4]                   |             256 |
+|        0.0658315 |  0.0662418 | True       | relu           | adaptive_hinge |            5 |              5 | [1, 2, 4, 8, 16]            |              32 |
+|        0.0656252 |  0.0717681 | True       | relu           | adaptive_hinge |            5 |              5 | [1, 1, 1, 1, 1]             |             128 |
+|        0.0583223 |  0.0682682 | True       | relu           | hinge          |            4 |              5 | [1, 1, 1, 1]                |             128 |
+|        0.0577055 |  0.0497131 | True       | tanh           | hinge          |            9 |              7 | [1, 1, 1, 1, 1, 1, 1, 1, 1] |              64 |
+
+
 
 ---
 
@@ -181,29 +183,32 @@ To compare causal convolutions with more traditional sequence models I run simil
 
 ---
 
-<center> __LSTM results__ </center>
+_LSTM results_
 
-validation_mrr|test_mrr|batch_size|embedding_dim|  l2   |learning_rate|     loss     |n_iter
--------------:|-------:|---------:|------------:|------:|------------:|--------------|-----:
-       0.08291| 0.07637|        16|           64| 0.0000|         0.01|adaptive_hinge|    15
-       0.07811| 0.08081|       256|           32| 0.0000|         0.05|adaptive_hinge|    11
-       0.07690| 0.07910|        32|           16| 0.0000|         0.01|adaptive_hinge|    13
-       0.07569| 0.07081|        16|           64| 0.0000|         0.01|adaptive_hinge|    12
-       0.07349| 0.07534|       256|            8| 0.0000|         0.01|adaptive_hinge|    10
+|   validation_mrr |   test_mrr |   batch_size |   embedding_dim |    l2 |   learning_rate | loss           |   n_iter |
+|-----------------:|-----------:|-------------:|----------------:|------:|----------------:|:---------------|---------:|
+|        0.082913  |  0.0763708 |           16 |              64 | 0     |            0.01 | adaptive_hinge |       15 |
+|        0.078108  |  0.0808093 |          256 |              32 | 0     |            0.05 | adaptive_hinge |       11 |
+|        0.0769014 |  0.0791023 |           32 |              16 | 1e-06 |            0.01 | adaptive_hinge |       13 |
+|        0.0756949 |  0.0708071 |           16 |              64 | 1e-05 |            0.01 | adaptive_hinge |       12 |
+|        0.0734895 |  0.0753369 |          256 |               8 | 1e-05 |            0.01 | adaptive_hinge |       10 |
+|   validation_mrr |   test_mrr |   batch_size |   embedding_dim |    l2 |   learning_rate | loss           |   n_iter |
+
 
 ---
 
 ---
 
-<center> __Pooling results__ </center>
+_Pooling results_
 
-validation_mrr|test_mrr|batch_size|embedding_dim|  l2  |learning_rate|     loss     |n_iter
--------------:|-------:|---------:|------------:|-----:|------------:|--------------|-----:
-       0.01785| 0.01339|        16|          256|  0.00|         0.10|adaptive_hinge|    19
-       0.01720| 0.01346|        32|            8|  0.00|         0.05|hinge         |    14
-       0.01504| 0.01459|        16|           64|  0.00|         0.01|adaptive_hinge|    15
-       0.01455| 0.01632|       256|            8|  0.00|         0.10|hinge         |     7
-       0.01421| 0.01541|       256|           32|  0.00|         0.05|adaptive_hinge|    11
+|   validation_mrr |   test_mrr |   batch_size |   embedding_dim |    l2 |   learning_rate | loss           |   n_iter |
+|-----------------:|-----------:|-------------:|----------------:|------:|----------------:|:---------------|---------:|
+|        0.0178542 |  0.0133928 |           16 |             256 | 1e-05 |            0.1  | adaptive_hinge |       19 |
+|        0.0172026 |  0.0134581 |           32 |               8 | 0     |            0.05 | hinge          |       14 |
+|        0.0150402 |  0.0145902 |           16 |              64 | 0     |            0.01 | adaptive_hinge |       15 |
+|        0.0145492 |  0.0163207 |          256 |               8 | 0     |            0.1  | hinge          |        7 |
+|        0.0142107 |  0.0154118 |          256 |              32 | 0     |            0.05 | adaptive_hinge |       11 |
+
 
 ---
 
