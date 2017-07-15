@@ -18,6 +18,8 @@ from spotlight.evaluation import sequence_mrr_score
 CUDA = (os.environ.get('CUDA') is not None or
         shutil.which('nvidia-smi') is not None)
 
+NUM_SAMPLES = 100
+
 LEARNING_RATES = [1e-3, 1e-2, 5 * 1e-2, 1e-1]
 LOSSES = ['bpr', 'hinge', 'adaptive_hinge', 'pointwise']
 BATCH_SIZE = [8, 16, 32, 256]
@@ -38,9 +40,11 @@ class Results:
 
         return hashlib.md5(json.dumps(x, sort_keys=True).encode('utf-8')).hexdigest()
 
-    def save(self, hyperparams, mrr):
+    def save(self, hyperparams, test_mrr, validation_mrr):
 
-        result = {'mrr': mrr, 'hash': self._hash(hyperparams)}
+        result = {'test_mrr': test_mrr,
+                  'validation_mrr': validation_mrr,
+                  'hash': self._hash(hyperparams)}
         result.update(hyperparams)
 
         with open(self._filename, 'a+') as out:
@@ -49,7 +53,7 @@ class Results:
     def best(self):
 
         results = sorted([x for x in self],
-                         key=lambda x: -x['mrr'])
+                         key=lambda x: -x['test_mrr'])
 
         if results:
             return results[0]
@@ -156,7 +160,7 @@ def sample_pooling_hyperparameters(random_state, num):
         yield params
 
 
-def evaluate_cnn_model(hyperparameters, train, test, random_state):
+def evaluate_cnn_model(hyperparameters, train, test, validation, random_state):
 
     h = hyperparameters
 
@@ -180,11 +184,12 @@ def evaluate_cnn_model(hyperparameters, train, test, random_state):
     model.fit(train, verbose=True)
 
     test_mrr = sequence_mrr_score(model, test)
+    val_mrr = sequence_mrr_score(model, validation)
 
-    return test_mrr
+    return test_mrr, val_mrr
 
 
-def evaluate_lstm_model(hyperparameters, train, test, random_state):
+def evaluate_lstm_model(hyperparameters, train, test, validation, random_state):
 
     h = hyperparameters
 
@@ -200,11 +205,12 @@ def evaluate_lstm_model(hyperparameters, train, test, random_state):
     model.fit(train, verbose=True)
 
     test_mrr = sequence_mrr_score(model, test)
+    val_mrr = sequence_mrr_score(model, validation)
 
-    return test_mrr
+    return test_mrr, val_mrr
 
 
-def evaluate_pooling_model(hyperparameters, train, test, random_state):
+def evaluate_pooling_model(hyperparameters, train, test, validation, random_state):
 
     h = hyperparameters
 
@@ -220,87 +226,50 @@ def evaluate_pooling_model(hyperparameters, train, test, random_state):
     model.fit(train, verbose=True)
 
     test_mrr = sequence_mrr_score(model, test)
+    val_mrr = sequence_mrr_score(model, validation)
 
-    return test_mrr
+    return test_mrr, val_mrr
 
 
-def run_cnn(train, test, random_state):
+def run(train, test, validation, ranomd_state, model_type):
 
-    results = Results('cnn_results.txt')
-    print('Best CNN result: {}'.format(results.best()))
+    results = Results('{}_results.txt'.format(model_type))
 
-    for hyperparameters in sample_cnn_hyperparameters(random_state, 1000):
+    best_result = results.best()
+
+    if model_type == 'pooling':
+        eval_fnc, sample_fnc = (evaluate_pooling_model,
+                                sample_pooling_hyperparameters)
+    elif model_type == 'cnn':
+        eval_fnc, sample_fnc = (evaluate_cnn_model,
+                                sample_cnn_hyperparameters)
+    elif model_type == 'lstm':
+        eval_fnc, sample_fnc = (evaluate_lstm_model,
+                                sample_lstm_hyperparameters)
+    else:
+        raise ValueError('Unknown model type')
+
+    if best_result is not None:
+        print('Best {} result: {}'.format(model_type, results.best()))
+
+    for hyperparameters in sample_fnc(random_state, NUM_SAMPLES):
 
         if hyperparameters in results:
-            print('Already computed, skipping...')
             continue
 
         print('Evaluating {}'.format(hyperparameters))
 
-        mrr = evaluate_cnn_model(hyperparameters,
-                                 train,
-                                 test,
-                                 random_state)
+        (test_mrr, val_mrr) = eval_fnc(hyperparameters,
+                                       train,
+                                       test,
+                                       validation,
+                                       random_state)
 
-        print('Test MRR {}'.format(
-            mrr.mean()
+        print('Test MRR {} val MRR {}'.format(
+            test_mrr.mean(), val_mrr.mean()
         ))
 
-        results.save(hyperparameters, mrr.mean())
-
-    return results
-
-
-def run_pooling(train, test, random_state):
-
-    results = Results('pooling_results.txt')
-    print('Best pooling result: {}'.format(results.best()))
-
-    for hyperparameters in sample_pooling_hyperparameters(random_state, 1000):
-
-        if hyperparameters in results:
-            print('Already computed, skipping...')
-            continue
-
-        print('Evaluating {}'.format(hyperparameters))
-
-        mrr = evaluate_pooling_model(hyperparameters,
-                                     train,
-                                     test,
-                                     random_state)
-
-        print('Test MRR {}'.format(
-            mrr.mean()
-        ))
-
-        results.save(hyperparameters, mrr.mean())
-
-    return results
-
-
-def run_lstm(train, test, random_state):
-
-    results = Results('lstm_results.txt')
-    print('Best LSTM result: {}'.format(results.best()))
-
-    for hyperparameters in sample_pooling_hyperparameters(random_state, 1000):
-
-        if hyperparameters in results:
-            print('Already computed, skipping...')
-            continue
-
-        print('Evaluating {}'.format(hyperparameters))
-
-        mrr = evaluate_lstm_model(hyperparameters,
-                                  train,
-                                  test,
-                                  random_state)
-
-        print('Test MRR {}'.format(
-            mrr.mean()
-        ))
-
-        results.save(hyperparameters, mrr.mean())
+        results.save(hyperparameters, test_mrr.mean(), val_mrr.mean())
 
     return results
 
@@ -312,7 +281,7 @@ if __name__ == '__main__':
     step_size = 200
     random_state = np.random.RandomState(100)
 
-    dataset = get_movielens_dataset('100K')
+    dataset = get_movielens_dataset('1M')
 
     train, rest = user_based_train_test_split(dataset,
                                               random_state=random_state)
@@ -331,11 +300,4 @@ if __name__ == '__main__':
 
     mode = sys.argv[1]
 
-    if mode == 'cnn':
-        run_cnn(train, test, random_state)
-    elif mode == 'pooling':
-        run_pooling(train, test, random_state)
-    elif mode == 'lstm':
-        run_lstm(train, test, random_state)
-    else:
-        raise ValueError('Unknown model type')
+    run(train, test, validation, random_state, mode)
