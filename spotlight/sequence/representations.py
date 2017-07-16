@@ -54,7 +54,7 @@ class PoolNet(nn.Module):
     """
 
     def __init__(self, num_items, embedding_dim=32, sparse=False):
-        super().__init__()
+        super(PoolNet, self).__init__()
 
         self.embedding_dim = embedding_dim
 
@@ -157,12 +157,12 @@ class LSTMNet(nn.Module):
     References
     ----------
 
-    .. [2] Hidasi, Balázs, et al. "Session-based recommendations with
+    .. [2] Hidasi, Balazs, et al. "Session-based recommendations with
        recurrent neural networks." arXiv preprint arXiv:1511.06939 (2015).
     """
 
     def __init__(self, num_items, embedding_dim=32, sparse=False):
-        super().__init__()
+        super(LSTMNet, self).__init__()
 
         self.embedding_dim = embedding_dim
 
@@ -306,7 +306,7 @@ class CNNNet(nn.Module):
                  sparse=False,
                  benchmark=True):
 
-        super().__init__()
+        super(CNNNet, self).__init__()
 
         cudnn.benchmark = benchmark
 
@@ -330,10 +330,10 @@ class CNNNet(nn.Module):
         self.cnn_layers = [
             nn.Conv2d(embedding_dim,
                       embedding_dim,
-                      (kernel_width, 1),
-                      dilation=(dilation, 1)) for
-            (kernel_width, dilation) in zip(self.kernel_width,
-                                            self.dilation)
+                      (_kernel_width, 1),
+                      dilation=(_dilation, 1)) for
+            (_kernel_width, _dilation) in zip(self.kernel_width,
+                                              self.dilation)
         ]
 
         for i, layer in enumerate(self.cnn_layers):

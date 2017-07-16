@@ -19,7 +19,9 @@ def cpu(tensor):
         return tensor
 
 
-def minibatch(*tensors, batch_size=128):
+def minibatch(*tensors, **kwargs):
+
+    batch_size = kwargs.get('batch_size', 128)
 
     if len(tensors) == 1:
         tensor = tensors[0]
@@ -30,7 +32,9 @@ def minibatch(*tensors, batch_size=128):
             yield tuple(x[i:i + batch_size] for x in tensors)
 
 
-def shuffle(*arrays, random_state=None):
+def shuffle(*arrays, **kwargs):
+
+    random_state = kwargs.get('random_state')
 
     if len(set(len(x) for x in arrays)) != 1:
         raise ValueError('All inputs to shuffle must have '

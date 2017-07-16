@@ -195,7 +195,7 @@ class ImplicitSequenceModel(object):
                 if self._loss == 'adaptive_hinge':
                     negative_prediction = [self._get_negative_prediction(sequence_var.size(),
                                                                          user_representation)
-                                           for _ in range(5)]
+                                           for __ in range(5)]
                 else:
                     negative_prediction = self._get_negative_prediction(sequence_var.size(),
                                                                         user_representation)

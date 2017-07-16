@@ -19,5 +19,5 @@ def test_user_based_split():
     assert len(train) + len(test) == len(interactions)
 
     users_in_test = len(np.unique(test.user_ids))
-    assert np.allclose(users_in_test / interactions.num_users,
+    assert np.allclose(float(users_in_test) / interactions.num_users,
                        0.2, atol=0.001)

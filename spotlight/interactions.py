@@ -241,7 +241,7 @@ class Interactions(object):
                                               return_index=True,
                                               return_counts=True)
 
-        num_subsequences = int(np.ceil(counts / step_size).sum())
+        num_subsequences = int(np.ceil(counts / float(step_size)).sum())
 
         sequences = np.zeros((num_subsequences, max_sequence_length),
                              dtype=np.int32)
