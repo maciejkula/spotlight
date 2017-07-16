@@ -30,7 +30,7 @@ class BilinearNet(nn.Module):
     """
 
     def __init__(self, num_users, num_items, embedding_dim=32, sparse=False):
-        super().__init__()
+        super(BilinearNet, self).__init__()
 
         self.embedding_dim = embedding_dim
 

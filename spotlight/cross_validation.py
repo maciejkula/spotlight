@@ -148,7 +148,7 @@ def user_based_train_test_split(interactions,
     in_test = ((murmurhash3_32(interactions.user_ids,
                                seed=seed,
                                positive=True) % 100 /
-                100) <
+                100.0) <
                test_percentage)
     in_train = np.logical_not(in_test)
 
