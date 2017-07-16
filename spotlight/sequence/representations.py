@@ -330,10 +330,10 @@ class CNNNet(nn.Module):
         self.cnn_layers = [
             nn.Conv2d(embedding_dim,
                       embedding_dim,
-                      (kernel_width, 1),
-                      dilation=(dilation, 1)) for
-            (kernel_width, dilation) in zip(self.kernel_width,
-                                            self.dilation)
+                      (_kernel_width, 1),
+                      dilation=(_dilation, 1)) for
+            (_kernel_width, _dilation) in zip(self.kernel_width,
+                                              self.dilation)
         ]
 
         for i, layer in enumerate(self.cnn_layers):
