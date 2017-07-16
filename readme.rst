@@ -114,7 +114,6 @@ recommendation models, including
 
   
 
-
 Datasets
 --------
 
@@ -136,6 +135,12 @@ a function of their previous interactions:
                                   order=3)
 
 
+
+
+Examples
+========
+
+1. `Using causal convolutions for sequence recommendations <https://github.com/maciejkula/spotlight/tree/master/examples/movielens_sequence>`_.
 
 
 Contributing
