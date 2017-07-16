@@ -117,6 +117,7 @@
 </li>
 <li class="toctree-l1"><a class="reference internal" href="../losses.html">Loss functions</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../evaluation.html">Evaluation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../sampling.html">Sampling</a></li>
 </ul>
 
             
@@ -188,8 +189,8 @@
 as functions of the items they have interacted with in the past.</p>
 <dl class="class">
 <dt id="spotlight.sequence.representations.CNNNet">
-<em class="property">class </em><code class="descclassname">spotlight.sequence.representations.</code><code class="descname">CNNNet</code><span class="sig-paren">(</span><em>num_items</em>, <em>embedding_dim=32</em>, <em>kernel_width=5</em>, <em>dilation=1</em>, <em>num_layers=1</em>, <em>sparse=False</em><span class="sig-paren">)</span><a class="headerlink" href="#spotlight.sequence.representations.CNNNet" title="Permalink to this definition">¶</a></dt>
-<dd><p>Module representing users through stacked causal atrous convolutions <a class="footnote-reference" href="#id2" id="id1">[3]</a>.</p>
+<em class="property">class </em><code class="descclassname">spotlight.sequence.representations.</code><code class="descname">CNNNet</code><span class="sig-paren">(</span><em>num_items</em>, <em>embedding_dim=32</em>, <em>kernel_width=3</em>, <em>dilation=1</em>, <em>num_layers=1</em>, <em>nonlinearity=’tanh’</em>, <em>residual_connections=True</em>, <em>sparse=False</em>, <em>benchmark=True</em><span class="sig-paren">)</span><a class="headerlink" href="#spotlight.sequence.representations.CNNNet" title="Permalink to this definition">¶</a></dt>
+<dd><p>Module representing users through stacked causal atrous convolutions (<a class="footnote-reference" href="#id3" id="id1">[3]</a>, <a class="footnote-reference" href="#id4" id="id2">[4]</a>).</p>
 <p>To represent a sequence, it runs a 1D convolution over the input sequence,
 from left to right. At each timestep, the output of the convolution is
 the representation of the sequence up to that point. The convoluion is causal
@@ -199,6 +200,7 @@ this is achieved by left-padding the sequence.</p>
 further back in the sequence), one can increase the kernel width, stack
 more layers, or increase the dilation factor.
 Input dimensionality is preserved from layer to layer.</p>
+<p>Residual connections can be added between all layers.</p>
 <p>During training, representations for all timesteps of the sequence are
 computed in one go. Loss functions using the outputs will therefore
 be aggregating both across the minibatch and aross time in the sequence.</p>
@@ -210,22 +212,37 @@ be aggregating both across the minibatch and aross time in the sequence.</p>
 <li><strong>num_items</strong> (<em>int</em>) – Number of items to be represented.</li>
 <li><strong>embedding_dim</strong> (<em>int</em><em>, </em><em>optional</em>) – Embedding dimension of the embedding layer, and the number of filters
 in each convlutonal layer.</li>
-<li><strong>kernel_width</strong> (<em>int</em><em>, </em><em>optional</em>) – The kernel width of the convolutional layers.</li>
-<li><strong>dilation</strong> (<em>int</em><em>, </em><em>optional</em>) – The dilation factor for atrous convolutions. Setting this to a number
+<li><strong>kernel_width</strong> (<em>tuple</em><em> or </em><em>int</em><em>, </em><em>optional</em>) – The kernel width of the convolutional layers. If tuple, should contain
+the kernel widths for all convolutional layers. If int, it will be
+expanded into a tuple to match the number of layers.</li>
+<li><strong>dilation</strong> (<em>tuple</em><em> or </em><em>int</em><em>, </em><em>optional</em>) – The dilation factor for atrous convolutions. Setting this to a number
 greater than 1 inserts gaps into the convolutional layers, increasing
-their receptive field without increasing the number of parameters.</li>
+their receptive field without increasing the number of parameters.
+If tuple, should contain the dilation factors for all convolutional
+layers. If int, it will be expanded into a tuple to match the number
+of layers.</li>
 <li><strong>num_layers</strong> (<em>int</em><em>, </em><em>optional</em>) – Number of stacked convolutional layers.</li>
+<li><strong>nonlinearity</strong> (<em>string</em><em>, </em><em>optional</em>) – One of (‘tanh’, ‘relu’). Denotes the type of non-linearity to apply
+after each convolutional layer.</li>
+<li><strong>residual_connections</strong> (<em>boolean</em><em>, </em><em>optional</em>) – Whether to use reisdual connections between convolutional layers.</li>
 </ul>
 </td>
 </tr>
 </tbody>
 </table>
 <p class="rubric">References</p>
-<table class="docutils footnote" frame="void" id="id2" rules="none">
+<table class="docutils footnote" frame="void" id="id3" rules="none">
 <colgroup><col class="label" /><col /></colgroup>
 <tbody valign="top">
 <tr><td class="label"><a class="fn-backref" href="#id1">[3]</a></td><td>Oord, Aaron van den, et al. “Wavenet: A generative model for raw audio.”
 arXiv preprint arXiv:1609.03499 (2016).</td></tr>
+</tbody>
+</table>
+<table class="docutils footnote" frame="void" id="id4" rules="none">
+<colgroup><col class="label" /><col /></colgroup>
+<tbody valign="top">
+<tr><td class="label"><a class="fn-backref" href="#id2">[4]</a></td><td>Kalchbrenner, Nal, et al. “Neural machine translation in linear time.”
+arXiv preprint arXiv:1610.10099 (2016).</td></tr>
 </tbody>
 </table>
 <dl class="method">
@@ -280,7 +297,7 @@ for prediction or evaluation.</td>
 <em class="property">class </em><code class="descclassname">spotlight.sequence.representations.</code><code class="descname">LSTMNet</code><span class="sig-paren">(</span><em>num_items</em>, <em>embedding_dim=32</em>, <em>sparse=False</em><span class="sig-paren">)</span><a class="headerlink" href="#spotlight.sequence.representations.LSTMNet" title="Permalink to this definition">¶</a></dt>
 <dd><p>Module representing users through running a recurrent neural network
 over the sequence, using the hidden state at each timestep as the
-sequence representation, a’la <a class="footnote-reference" href="#id4" id="id3">[2]</a></p>
+sequence representation, a’la <a class="footnote-reference" href="#id6" id="id5">[2]</a></p>
 <p>During training, representations for all timesteps of the sequence are
 computed in one go. Loss functions using the outputs will therefore
 be aggregating both across the minibatch and aross time in the sequence.</p>
@@ -298,10 +315,10 @@ units in the LSTM layer.</li>
 </tbody>
 </table>
 <p class="rubric">References</p>
-<table class="docutils footnote" frame="void" id="id4" rules="none">
+<table class="docutils footnote" frame="void" id="id6" rules="none">
 <colgroup><col class="label" /><col /></colgroup>
 <tbody valign="top">
-<tr><td class="label"><a class="fn-backref" href="#id3">[2]</a></td><td>Hidasi, Balázs, et al. “Session-based recommendations with
+<tr><td class="label"><a class="fn-backref" href="#id5">[2]</a></td><td>Hidasi, Balázs, et al. “Session-based recommendations with
 recurrent neural networks.” arXiv preprint arXiv:1511.06939 (2015).</td></tr>
 </tbody>
 </table>
@@ -356,7 +373,7 @@ for prediction or evaluation.</td>
 <dt id="spotlight.sequence.representations.PoolNet">
 <em class="property">class </em><code class="descclassname">spotlight.sequence.representations.</code><code class="descname">PoolNet</code><span class="sig-paren">(</span><em>num_items</em>, <em>embedding_dim=32</em>, <em>sparse=False</em><span class="sig-paren">)</span><a class="headerlink" href="#spotlight.sequence.representations.PoolNet" title="Permalink to this definition">¶</a></dt>
 <dd><p>Module representing users through averaging the representations of items
-they have interacted with, a’la <a class="footnote-reference" href="#id6" id="id5">[1]</a>.</p>
+they have interacted with, a’la <a class="footnote-reference" href="#id8" id="id7">[1]</a>.</p>
 <p>To represent a sequence, it simply averages the representations of all
 the items that occur in the sequence up to that point.</p>
 <p>During training, representations for all timesteps of the sequence are
@@ -375,10 +392,10 @@ be aggregating both across the minibatch and aross time in the sequence.</p>
 </tbody>
 </table>
 <p class="rubric">References</p>
-<table class="docutils footnote" frame="void" id="id6" rules="none">
+<table class="docutils footnote" frame="void" id="id8" rules="none">
 <colgroup><col class="label" /><col /></colgroup>
 <tbody valign="top">
-<tr><td class="label"><a class="fn-backref" href="#id5">[1]</a></td><td>Covington, Paul, Jay Adams, and Emre Sargin. “Deep neural networks for
+<tr><td class="label"><a class="fn-backref" href="#id7">[1]</a></td><td>Covington, Paul, Jay Adams, and Emre Sargin. “Deep neural networks for
 youtube recommendations.” Proceedings of the 10th ACM Conference
 on Recommender Systems. ACM, 2016.</td></tr>
 </tbody>

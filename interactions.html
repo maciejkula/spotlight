@@ -116,6 +116,7 @@
 </li>
 <li class="toctree-l1"><a class="reference internal" href="losses.html">Loss functions</a></li>
 <li class="toctree-l1"><a class="reference internal" href="evaluation.html">Evaluation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="sampling.html">Sampling</a></li>
 </ul>
 
             
@@ -189,16 +190,41 @@ are returned by dataset-fetching and dataset-processing functions.</p>
 <dd><p>Interactions object. Contains (at a minimum) pair of user-item
 interactions, but can also be enriched with ratings, timestamps,
 and interaction weights.</p>
+<p>For <em>implicit feedback</em> scenarios, user ids and item ids should
+only be provided for user-item pairs where an interaction was
+observed. All pairs that are not provided are treated as missing
+observations, and often interpreted as (implicit) negative
+signals.</p>
+<p>For <em>explicit feedback</em> scenarios, user ids, item ids, and
+ratings should be provided for all user-item-rating triplets
+that were observed in the dataset.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
 <li><strong>user_ids</strong> (<em>array of np.int32</em>) – array of user ids of the user-item pairs</li>
 <li><strong>item_ids</strong> (<em>array of np.int32</em>) – array of item ids of the user-item pairs</li>
 <li><strong>ratings</strong> (<em>array of np.float32</em><em>, </em><em>optional</em>) – array of ratings</li>
 <li><strong>timestamps</strong> (<em>array of np.int32</em><em>, </em><em>optional</em>) – array of timestamps</li>
 <li><strong>weights</strong> (<em>array of np.float32</em><em>, </em><em>optional</em>) – array of weights</li>
+<li><strong>num_users</strong> (<em>int</em><em>, </em><em>optional</em>) – Number of distinct users in the dataset.
+Must be larger than the maximum user id
+in user_ids.</li>
+<li><strong>num_items</strong> (<em>int</em><em>, </em><em>optional</em>) – Number of distinct items in the dataset.
+Must be larger than the maximum item id
+in item_ids.</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Variables:</th><td class="field-body"><ul class="first last simple">
+<li><strong>user_ids</strong> (<em>array of np.int32</em>) – array of user ids of the user-item pairs</li>
+<li><strong>item_ids</strong> (<em>array of np.int32</em>) – array of item ids of the user-item pairs</li>
+<li><strong>ratings</strong> (<em>array of np.float32</em><em>, </em><em>optional</em>) – array of ratings</li>
+<li><strong>timestamps</strong> (<em>array of np.int32</em><em>, </em><em>optional</em>) – array of timestamps</li>
+<li><strong>weights</strong> (<em>array of np.float32</em><em>, </em><em>optional</em>) – array of weights</li>
+<li><strong>num_users</strong> (<em>int</em><em>, </em><em>optional</em>) – Number of distinct users in the dataset.</li>
+<li><strong>num_items</strong> (<em>int</em><em>, </em><em>optional</em>) – Number of distinct items in the dataset.</li>
 </ul>
 </td>
 </tr>
@@ -206,31 +232,50 @@ and interaction weights.</p>
 </table>
 <dl class="method">
 <dt id="spotlight.interactions.Interactions.to_sequence">
-<code class="descname">to_sequence</code><span class="sig-paren">(</span><em>max_sequence_length=10</em><span class="sig-paren">)</span><a class="headerlink" href="#spotlight.interactions.Interactions.to_sequence" title="Permalink to this definition">¶</a></dt>
+<code class="descname">to_sequence</code><span class="sig-paren">(</span><em>max_sequence_length=10</em>, <em>min_sequence_length=None</em>, <em>step_size=None</em><span class="sig-paren">)</span><a class="headerlink" href="#spotlight.interactions.Interactions.to_sequence" title="Permalink to this definition">¶</a></dt>
 <dd><p>Transform to sequence form.</p>
 <p>User-item interaction pairs are sorted by their timestamps,
 and sequences of up to max_sequence_length events are arranged
 into a (zero-padded from the left) matrix with dimensions
 (num_sequences x max_sequence_length).</p>
-<p>All valid subsequences of users’ interactions are returned. For
-example, if a user interacted with items [5, 2, 6, 3], the
-returned interactions matrix at sequence length 5 be given by:</p>
-<div class="highlight-python"><div class="highlight"><pre><span></span><span class="p">[[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">5</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">6</span><span class="p">,</span> <span class="mi">3</span><span class="p">],</span>
- <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">5</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">6</span><span class="p">],</span>
- <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">5</span><span class="p">,</span> <span class="mi">2</span><span class="p">],</span>
- <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">5</span><span class="p">]]</span>
+<p>Valid subsequences of users’ interactions are returned. For
+example, if a user interacted with items [1, 2, 3, 4, 5], the
+returned interactions matrix at sequence length 5 and step size
+1 will be be given by:</p>
+<div class="highlight-python"><div class="highlight"><pre><span></span><span class="p">[[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">4</span><span class="p">,</span> <span class="mi">5</span><span class="p">],</span>
+ <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">4</span><span class="p">],</span>
+ <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">],</span>
+ <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">],</span>
+ <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">]]</span>
+</pre></div>
+</div>
+<p>At step size 2:</p>
+<div class="highlight-python"><div class="highlight"><pre><span></span><span class="p">[[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">4</span><span class="p">,</span> <span class="mi">5</span><span class="p">],</span>
+ <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">],</span>
+ <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">]]</span>
 </pre></div>
 </div>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>max_sequence_length</strong> (<em>int</em><em>, </em><em>optional</em>) – maximum sequence length. Subsequences shorter than this
-will be left-padded with zeros.</td>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>max_sequence_length</strong> (<em>int</em><em>, </em><em>optional</em>) – Maximum sequence length. Subsequences shorter than this
+will be left-padded with zeros.</li>
+<li><strong>min_sequence_length</strong> (<em>int</em><em>, </em><em>optional</em>) – If set, only sequences with at least min_sequence_length
+non-padding elements will be returned.</li>
+<li><strong>step-size</strong> (<em>int</em><em>, </em><em>optional</em>) – The returned subsequences are the effect of moving a
+a sliding window over the input. This parameter
+governs the stride of that window. Increasing it will
+result in fewer subsequences being returned.</li>
+</ul>
+</td>
 </tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><strong>sequence interactions</strong> – The resulting sequence interactions.</td>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><strong>sequence interactions</strong> – The resulting sequence interactions.</p>
+</td>
 </tr>
-<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><a class="reference internal" href="#spotlight.interactions.SequenceInteractions" title="spotlight.interactions.SequenceInteractions"><code class="xref py py-class docutils literal"><span class="pre">SequenceInteractions</span></code></a></td>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last"><a class="reference internal" href="#spotlight.interactions.SequenceInteractions" title="spotlight.interactions.SequenceInteractions"><code class="xref py py-class docutils literal"><span class="pre">SequenceInteractions</span></code></a></p>
+</td>
 </tr>
 </tbody>
 </table>
@@ -258,11 +303,15 @@ will be left-padded with zeros.</td>
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
 <li><strong>sequences</strong> (<em>array of np.int32 of shape</em><em> (</em><em>num_sequences x max_sequence_length</em><em>)</em>) – The interactions sequence matrix, as produced by
 <a class="reference internal" href="#spotlight.interactions.Interactions.to_sequence" title="spotlight.interactions.Interactions.to_sequence"><code class="xref py py-func docutils literal"><span class="pre">to_sequence()</span></code></a></li>
 <li><strong>num_items</strong> (<em>int</em><em>, </em><em>optional</em>) – The number of distinct items in the data</li>
 </ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Variables:</th><td class="field-body"><p class="first last"><strong>sequences</strong> (<em>array of np.int32 of shape</em><em> (</em><em>num_sequences x max_sequence_length</em><em>)</em>) – The interactions sequence matrix, as produced by
+<a class="reference internal" href="#spotlight.interactions.Interactions.to_sequence" title="spotlight.interactions.Interactions.to_sequence"><code class="xref py py-func docutils literal"><span class="pre">to_sequence()</span></code></a></p>
 </td>
 </tr>
 </tbody>

@@ -117,6 +117,7 @@
 </li>
 <li class="toctree-l1"><a class="reference internal" href="../losses.html">Loss functions</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../evaluation.html">Evaluation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../sampling.html">Sampling</a></li>
 </ul>
 
             
@@ -216,6 +217,20 @@ Overriden if representation is an instance of a representation class.</li>
 </tr>
 </tbody>
 </table>
+<p class="rubric">Notes</p>
+<p>During fitting, the model computes the loss for each timestep of the
+supplied sequence. For example, suppose the following sequences are
+passed to the <code class="docutils literal"><span class="pre">fit</span></code> function:</p>
+<div class="highlight-python"><div class="highlight"><pre><span></span><span class="p">[[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">4</span><span class="p">,</span> <span class="mi">5</span><span class="p">],</span>
+ <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">7</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">4</span><span class="p">]]</span>
+</pre></div>
+</div>
+<p>In this case, the loss for the first example will be the mean loss
+of trying to predict <code class="docutils literal"><span class="pre">2</span></code> from <code class="docutils literal"><span class="pre">[1]</span></code>, <code class="docutils literal"><span class="pre">3</span></code> from <code class="docutils literal"><span class="pre">[1,</span> <span class="pre">2]</span></code>,
+<code class="docutils literal"><span class="pre">4</span></code> from <code class="docutils literal"><span class="pre">[1,</span> <span class="pre">2,</span> <span class="pre">3]</span></code> and so on. This means that explicit padding
+of all subsequences is not necessary (although it is possible by using
+the <code class="docutils literal"><span class="pre">step_size</span></code> parameter of
+<a class="reference internal" href="../interactions.html#spotlight.interactions.Interactions.to_sequence" title="spotlight.interactions.Interactions.to_sequence"><code class="xref py py-func docutils literal"><span class="pre">spotlight.interactions.Interactions.to_sequence()</span></code></a>.</p>
 <dl class="method">
 <dt id="spotlight.sequence.implicit.ImplicitSequenceModel.fit">
 <code class="descname">fit</code><span class="sig-paren">(</span><em>interactions</em>, <em>verbose=False</em><span class="sig-paren">)</span><a class="headerlink" href="#spotlight.sequence.implicit.ImplicitSequenceModel.fit" title="Permalink to this definition">¶</a></dt>
