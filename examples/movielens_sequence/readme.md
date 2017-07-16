@@ -1,17 +1,31 @@
 
-# Causal convolutions
-Recurrent neural networks are not the only way of effectively representing sequences: convolutions can also do the job. In particular, we can use _causal convolutions_: convolutional filters applied to the sequence in a left-to-right fashion, emitting a representation at each step. They are _causal_ in that the their output at time $t$ is conditional on input up to $t-1$: this is necessary to ensure that they do not have access to the elements of the sequence we are trying to predict. 
+# Causal convolutions for sequence-based recommendations
+
+Using sequences of user-item interactions as an input for recommender models has a number of attractive properties. Firstly, it recognizes that recommending the next item that a user may want to buy or see is precisely the goal we are trying to achieve. Secondly, it's plausible that the ordering of users' interactions carries additional information over and above just the identities of items they have interacted with. For example, a user is more likely to watch the next episode of a given TV series if they've just finished the previous episode. Finally, when the sequence of past interactions rather than the identity of the user is the input to a model, online systems can incorporate new users (and old users' new actions) in real time. They are fed to the existing model, and do not require a new model to be fit to incorporate new information (unlike factorization models).
+
+Recurrent neural networks are the most natural way of modelling such sequence problems. In recommendations, gated recurrent units (GRUs) have been used with success in the [Session-based recommendations with recurrent neural networks](https://arxiv.org/abs/1511.06939) paper. Spotlight implements a similar model using [LSTM units](https://maciejkula.github.io/spotlight/sequence/representations.html#spotlight.sequence.representations.LSTMNet) as one of its sequence representations.
+
+## Causal convolutions
+
+But recurrent neural networks are not the only way of effectively representing sequences: convolutions can also do the job. In particular, we can use _causal convolutions_: convolutional filters applied to the sequence in a left-to-right fashion, emitting a representation at each step. They are _causal_ in that the their output at time $t$ is conditional on input up to $t-1$: this is necessary to ensure that they do not have access to the elements of the sequence we are trying to predict. 
 
 
 Like LSTMs, causal convolutions can model sequences with long-term dependencies. This is achieved in two ways: stacking convolutional layers (with padding, every convolutional layer preserves the shape of the input), and _dilation_: insertion of gaps into the convolutional filters (otherwise known as _atrous_ convolutions).
 
-The [WaveNet](https://arxiv.org/pdf/1609.03499.pdf) paper uses dilated causal convolutions to model audio:
 
 ---
+
+_Causal atrous convolutions_
 
 <img src="https://storage.googleapis.com/deepmind-live-cms-alt/documents/BlogPost-Fig2-Anim-160908-r01.gif" alt="Causal convolutions" style="width: 600x;"/>
 
 ---
+
+Causal convolutions have been used in several recent high-profile papers:
+
+- the [WaveNet](https://arxiv.org/pdf/1609.03499.pdf) paper uses dilated causal convolutions to model audio,
+- the [PixelCNN](http://papers.nips.cc/paper/6527-conditional-image-generation-with-pixelcnn-decoders) paper uses them to generate images, and
+- the [Neural Machine Translation in Linear Time](https://arxiv.org/abs/1610.10099) paper uses them for machine translation.
 
 Using convolutional rather than recurrent networks for representing sequences has a couple of advantages, as described in [this](https://medium.com/@TalPerry/convolutional-methods-for-text-d5260fd5675f) blog post: 
 
@@ -19,139 +33,54 @@ Using convolutional rather than recurrent networks for representing sequences ha
 2. Convolutional representations are less likely to be bottlenecked by the fixed size of the RNN representation, or by the distance between the hidden output and the input in long sequences. Using convolutional networks, the distance between the output and is determined by the depth of the network, and is independent of the length of the sequence (see section 1 of [Neural Machine Translation in Linear Time](https://arxiv.org/pdf/1610.10099.pdf)).
 
 ## Causal convolutions in Spotlight
-Spotlight implements causal convolution models as part of its [sequence models](https://maciejkula.github.io/spotlight/sequence/sequence.html) package, alongside more traditional recurrent and pooling models. The implementation uses:
+Spotlight implements causal convolution models as part of its [sequence models](https://maciejkula.github.io/spotlight/sequence/sequence.html) package, alongside more traditional recurrent and pooling models. The [Spotlight implementation](https://maciejkula.github.io/spotlight/sequence/representations.html#spotlight.sequence.representations.CNNNet) has the following characteristics:
 
-1. embedding layers for input,
-1. stackedn CNNs using tanh or relu non-linearities,
-2. residual connections between all layers, and
-3. configurable kernel size and dilations.
+1. Embedding layers for input and output. The weights of the input and output embedding layers are tied: the representation used by an item when encoding the sequence is the same as the one used in prediction.
+1. Stacked CNNs using tanh or relu non-linearities. The sequence is appropriately padded to ensure that future elements of the sequence are never in the receptive field of the network at a given time.
+2. Residual connections can be applied between all layers.
+3. Kernel size and dilation can be specified separately for each stacked convolutional layer.
+
+The model is trained using one of Spotlight's implicit feedback [losses](https://maciejkula.github.io/spotlight/losses.html), including pointwise (logistic and hinge) and pairwise (BPR as well as WARP-like adaptive hinge) losses. As with other Spotlight sequence models, the loss is computed for all the time steps of the sequence in one pass: for all timesteps $t$ in the sequence, a prediction using elements up to $t-1$ is made, and the loss is averaged along both the time and the minibatch axis. This leads to siginficant training  speed-ups relative to only computing the loss for the last element in the sequence.
 
 ## Experiments
 To see how causal CNNs compare to more traditional sequence models we can have a look at how they perform at predicting the next rated movie on the Movielens 1M dataset. With 1 million interactions spread among 6000 users and around 4000 movies it should be small enough to run quick experiments, but large enough to yield meaningful results.
 
 I chose to split the dataset into 80% train, and 10% test and validation sets. I construct 200-long sequences by splitting each user's item sequence into 200-long chunks; if a chunk is shorter than 200 elements, it's padded with zeros.
 
+To choose hyperparameters, I run a quick, coarse grained hyperparameter search, using random sampling to draw 100 hyperparameter sets. With the data and hyperparameters ready, fitting and evaluating the model is relatively simple:
 
 ```python
-import numpy as np
-
-from spotlight.datasets.movielens import get_movielens_dataset
-from spotlight.cross_validation import user_based_train_test_split
-
-max_sequence_length = 200
-min_sequence_length = 20
-step_size = 200
-
-random_state = np.random.RandomState(100)
-
-# Get data
-dataset = get_movielens_dataset('1M')
-
-# Split into train, test, validation
-train, rest = user_based_train_test_split(dataset,
-                                          random_state=random_state)
-test, validation = user_based_train_test_split(rest,
-                                               test_percentage=0.5,
-                                               random_state=random_state)
-
-# Convert to sequences
-train = train.to_sequence(max_sequence_length=max_sequence_length,
-                          min_sequence_length=min_sequence_length,
-                          step_size=step_size)
-test = test.to_sequence(max_sequence_length=max_sequence_length,
-                        min_sequence_length=min_sequence_length,
-                        step_size=step_size)
-validation = validation.to_sequence(max_sequence_length=max_sequence_length,
-                                    min_sequence_length=min_sequence_length,
-                                    step_size=step_size)
-```
-
-To choose hyperparameterss, I run a quick, coarse grained hyperparameter search, using random sampling to draw 100 hyperparameter sets:
-
-
-```python
-from sklearn.model_selection import ParameterSampler
-
 import torch
 
 from spotlight.sequence.implicit import ImplicitSequenceModel
 from spotlight.sequence.representations import CNNNet
 from spotlight.evaluation import sequence_mrr_score
 
-CUDA = torch.cuda.is_available()
-
-LEARNING_RATES = [1e-3, 1e-2, 5 * 1e-2, 1e-1]
-LOSSES = ['bpr', 'hinge', 'adaptive_hinge', 'pointwise']
-BATCH_SIZE = [8, 16, 32, 256]
-EMBEDDING_DIM = [8, 16, 32, 64, 128, 256]
-N_ITER = list(range(5, 20))
-L2 = [1e-6, 1e-5, 1e-4, 1e-3, 1e-2, 0.0]
-
-def sample_cnn_hyperparameters(random_state, num):
-
-    space = {
-        'n_iter': N_ITER,
-        'batch_size': BATCH_SIZE,
-        'l2': L2,
-        'learning_rate': LEARNING_RATES,
-        'loss': LOSSES,
-        'embedding_dim': EMBEDDING_DIM,
-        'kernel_width': [3, 5, 7],
-        'num_layers': list(range(1, 10)),
-        'dilation_multiplier': [1, 2],
-        'nonlinearity': ['tanh', 'relu'],
-        'residual': [True, False]
-    }
-
-    sampler = ParameterSampler(space,
-                               n_iter=num,
-                               random_state=random_state)
-
-    for params in sampler:
-        params['dilation'] = list(params['dilation_multiplier'] ** (i % 8)
-                                  for i in range(params['num_layers']))
-
-        yield params
         
-def evaluate_cnn_model(hyperparameters, train, test, validation, random_state):
+net = CNNNet(train.num_items,
+             embedding_dim=hyperparameters['embedding_dim'],
+             kernel_width=hyperparameters['kernel_width'],
+             dilation=hyperparameters['dilation'],
+             num_layers=hyperparameters['num_layers'],
+             nonlinearity=hyperparameters['nonlinearity'],
+             residual_connections=hyperparameters['residual'])
 
-    h = hyperparameters
+model = ImplicitSequenceModel(loss=hyperparameters['loss'],
+                              representation=net,
+                              batch_size=hyperparameters['batch_size'],
+                              learning_rate=hyperparameters['learning_rate'],
+                              l2=hyperparameters['l2'],
+                              n_iter=hyperparameters['n_iter'],
+                              use_cuda=torch.cuda.is_available(),
+                              random_state=random_state)
 
-    net = CNNNet(train.num_items,
-                 embedding_dim=h['embedding_dim'],
-                 kernel_width=h['kernel_width'],
-                 dilation=h['dilation'],
-                 num_layers=h['num_layers'],
-                 nonlinearity=h['nonlinearity'],
-                 residual_connections=h['residual'])
+model.fit(train)
 
-    model = ImplicitSequenceModel(loss=h['loss'],
-                                  representation=net,
-                                  batch_size=h['batch_size'],
-                                  learning_rate=h['learning_rate'],
-                                  l2=h['l2'],
-                                  n_iter=h['n_iter'],
-                                  use_cuda=CUDA,
-                                  random_state=random_state)
-
-    model.fit(train, verbose=True)
-
-    test_mrr = sequence_mrr_score(model, test)
-    val_mrr = sequence_mrr_score(model, validation)
-
-    return test_mrr, val_mrr
+test_mrr = sequence_mrr_score(model, test)
+val_mrr = sequence_mrr_score(model, validation)
 ```
 
-Running a single iteration should work roughly as follows:
-
-
-```python
-hyperparams = list(sample_cnn_hyperparameters(np.random.RandomState(), 1))[0]
-
-# Fitting and validating the model may take a couple of minutes if you don't have a GPU:
-# run at your own risk!
-# test_mrr, validation_mrr = evaluate_cnn_model(hyperparams, train, test, validation, None)
-```
+Fitting the models is fairly quick, taking at most two or three minutes on a single K80 GPU. The code for the experiments is available in the experiments folder of the Spotlight repo.
 
 ## Results
 
@@ -216,11 +145,13 @@ A single layer LSTM seems to outperform causal convolutions, by an over 10% marg
 
 ### Avenues to explore
 
-There are a couple of avenues to explore.
+It looks like causal convolutions need some more work before beating recurrent networks. There are a couple of possible avenues for making them better:
 
-- gated CNN units
-- stacking LSTMs, dropout
-- deep averaging networks
+1. Gated CNN units. The WaveNet paper uses gated CNN units. These consist of two convolutional layers: one using the tanh and the other (the gate) using the sigmoid nonlinearity. They are then multiplied together to achieve the sort of gating effect more commonly seen in recurrent networks. I have run some small scale experiements using gated CNN units, but I haven't managed to extract meaningful accuracy gains from them.
+2. Batch normalization. Batch normalization is key to training many multi-layer convolutional networks; maybe it would be of use here? Again, my experiments failed to show a benefit, but I may have missed a small but crucial trick of the trade.
+4. Skip connections. Would skip connections - in addition to residual connections - help with the accuracy?
+
+I'd love to get some input on these. If you have suggestions, let me know at [@Maciej_Kula](https://twitter.com/Maciej_Kula) or open an issue or PR in [Spotlight](https://github.com/maciejkula/spotlight).
 
 
 ```python
