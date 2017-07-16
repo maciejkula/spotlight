@@ -260,6 +260,6 @@ them better:
    connections - help with the accuracy?
 
 I'd love to get some input on these. If you have suggestions, let me
-know at [@Maciej\_Kula](https://twitter.com/Maciej\_Kula) or open an
+know on `Twitter <https://twitter.com/Maciej_Kula>`_ or open an
 issue or PR in `Spotlight <https://github.com/maciejkula/spotlight>`_.
 
