@@ -11,8 +11,9 @@ import torch.optim as optim
 
 from torch.autograd import Variable
 
-
-from spotlight.losses import (bpr_loss,
+from spotlight.helpers import _repr_model
+from spotlight.losses import (adaptive_hinge_loss,
+                              bpr_loss,
                               hinge_loss,
                               pointwise_loss)
 from spotlight.sequence.representations import PADDING_IDX, CNNNet, LSTMNet, PoolNet
@@ -54,6 +55,26 @@ class ImplicitSequenceModel(object):
         Use sparse gradients for embedding layers.
     random_state: instance of numpy.random.RandomState, optional
         Random state to use when fitting.
+
+    Notes
+    -----
+
+    During fitting, the model computes the loss for each timestep of the
+    supplied sequence. For example, suppose the following sequences are
+    passed to the ``fit`` function:
+
+    .. code-block:: python
+
+       [[1, 2, 3, 4, 5],
+        [0, 0, 7, 1, 4]]
+
+
+    In this case, the loss for the first example will be the mean loss
+    of trying to predict ``2`` from ``[1]``, ``3`` from ``[1, 2]``,
+    ``4`` from ``[1, 2, 3]`` and so on. This means that explicit padding
+    of all subsequences is not necessary (although it is possible by using
+    the ``step_size`` parameter of
+    :func:`spotlight.interactions.Interactions.to_sequence`.
     """
 
     def __init__(self,
@@ -97,6 +118,10 @@ class ImplicitSequenceModel(object):
         set_seed(self._random_state.randint(-10**8, 10**8),
                  cuda=self._use_cuda)
 
+    def __repr__(self):
+
+        return _repr_model(self)
+
     def fit(self, interactions, verbose=False):
         """
         Fit the model.
@@ -127,6 +152,8 @@ class ImplicitSequenceModel(object):
         else:
             self._net = self._representation
 
+        self._net = gpu(self._net, self._use_cuda)
+
         if self._optimizer is None:
             self._optimizer = optim.Adam(
                 self._net.parameters(),
@@ -138,8 +165,10 @@ class ImplicitSequenceModel(object):
             loss_fnc = pointwise_loss
         elif self._loss == 'bpr':
             loss_fnc = bpr_loss
-        else:
+        elif self._loss == 'hinge':
             loss_fnc = hinge_loss
+        else:
+            loss_fnc = adaptive_hinge_loss
 
         for epoch_num in range(self._n_iter):
 
@@ -151,8 +180,8 @@ class ImplicitSequenceModel(object):
 
             epoch_loss = 0.0
 
-            for batch_sequence in minibatch(sequences_tensor,
-                                            batch_size=self._batch_size):
+            for minibatch_num, batch_sequence in enumerate(minibatch(sequences_tensor,
+                                                                     batch_size=self._batch_size)):
 
                 sequence_var = Variable(batch_sequence)
 
@@ -164,17 +193,12 @@ class ImplicitSequenceModel(object):
                                                 sequence_var)
 
                 if self._loss == 'adaptive_hinge':
-                    raise NotImplementedError
+                    negative_prediction = [self._get_negative_prediction(sequence_var.size(),
+                                                                         user_representation)
+                                           for _ in range(5)]
                 else:
-                    negative_items = sample_items(
-                        self._num_items,
-                        batch_sequence.size(),
-                        random_state=self._random_state)
-                    negative_var = Variable(
-                        gpu(torch.from_numpy(negative_items))
-                    )
-                    negative_prediction = self._net(user_representation,
-                                                    negative_var)
+                    negative_prediction = self._get_negative_prediction(sequence_var.size(),
+                                                                        user_representation)
 
                 self._optimizer.zero_grad()
 
@@ -186,27 +210,23 @@ class ImplicitSequenceModel(object):
                 loss.backward()
                 self._optimizer.step()
 
+            epoch_loss /= minibatch_num + 1
+
             if verbose:
                 print('Epoch {}: loss {}'.format(epoch_num, epoch_loss))
 
-    # def _get_adaptive_negatives(self, user_ids, num_neg_candidates=5):
+    def _get_negative_prediction(self, shape, user_representation):
 
-    #     negatives = Variable(
-    #         gpu(
-    #             torch.from_numpy(
-    #                 self._random_state
-    #                 .randint(0, self._num_items,
-    #                          (len(user_ids), num_neg_candidates))),
-    #             self._use_cuda)
-    #     )
-    #     negative_predictions = self._net(
-    #         user_ids.repeat(num_neg_candidates, 1).transpose(0, 1),
-    #         negatives
-    #     ).view(-1, num_neg_candidates)
+        negative_items = sample_items(
+            self._num_items,
+            shape,
+            random_state=self._random_state)
+        negative_var = Variable(
+            gpu(torch.from_numpy(negative_items), self._use_cuda)
+        )
+        negative_prediction = self._net(user_representation, negative_var)
 
-    #     best_negative_prediction, _ = negative_predictions.max(1)
-
-    #     return best_negative_prediction
+        return negative_prediction
 
     def predict(self, sequences, item_ids=None):
         """
@@ -229,6 +249,8 @@ class ImplicitSequenceModel(object):
         predictions: array
             Predicted scores for all items in item_ids.
         """
+
+        self._net.train(False)
 
         sequences = np.atleast_2d(sequences)
 

@@ -21,6 +21,7 @@ Contents
    Factorization models <factorization/factorization>
    Loss functions <losses>
    Evaluation <evaluation>
+   Sampling <sampling>
 
 
 Indices and tables

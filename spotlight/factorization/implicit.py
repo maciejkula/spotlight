@@ -10,8 +10,9 @@ import torch.optim as optim
 
 from torch.autograd import Variable
 
-
-from spotlight.losses import (bpr_loss,
+from spotlight.helpers import _repr_model
+from spotlight.losses import (adaptive_hinge_loss,
+                              bpr_loss,
                               hinge_loss,
                               pointwise_loss)
 from spotlight.factorization.representations import BilinearNet
@@ -99,6 +100,10 @@ class ImplicitFactorizationModel(object):
         set_seed(self._random_state.randint(-10**8, 10**8),
                  cuda=self._use_cuda)
 
+    def __repr__(self):
+
+        return _repr_model(self)
+
     def fit(self, interactions, verbose=False):
         """
         Fit the model.
@@ -136,8 +141,10 @@ class ImplicitFactorizationModel(object):
             loss_fnc = pointwise_loss
         elif self._loss == 'bpr':
             loss_fnc = bpr_loss
-        else:
+        elif self._loss == 'hinge':
             loss_fnc = hinge_loss
+        else:
+            loss_fnc = adaptive_hinge_loss
 
         for epoch_num in range(self._n_iter):
 
@@ -152,28 +159,21 @@ class ImplicitFactorizationModel(object):
 
             epoch_loss = 0.0
 
-            for (batch_user,
-                 batch_item) in minibatch(user_ids_tensor,
-                                          item_ids_tensor,
-                                          batch_size=self._batch_size):
+            for (minibatch_num,
+                 (batch_user,
+                  batch_item)) in enumerate(minibatch(user_ids_tensor,
+                                                      item_ids_tensor,
+                                                      batch_size=self._batch_size)):
 
                 user_var = Variable(batch_user)
                 item_var = Variable(batch_item)
                 positive_prediction = self._net(user_var, item_var)
 
                 if self._loss == 'adaptive_hinge':
-                    negative_prediction = self._get_adaptive_negatives(
-                        user_var
-                    )
+                    negative_prediction = [self._get_negative_prediction(user_var)
+                                           for _ in range(5)]
                 else:
-                    negative_items = sample_items(
-                        self._num_items,
-                        len(batch_user),
-                        random_state=self._random_state)
-                    negative_var = Variable(
-                        gpu(torch.from_numpy(negative_items))
-                    )
-                    negative_prediction = self._net(user_var, negative_var)
+                    negative_prediction = self._get_negative_prediction(user_var)
 
                 self._optimizer.zero_grad()
 
@@ -183,27 +183,23 @@ class ImplicitFactorizationModel(object):
                 loss.backward()
                 self._optimizer.step()
 
+            epoch_loss /= minibatch_num + 1
+
             if verbose:
                 print('Epoch {}: loss {}'.format(epoch_num, epoch_loss))
 
-    def _get_adaptive_negatives(self, user_ids, num_neg_candidates=5):
+    def _get_negative_prediction(self, user_ids):
 
-        negatives = Variable(
-            gpu(
-                torch.from_numpy(
-                    self._random_state
-                    .randint(0, self._num_items,
-                             (len(user_ids), num_neg_candidates))),
-                self._use_cuda)
+        negative_items = sample_items(
+            self._num_items,
+            len(user_ids),
+            random_state=self._random_state)
+        negative_var = Variable(
+            gpu(torch.from_numpy(negative_items), self._use_cuda)
         )
-        negative_predictions = self._net(
-            user_ids.repeat(num_neg_candidates, 1).transpose(0, 1),
-            negatives
-        ).view(-1, num_neg_candidates)
+        negative_prediction = self._net(user_ids, negative_var)
 
-        best_negative_prediction, _ = negative_predictions.max(1)
-
-        return best_negative_prediction
+        return negative_prediction
 
     def predict(self, user_ids, item_ids=None):
         """

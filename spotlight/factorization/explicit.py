@@ -10,12 +10,10 @@ import torch.optim as optim
 
 from torch.autograd import Variable
 
-
+from spotlight.helpers import _repr_model
 from spotlight.factorization.representations import BilinearNet
-
 from spotlight.losses import (regression_loss,
                               poisson_loss)
-
 from spotlight.torch_utils import cpu, gpu, minibatch, set_seed, shuffle
 
 
@@ -92,6 +90,10 @@ class ExplicitFactorizationModel(object):
         set_seed(self._random_state.randint(-10**8, 10**8),
                  cuda=self._use_cuda)
 
+    def __repr__(self):
+
+        return _repr_model(self)
+
     def fit(self, interactions, verbose=False):
         """
         Fit the model.
@@ -148,12 +150,13 @@ class ExplicitFactorizationModel(object):
 
             epoch_loss = 0.0
 
-            for (batch_user,
-                 batch_item,
-                 batch_ratings) in minibatch(user_ids_tensor,
-                                             item_ids_tensor,
-                                             ratings_tensor,
-                                             batch_size=self._batch_size):
+            for (minibatch_num,
+                 (batch_user,
+                  batch_item,
+                  batch_ratings)) in enumerate(minibatch(user_ids_tensor,
+                                                         item_ids_tensor,
+                                                         ratings_tensor,
+                                                         batch_size=self._batch_size)):
 
                 user_var = Variable(batch_user)
                 item_var = Variable(batch_item)
@@ -171,6 +174,8 @@ class ExplicitFactorizationModel(object):
 
                 loss.backward()
                 self._optimizer.step()
+
+            epoch_loss /= minibatch_num + 1
 
             if verbose:
                 print('Epoch {}: loss {}'.format(epoch_num, epoch_loss))
