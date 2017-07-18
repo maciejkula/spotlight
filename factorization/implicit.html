@@ -188,7 +188,7 @@
 <p>Factorization models for implicit feedback problems.</p>
 <dl class="class">
 <dt id="spotlight.factorization.implicit.ImplicitFactorizationModel">
-<em class="property">class </em><code class="descclassname">spotlight.factorization.implicit.</code><code class="descname">ImplicitFactorizationModel</code><span class="sig-paren">(</span><em>loss=’pointwise’</em>, <em>embedding_dim=32</em>, <em>n_iter=10</em>, <em>batch_size=256</em>, <em>l2=0.0</em>, <em>learning_rate=0.01</em>, <em>optimizer=None</em>, <em>use_cuda=False</em>, <em>sparse=False</em>, <em>random_state=None</em><span class="sig-paren">)</span><a class="headerlink" href="#spotlight.factorization.implicit.ImplicitFactorizationModel" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="descclassname">spotlight.factorization.implicit.</code><code class="descname">ImplicitFactorizationModel</code><span class="sig-paren">(</span><em>loss=’pointwise’</em>, <em>embedding_dim=32</em>, <em>n_iter=10</em>, <em>batch_size=256</em>, <em>l2=0.0</em>, <em>learning_rate=0.01</em>, <em>optimizer=None</em>, <em>use_cuda=False</em>, <em>sparse=False</em>, <em>random_state=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/spotlight/factorization/implicit.html#ImplicitFactorizationModel"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#spotlight.factorization.implicit.ImplicitFactorizationModel" title="Permalink to this definition">¶</a></dt>
 <dd><p>An implict feedback matrix factorization model. Uses a classic
 matrix factorization <a class="footnote-reference" href="#id2" id="id1">[1]</a> approach, with latent vectors used
 to represent both users and items. Their dot product gives the
@@ -230,7 +230,7 @@ corresponding to losses from <a class="reference internal" href="../losses.html#
 </table>
 <dl class="method">
 <dt id="spotlight.factorization.implicit.ImplicitFactorizationModel.fit">
-<code class="descname">fit</code><span class="sig-paren">(</span><em>interactions</em>, <em>verbose=False</em><span class="sig-paren">)</span><a class="headerlink" href="#spotlight.factorization.implicit.ImplicitFactorizationModel.fit" title="Permalink to this definition">¶</a></dt>
+<code class="descname">fit</code><span class="sig-paren">(</span><em>interactions</em>, <em>verbose=False</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/spotlight/factorization/implicit.html#ImplicitFactorizationModel.fit"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#spotlight.factorization.implicit.ImplicitFactorizationModel.fit" title="Permalink to this definition">¶</a></dt>
 <dd><p>Fit the model.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -244,7 +244,7 @@ corresponding to losses from <a class="reference internal" href="../losses.html#
 
 <dl class="method">
 <dt id="spotlight.factorization.implicit.ImplicitFactorizationModel.predict">
-<code class="descname">predict</code><span class="sig-paren">(</span><em>user_ids</em>, <em>item_ids=None</em><span class="sig-paren">)</span><a class="headerlink" href="#spotlight.factorization.implicit.ImplicitFactorizationModel.predict" title="Permalink to this definition">¶</a></dt>
+<code class="descname">predict</code><span class="sig-paren">(</span><em>user_ids</em>, <em>item_ids=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/spotlight/factorization/implicit.html#ImplicitFactorizationModel.predict"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#spotlight.factorization.implicit.ImplicitFactorizationModel.predict" title="Permalink to this definition">¶</a></dt>
 <dd><p>Make predictions: given a user id, compute the recommendation
 scores for items.</p>
 <table class="docutils field-list" frame="void" rules="none">

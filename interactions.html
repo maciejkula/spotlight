@@ -186,7 +186,7 @@
 are returned by dataset-fetching and dataset-processing functions.</p>
 <dl class="class">
 <dt id="spotlight.interactions.Interactions">
-<em class="property">class </em><code class="descclassname">spotlight.interactions.</code><code class="descname">Interactions</code><span class="sig-paren">(</span><em>user_ids</em>, <em>item_ids</em>, <em>ratings=None</em>, <em>timestamps=None</em>, <em>weights=None</em>, <em>num_users=None</em>, <em>num_items=None</em><span class="sig-paren">)</span><a class="headerlink" href="#spotlight.interactions.Interactions" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="descclassname">spotlight.interactions.</code><code class="descname">Interactions</code><span class="sig-paren">(</span><em>user_ids</em>, <em>item_ids</em>, <em>ratings=None</em>, <em>timestamps=None</em>, <em>weights=None</em>, <em>num_users=None</em>, <em>num_items=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/spotlight/interactions.html#Interactions"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#spotlight.interactions.Interactions" title="Permalink to this definition">¶</a></dt>
 <dd><p>Interactions object. Contains (at a minimum) pair of user-item
 interactions, but can also be enriched with ratings, timestamps,
 and interaction weights.</p>
@@ -232,7 +232,7 @@ in item_ids.</li>
 </table>
 <dl class="method">
 <dt id="spotlight.interactions.Interactions.to_sequence">
-<code class="descname">to_sequence</code><span class="sig-paren">(</span><em>max_sequence_length=10</em>, <em>min_sequence_length=None</em>, <em>step_size=None</em><span class="sig-paren">)</span><a class="headerlink" href="#spotlight.interactions.Interactions.to_sequence" title="Permalink to this definition">¶</a></dt>
+<code class="descname">to_sequence</code><span class="sig-paren">(</span><em>max_sequence_length=10</em>, <em>min_sequence_length=None</em>, <em>step_size=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/spotlight/interactions.html#Interactions.to_sequence"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#spotlight.interactions.Interactions.to_sequence" title="Permalink to this definition">¶</a></dt>
 <dd><p>Transform to sequence form.</p>
 <p>User-item interaction pairs are sorted by their timestamps,
 and sequences of up to max_sequence_length events are arranged
@@ -283,13 +283,13 @@ result in fewer subsequences being returned.</li>
 
 <dl class="method">
 <dt id="spotlight.interactions.Interactions.tocoo">
-<code class="descname">tocoo</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#spotlight.interactions.Interactions.tocoo" title="Permalink to this definition">¶</a></dt>
+<code class="descname">tocoo</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/spotlight/interactions.html#Interactions.tocoo"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#spotlight.interactions.Interactions.tocoo" title="Permalink to this definition">¶</a></dt>
 <dd><p>Transform to a scipy.sparse COO matrix.</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="spotlight.interactions.Interactions.tocsr">
-<code class="descname">tocsr</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#spotlight.interactions.Interactions.tocsr" title="Permalink to this definition">¶</a></dt>
+<code class="descname">tocsr</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/spotlight/interactions.html#Interactions.tocsr"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#spotlight.interactions.Interactions.tocsr" title="Permalink to this definition">¶</a></dt>
 <dd><p>Transform to a scipy.sparse CSR matrix.</p>
 </dd></dl>
 
@@ -297,7 +297,7 @@ result in fewer subsequences being returned.</li>
 
 <dl class="class">
 <dt id="spotlight.interactions.SequenceInteractions">
-<em class="property">class </em><code class="descclassname">spotlight.interactions.</code><code class="descname">SequenceInteractions</code><span class="sig-paren">(</span><em>sequences</em>, <em>user_ids=None</em>, <em>num_items=None</em><span class="sig-paren">)</span><a class="headerlink" href="#spotlight.interactions.SequenceInteractions" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="descclassname">spotlight.interactions.</code><code class="descname">SequenceInteractions</code><span class="sig-paren">(</span><em>sequences</em>, <em>user_ids=None</em>, <em>num_items=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/spotlight/interactions.html#SequenceInteractions"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#spotlight.interactions.SequenceInteractions" title="Permalink to this definition">¶</a></dt>
 <dd><p>Interactions encoded as a sequence matrix.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />

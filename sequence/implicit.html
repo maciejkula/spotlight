@@ -189,7 +189,7 @@
 a user has interacted with.</p>
 <dl class="class">
 <dt id="spotlight.sequence.implicit.ImplicitSequenceModel">
-<em class="property">class </em><code class="descclassname">spotlight.sequence.implicit.</code><code class="descname">ImplicitSequenceModel</code><span class="sig-paren">(</span><em>loss=’pointwise’</em>, <em>representation=’pooling’</em>, <em>embedding_dim=32</em>, <em>n_iter=10</em>, <em>batch_size=256</em>, <em>l2=0.0</em>, <em>learning_rate=0.01</em>, <em>optimizer=None</em>, <em>use_cuda=False</em>, <em>sparse=False</em>, <em>random_state=None</em><span class="sig-paren">)</span><a class="headerlink" href="#spotlight.sequence.implicit.ImplicitSequenceModel" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="descclassname">spotlight.sequence.implicit.</code><code class="descname">ImplicitSequenceModel</code><span class="sig-paren">(</span><em>loss=’pointwise’</em>, <em>representation=’pooling’</em>, <em>embedding_dim=32</em>, <em>n_iter=10</em>, <em>batch_size=256</em>, <em>l2=0.0</em>, <em>learning_rate=0.01</em>, <em>optimizer=None</em>, <em>use_cuda=False</em>, <em>sparse=False</em>, <em>random_state=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/spotlight/sequence/implicit.html#ImplicitSequenceModel"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#spotlight.sequence.implicit.ImplicitSequenceModel" title="Permalink to this definition">¶</a></dt>
 <dd><p>Model for sequential recommendations using implicit feedback.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -233,7 +233,7 @@ the <code class="docutils literal"><span class="pre">step_size</span></code> par
 <a class="reference internal" href="../interactions.html#spotlight.interactions.Interactions.to_sequence" title="spotlight.interactions.Interactions.to_sequence"><code class="xref py py-func docutils literal"><span class="pre">spotlight.interactions.Interactions.to_sequence()</span></code></a>.</p>
 <dl class="method">
 <dt id="spotlight.sequence.implicit.ImplicitSequenceModel.fit">
-<code class="descname">fit</code><span class="sig-paren">(</span><em>interactions</em>, <em>verbose=False</em><span class="sig-paren">)</span><a class="headerlink" href="#spotlight.sequence.implicit.ImplicitSequenceModel.fit" title="Permalink to this definition">¶</a></dt>
+<code class="descname">fit</code><span class="sig-paren">(</span><em>interactions</em>, <em>verbose=False</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/spotlight/sequence/implicit.html#ImplicitSequenceModel.fit"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#spotlight.sequence.implicit.ImplicitSequenceModel.fit" title="Permalink to this definition">¶</a></dt>
 <dd><p>Fit the model.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -247,7 +247,7 @@ the <code class="docutils literal"><span class="pre">step_size</span></code> par
 
 <dl class="method">
 <dt id="spotlight.sequence.implicit.ImplicitSequenceModel.predict">
-<code class="descname">predict</code><span class="sig-paren">(</span><em>sequences</em>, <em>item_ids=None</em><span class="sig-paren">)</span><a class="headerlink" href="#spotlight.sequence.implicit.ImplicitSequenceModel.predict" title="Permalink to this definition">¶</a></dt>
+<code class="descname">predict</code><span class="sig-paren">(</span><em>sequences</em>, <em>item_ids=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/spotlight/sequence/implicit.html#ImplicitSequenceModel.predict"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#spotlight.sequence.implicit.ImplicitSequenceModel.predict" title="Permalink to this definition">¶</a></dt>
 <dd><p>Make predictions: given a sequence of interactions, predict
 the next item in the sequence.</p>
 <table class="docutils field-list" frame="void" rules="none">

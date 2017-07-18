@@ -1,0 +1,490 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>spotlight.factorization.implicit &mdash; Spotlight 0.1.0 documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  
+  
+    <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
+  
+
+  
+    <link rel="stylesheet" href="../../../_static/css/spotlight_theme.css" type="text/css" />
+  
+
+  
+        <link rel="index" title="Index"
+              href="../../../genindex.html"/>
+        <link rel="search" title="Search" href="../../../search.html"/>
+    <link rel="top" title="Spotlight 0.1.0 documentation" href="../../../index.html"/>
+        <link rel="up" title="Module code" href="../../index.html"/> 
+
+  
+  <script src="../../../_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+   
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+          
+            <a href="../../../index.html">
+          
+
+          
+            
+            <img src="../../../_static/spotlight.svg" class="logo" />
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                0.1.0
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../interactions.html">Interactions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../datasets/datasets.html">Datasets</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../datasets/synthetic.html">Synthetic</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../datasets/movielens.html">Movielens</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../../cross_validation.html">Cross validation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../sequence/sequence.html">Sequence models</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../sequence/implicit.html">Implicit feedback models</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../sequence/representations.html">Sequence representations</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../../factorization/factorization.html">Factorization models</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../factorization/implicit.html">Implicit feedback models</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../factorization/explicit.html">Explicit feedback models</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../factorization/representations.html">Latent representations</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../../losses.html">Loss functions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../evaluation.html">Evaluation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../sampling.html">Sampling</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">Spotlight</a>
+        
+      </nav>
+
+
+      
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../../../index.html">Docs</a> &raquo;</li>
+        
+          <li><a href="../../index.html">Module code</a> &raquo;</li>
+        
+      <li>spotlight.factorization.implicit</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <h1>Source code for spotlight.factorization.implicit</h1><div class="highlight"><pre>
+<span></span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">Factorization models for implicit feedback problems.</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+
+<span class="kn">import</span> <span class="nn">torch</span>
+
+<span class="kn">import</span> <span class="nn">torch.optim</span> <span class="k">as</span> <span class="nn">optim</span>
+
+<span class="kn">from</span> <span class="nn">torch.autograd</span> <span class="k">import</span> <span class="n">Variable</span>
+
+<span class="kn">from</span> <span class="nn">spotlight.helpers</span> <span class="k">import</span> <span class="n">_repr_model</span>
+<span class="kn">from</span> <span class="nn">spotlight.losses</span> <span class="k">import</span> <span class="p">(</span><span class="n">adaptive_hinge_loss</span><span class="p">,</span>
+                              <span class="n">bpr_loss</span><span class="p">,</span>
+                              <span class="n">hinge_loss</span><span class="p">,</span>
+                              <span class="n">pointwise_loss</span><span class="p">)</span>
+<span class="kn">from</span> <span class="nn">spotlight.factorization.representations</span> <span class="k">import</span> <span class="n">BilinearNet</span>
+<span class="kn">from</span> <span class="nn">spotlight.sampling</span> <span class="k">import</span> <span class="n">sample_items</span>
+<span class="kn">from</span> <span class="nn">spotlight.torch_utils</span> <span class="k">import</span> <span class="n">cpu</span><span class="p">,</span> <span class="n">gpu</span><span class="p">,</span> <span class="n">minibatch</span><span class="p">,</span> <span class="n">set_seed</span><span class="p">,</span> <span class="n">shuffle</span>
+
+
+<div class="viewcode-block" id="ImplicitFactorizationModel"><a class="viewcode-back" href="../../../factorization/implicit.html#spotlight.factorization.implicit.ImplicitFactorizationModel">[docs]</a><span class="k">class</span> <span class="nc">ImplicitFactorizationModel</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    An implict feedback matrix factorization model. Uses a classic</span>
+<span class="sd">    matrix factorization [1]_ approach, with latent vectors used</span>
+<span class="sd">    to represent both users and items. Their dot product gives the</span>
+<span class="sd">    predicted score for a user-item pair.</span>
+
+<span class="sd">    The latent representation is given by</span>
+<span class="sd">    :class:`spotlight.factorization.representations.BilinearNet`.</span>
+
+<span class="sd">    The model is trained through negative sampling: for any known</span>
+<span class="sd">    user-item pair, one or more items are randomly sampled to act</span>
+<span class="sd">    as negatives (expressing a lack of preference by the user for</span>
+<span class="sd">    the sampled item).</span>
+
+<span class="sd">    .. [1] Koren, Yehuda, Robert Bell, and Chris Volinsky.</span>
+<span class="sd">       &quot;Matrix factorization techniques for recommender systems.&quot;</span>
+<span class="sd">       Computer 42.8 (2009).</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+
+<span class="sd">    loss: string, optional</span>
+<span class="sd">        One of &#39;pointwise&#39;, &#39;bpr&#39;, &#39;hinge&#39;, or &#39;adaptive hinge&#39;,</span>
+<span class="sd">        corresponding to losses from :class:`spotlight.losses`.</span>
+<span class="sd">    embedding_dim: int, optional</span>
+<span class="sd">        Number of embedding dimensions to use for users and items.</span>
+<span class="sd">    n_iter: int, optional</span>
+<span class="sd">        Number of iterations to run.</span>
+<span class="sd">    batch_size: int, optional</span>
+<span class="sd">        Minibatch size.</span>
+<span class="sd">    l2: float, optional</span>
+<span class="sd">        L2 loss penalty.</span>
+<span class="sd">    learning_rate: float, optional</span>
+<span class="sd">        Initial learning rate.</span>
+<span class="sd">    optimizer: instance of a PyTorch optimizer, optional</span>
+<span class="sd">        Overrides l2 and learning rate if supplied.</span>
+<span class="sd">    use_cuda: boolean, optional</span>
+<span class="sd">        Run the model on a GPU.</span>
+<span class="sd">    sparse: boolean, optional</span>
+<span class="sd">        Use sparse gradients for embedding layers.</span>
+<span class="sd">    random_state: instance of numpy.random.RandomState, optional</span>
+<span class="sd">        Random state to use when fitting.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span>
+                 <span class="n">loss</span><span class="o">=</span><span class="s1">&#39;pointwise&#39;</span><span class="p">,</span>
+                 <span class="n">embedding_dim</span><span class="o">=</span><span class="mi">32</span><span class="p">,</span>
+                 <span class="n">n_iter</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span>
+                 <span class="n">batch_size</span><span class="o">=</span><span class="mi">256</span><span class="p">,</span>
+                 <span class="n">l2</span><span class="o">=</span><span class="mf">0.0</span><span class="p">,</span>
+                 <span class="n">learning_rate</span><span class="o">=</span><span class="mf">1e-2</span><span class="p">,</span>
+                 <span class="n">optimizer</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                 <span class="n">use_cuda</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+                 <span class="n">sparse</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+                 <span class="n">random_state</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+
+        <span class="k">assert</span> <span class="n">loss</span> <span class="ow">in</span> <span class="p">(</span><span class="s1">&#39;pointwise&#39;</span><span class="p">,</span>
+                        <span class="s1">&#39;bpr&#39;</span><span class="p">,</span>
+                        <span class="s1">&#39;hinge&#39;</span><span class="p">,</span>
+                        <span class="s1">&#39;adaptive_hinge&#39;</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_loss</span> <span class="o">=</span> <span class="n">loss</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_embedding_dim</span> <span class="o">=</span> <span class="n">embedding_dim</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_n_iter</span> <span class="o">=</span> <span class="n">n_iter</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_learning_rate</span> <span class="o">=</span> <span class="n">learning_rate</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_batch_size</span> <span class="o">=</span> <span class="n">batch_size</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_l2</span> <span class="o">=</span> <span class="n">l2</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_use_cuda</span> <span class="o">=</span> <span class="n">use_cuda</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_sparse</span> <span class="o">=</span> <span class="n">sparse</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_optimizer</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_random_state</span> <span class="o">=</span> <span class="n">random_state</span> <span class="ow">or</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">RandomState</span><span class="p">()</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_num_users</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_num_items</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_net</span> <span class="o">=</span> <span class="kc">None</span>
+
+        <span class="n">set_seed</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_random_state</span><span class="o">.</span><span class="n">randint</span><span class="p">(</span><span class="o">-</span><span class="mi">10</span><span class="o">**</span><span class="mi">8</span><span class="p">,</span> <span class="mi">10</span><span class="o">**</span><span class="mi">8</span><span class="p">),</span>
+                 <span class="n">cuda</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_use_cuda</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+
+        <span class="k">return</span> <span class="n">_repr_model</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+
+<div class="viewcode-block" id="ImplicitFactorizationModel.fit"><a class="viewcode-back" href="../../../factorization/implicit.html#spotlight.factorization.implicit.ImplicitFactorizationModel.fit">[docs]</a>    <span class="k">def</span> <span class="nf">fit</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">interactions</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Fit the model.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+
+<span class="sd">        interactions: :class:`spotlight.interactions.Interactions`</span>
+<span class="sd">            The input dataset.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="n">user_ids</span> <span class="o">=</span> <span class="n">interactions</span><span class="o">.</span><span class="n">user_ids</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">int64</span><span class="p">)</span>
+        <span class="n">item_ids</span> <span class="o">=</span> <span class="n">interactions</span><span class="o">.</span><span class="n">item_ids</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">int64</span><span class="p">)</span>
+
+        <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_num_users</span><span class="p">,</span>
+         <span class="bp">self</span><span class="o">.</span><span class="n">_num_items</span><span class="p">)</span> <span class="o">=</span> <span class="p">(</span><span class="n">interactions</span><span class="o">.</span><span class="n">num_users</span><span class="p">,</span>
+                             <span class="n">interactions</span><span class="o">.</span><span class="n">num_items</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_net</span> <span class="o">=</span> <span class="n">gpu</span><span class="p">(</span>
+            <span class="n">BilinearNet</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_num_users</span><span class="p">,</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">_num_items</span><span class="p">,</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">_embedding_dim</span><span class="p">,</span>
+                        <span class="n">sparse</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_sparse</span><span class="p">),</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_use_cuda</span>
+        <span class="p">)</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_optimizer</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_optimizer</span> <span class="o">=</span> <span class="n">optim</span><span class="o">.</span><span class="n">Adam</span><span class="p">(</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_net</span><span class="o">.</span><span class="n">parameters</span><span class="p">(),</span>
+                <span class="n">weight_decay</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_l2</span><span class="p">,</span>
+                <span class="n">lr</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_learning_rate</span>
+            <span class="p">)</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_loss</span> <span class="o">==</span> <span class="s1">&#39;pointwise&#39;</span><span class="p">:</span>
+            <span class="n">loss_fnc</span> <span class="o">=</span> <span class="n">pointwise_loss</span>
+        <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">_loss</span> <span class="o">==</span> <span class="s1">&#39;bpr&#39;</span><span class="p">:</span>
+            <span class="n">loss_fnc</span> <span class="o">=</span> <span class="n">bpr_loss</span>
+        <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">_loss</span> <span class="o">==</span> <span class="s1">&#39;hinge&#39;</span><span class="p">:</span>
+            <span class="n">loss_fnc</span> <span class="o">=</span> <span class="n">hinge_loss</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">loss_fnc</span> <span class="o">=</span> <span class="n">adaptive_hinge_loss</span>
+
+        <span class="k">for</span> <span class="n">epoch_num</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_n_iter</span><span class="p">):</span>
+
+            <span class="n">users</span><span class="p">,</span> <span class="n">items</span> <span class="o">=</span> <span class="n">shuffle</span><span class="p">(</span><span class="n">user_ids</span><span class="p">,</span>
+                                   <span class="n">item_ids</span><span class="p">,</span>
+                                   <span class="n">random_state</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_random_state</span><span class="p">)</span>
+
+            <span class="n">user_ids_tensor</span> <span class="o">=</span> <span class="n">gpu</span><span class="p">(</span><span class="n">torch</span><span class="o">.</span><span class="n">from_numpy</span><span class="p">(</span><span class="n">users</span><span class="p">),</span>
+                                  <span class="bp">self</span><span class="o">.</span><span class="n">_use_cuda</span><span class="p">)</span>
+            <span class="n">item_ids_tensor</span> <span class="o">=</span> <span class="n">gpu</span><span class="p">(</span><span class="n">torch</span><span class="o">.</span><span class="n">from_numpy</span><span class="p">(</span><span class="n">items</span><span class="p">),</span>
+                                  <span class="bp">self</span><span class="o">.</span><span class="n">_use_cuda</span><span class="p">)</span>
+
+            <span class="n">epoch_loss</span> <span class="o">=</span> <span class="mf">0.0</span>
+
+            <span class="k">for</span> <span class="p">(</span><span class="n">minibatch_num</span><span class="p">,</span>
+                 <span class="p">(</span><span class="n">batch_user</span><span class="p">,</span>
+                  <span class="n">batch_item</span><span class="p">))</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">minibatch</span><span class="p">(</span><span class="n">user_ids_tensor</span><span class="p">,</span>
+                                                      <span class="n">item_ids_tensor</span><span class="p">,</span>
+                                                      <span class="n">batch_size</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_batch_size</span><span class="p">)):</span>
+
+                <span class="n">user_var</span> <span class="o">=</span> <span class="n">Variable</span><span class="p">(</span><span class="n">batch_user</span><span class="p">)</span>
+                <span class="n">item_var</span> <span class="o">=</span> <span class="n">Variable</span><span class="p">(</span><span class="n">batch_item</span><span class="p">)</span>
+                <span class="n">positive_prediction</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_net</span><span class="p">(</span><span class="n">user_var</span><span class="p">,</span> <span class="n">item_var</span><span class="p">)</span>
+
+                <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_loss</span> <span class="o">==</span> <span class="s1">&#39;adaptive_hinge&#39;</span><span class="p">:</span>
+                    <span class="n">negative_prediction</span> <span class="o">=</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">_get_negative_prediction</span><span class="p">(</span><span class="n">user_var</span><span class="p">)</span>
+                                           <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">5</span><span class="p">)]</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">negative_prediction</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_negative_prediction</span><span class="p">(</span><span class="n">user_var</span><span class="p">)</span>
+
+                <span class="bp">self</span><span class="o">.</span><span class="n">_optimizer</span><span class="o">.</span><span class="n">zero_grad</span><span class="p">()</span>
+
+                <span class="n">loss</span> <span class="o">=</span> <span class="n">loss_fnc</span><span class="p">(</span><span class="n">positive_prediction</span><span class="p">,</span> <span class="n">negative_prediction</span><span class="p">)</span>
+                <span class="n">epoch_loss</span> <span class="o">+=</span> <span class="n">loss</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+
+                <span class="n">loss</span><span class="o">.</span><span class="n">backward</span><span class="p">()</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_optimizer</span><span class="o">.</span><span class="n">step</span><span class="p">()</span>
+
+            <span class="n">epoch_loss</span> <span class="o">/=</span> <span class="n">minibatch_num</span> <span class="o">+</span> <span class="mi">1</span>
+
+            <span class="k">if</span> <span class="n">verbose</span><span class="p">:</span>
+                <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Epoch </span><span class="si">{}</span><span class="s1">: loss </span><span class="si">{}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">epoch_num</span><span class="p">,</span> <span class="n">epoch_loss</span><span class="p">))</span></div>
+
+    <span class="k">def</span> <span class="nf">_get_negative_prediction</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">user_ids</span><span class="p">):</span>
+
+        <span class="n">negative_items</span> <span class="o">=</span> <span class="n">sample_items</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_num_items</span><span class="p">,</span>
+            <span class="nb">len</span><span class="p">(</span><span class="n">user_ids</span><span class="p">),</span>
+            <span class="n">random_state</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_random_state</span><span class="p">)</span>
+        <span class="n">negative_var</span> <span class="o">=</span> <span class="n">Variable</span><span class="p">(</span>
+            <span class="n">gpu</span><span class="p">(</span><span class="n">torch</span><span class="o">.</span><span class="n">from_numpy</span><span class="p">(</span><span class="n">negative_items</span><span class="p">),</span> <span class="bp">self</span><span class="o">.</span><span class="n">_use_cuda</span><span class="p">)</span>
+        <span class="p">)</span>
+        <span class="n">negative_prediction</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_net</span><span class="p">(</span><span class="n">user_ids</span><span class="p">,</span> <span class="n">negative_var</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">negative_prediction</span>
+
+<div class="viewcode-block" id="ImplicitFactorizationModel.predict"><a class="viewcode-back" href="../../../factorization/implicit.html#spotlight.factorization.implicit.ImplicitFactorizationModel.predict">[docs]</a>    <span class="k">def</span> <span class="nf">predict</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">user_ids</span><span class="p">,</span> <span class="n">item_ids</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Make predictions: given a user id, compute the recommendation</span>
+<span class="sd">        scores for items.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+
+<span class="sd">        user_ids: int or array</span>
+<span class="sd">           If int, will predict the recommendation scores for this</span>
+<span class="sd">           user for all items in item_ids. If an array, will predict</span>
+<span class="sd">           scores for all (user, item) pairs defined by user_ids and</span>
+<span class="sd">           item_ids.</span>
+<span class="sd">        item_ids: array, optional</span>
+<span class="sd">            Array containing the item ids for which prediction scores</span>
+<span class="sd">            are desired. If not supplied, predictions for all items</span>
+<span class="sd">            will be computed.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+
+<span class="sd">        predictions: np.array</span>
+<span class="sd">            Predicted scores for all items in item_ids.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="k">if</span> <span class="n">item_ids</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">item_ids</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_num_items</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">user_ids</span><span class="p">,</span> <span class="nb">int</span><span class="p">):</span>
+            <span class="n">user_ids</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">repeat</span><span class="p">(</span><span class="n">user_ids</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">item_ids</span><span class="p">))</span>
+
+        <span class="n">user_ids</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">from_numpy</span><span class="p">(</span><span class="n">user_ids</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">int64</span><span class="p">))</span>
+        <span class="n">item_ids</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">from_numpy</span><span class="p">(</span><span class="n">item_ids</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">int64</span><span class="p">))</span>
+
+        <span class="n">user_var</span> <span class="o">=</span> <span class="n">Variable</span><span class="p">(</span><span class="n">gpu</span><span class="p">(</span><span class="n">user_ids</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_use_cuda</span><span class="p">))</span>
+        <span class="n">item_var</span> <span class="o">=</span> <span class="n">Variable</span><span class="p">(</span><span class="n">gpu</span><span class="p">(</span><span class="n">item_ids</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_use_cuda</span><span class="p">))</span>
+
+        <span class="n">out</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_net</span><span class="p">(</span><span class="n">user_var</span><span class="p">,</span> <span class="n">item_var</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">cpu</span><span class="p">(</span><span class="n">out</span><span class="o">.</span><span class="n">data</span><span class="p">)</span><span class="o">.</span><span class="n">numpy</span><span class="p">()</span><span class="o">.</span><span class="n">flatten</span><span class="p">()</span></div></div>
+</pre></div>
+
+           </div>
+           <div class="articleComments">
+            
+           </div>
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2017, Maciej Kula.
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/snide/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    <script type="text/javascript">
+        var DOCUMENTATION_OPTIONS = {
+            URL_ROOT:'../../../',
+            VERSION:'0.1.0',
+            COLLAPSE_INDEX:false,
+            FILE_SUFFIX:'.html',
+            HAS_SOURCE:  true,
+            SOURCELINK_SUFFIX: '.txt'
+        };
+    </script>
+      <script type="text/javascript" src="../../../_static/jquery.js"></script>
+      <script type="text/javascript" src="../../../_static/underscore.js"></script>
+      <script type="text/javascript" src="../../../_static/doctools.js"></script>
+
+  
+
+  
+  
+    <script type="text/javascript" src="../../../_static/js/theme.js"></script>
+  
+
+  
+  
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.StickyNav.enable();
+      });
+  </script>
+   
+
+</body>
+</html>

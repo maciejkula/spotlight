@@ -1,0 +1,548 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>spotlight.interactions &mdash; Spotlight 0.1.0 documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  
+  
+    <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
+  
+
+  
+    <link rel="stylesheet" href="../../_static/css/spotlight_theme.css" type="text/css" />
+  
+
+  
+        <link rel="index" title="Index"
+              href="../../genindex.html"/>
+        <link rel="search" title="Search" href="../../search.html"/>
+    <link rel="top" title="Spotlight 0.1.0 documentation" href="../../index.html"/>
+        <link rel="up" title="Module code" href="../index.html"/> 
+
+  
+  <script src="../../_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+   
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+          
+            <a href="../../index.html">
+          
+
+          
+            
+            <img src="../../_static/spotlight.svg" class="logo" />
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                0.1.0
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="../../interactions.html">Interactions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../datasets/datasets.html">Datasets</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../datasets/synthetic.html">Synthetic</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../datasets/movielens.html">Movielens</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../cross_validation.html">Cross validation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../sequence/sequence.html">Sequence models</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../sequence/implicit.html">Implicit feedback models</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../sequence/representations.html">Sequence representations</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../factorization/factorization.html">Factorization models</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../factorization/implicit.html">Implicit feedback models</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../factorization/explicit.html">Explicit feedback models</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../factorization/representations.html">Latent representations</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../losses.html">Loss functions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../evaluation.html">Evaluation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../sampling.html">Sampling</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">Spotlight</a>
+        
+      </nav>
+
+
+      
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../../index.html">Docs</a> &raquo;</li>
+        
+          <li><a href="../index.html">Module code</a> &raquo;</li>
+        
+      <li>spotlight.interactions</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <h1>Source code for spotlight.interactions</h1><div class="highlight"><pre>
+<span></span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">Classes describing datasets of user-item interactions. Instances of these</span>
+<span class="sd">are returned by dataset-fetching and dataset-processing functions.</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+
+<span class="kn">import</span> <span class="nn">scipy.sparse</span> <span class="k">as</span> <span class="nn">sp</span>
+
+
+<span class="k">def</span> <span class="nf">_sliding_window</span><span class="p">(</span><span class="n">tensor</span><span class="p">,</span> <span class="n">window_size</span><span class="p">,</span> <span class="n">step_size</span><span class="o">=</span><span class="mi">1</span><span class="p">):</span>
+
+    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">tensor</span><span class="p">),</span> <span class="mi">0</span><span class="p">,</span> <span class="o">-</span><span class="n">step_size</span><span class="p">):</span>
+        <span class="k">yield</span> <span class="n">tensor</span><span class="p">[</span><span class="nb">max</span><span class="p">(</span><span class="n">i</span> <span class="o">-</span> <span class="n">window_size</span><span class="p">,</span> <span class="mi">0</span><span class="p">):</span><span class="n">i</span><span class="p">]</span>
+
+
+<span class="k">def</span> <span class="nf">_generate_sequences</span><span class="p">(</span><span class="n">user_ids</span><span class="p">,</span> <span class="n">item_ids</span><span class="p">,</span>
+                        <span class="n">indices</span><span class="p">,</span>
+                        <span class="n">max_sequence_length</span><span class="p">,</span>
+                        <span class="n">step_size</span><span class="p">):</span>
+
+    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">indices</span><span class="p">)):</span>
+
+        <span class="n">start_idx</span> <span class="o">=</span> <span class="n">indices</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
+
+        <span class="k">if</span> <span class="n">i</span> <span class="o">&gt;=</span> <span class="nb">len</span><span class="p">(</span><span class="n">indices</span><span class="p">)</span> <span class="o">-</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="n">stop_idx</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">stop_idx</span> <span class="o">=</span> <span class="n">indices</span><span class="p">[</span><span class="n">i</span> <span class="o">+</span> <span class="mi">1</span><span class="p">]</span>
+
+        <span class="k">for</span> <span class="n">seq</span> <span class="ow">in</span> <span class="n">_sliding_window</span><span class="p">(</span><span class="n">item_ids</span><span class="p">[</span><span class="n">start_idx</span><span class="p">:</span><span class="n">stop_idx</span><span class="p">],</span>
+                                   <span class="n">max_sequence_length</span><span class="p">,</span>
+                                   <span class="n">step_size</span><span class="p">):</span>
+
+            <span class="k">yield</span> <span class="p">(</span><span class="n">user_ids</span><span class="p">[</span><span class="n">i</span><span class="p">],</span> <span class="n">seq</span><span class="p">)</span>
+
+
+<div class="viewcode-block" id="Interactions"><a class="viewcode-back" href="../../interactions.html#spotlight.interactions.Interactions">[docs]</a><span class="k">class</span> <span class="nc">Interactions</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Interactions object. Contains (at a minimum) pair of user-item</span>
+<span class="sd">    interactions, but can also be enriched with ratings, timestamps,</span>
+<span class="sd">    and interaction weights.</span>
+
+<span class="sd">    For *implicit feedback* scenarios, user ids and item ids should</span>
+<span class="sd">    only be provided for user-item pairs where an interaction was</span>
+<span class="sd">    observed. All pairs that are not provided are treated as missing</span>
+<span class="sd">    observations, and often interpreted as (implicit) negative</span>
+<span class="sd">    signals.</span>
+
+<span class="sd">    For *explicit feedback* scenarios, user ids, item ids, and</span>
+<span class="sd">    ratings should be provided for all user-item-rating triplets</span>
+<span class="sd">    that were observed in the dataset.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+
+<span class="sd">    user_ids: array of np.int32</span>
+<span class="sd">        array of user ids of the user-item pairs</span>
+<span class="sd">    item_ids: array of np.int32</span>
+<span class="sd">        array of item ids of the user-item pairs</span>
+<span class="sd">    ratings: array of np.float32, optional</span>
+<span class="sd">        array of ratings</span>
+<span class="sd">    timestamps: array of np.int32, optional</span>
+<span class="sd">        array of timestamps</span>
+<span class="sd">    weights: array of np.float32, optional</span>
+<span class="sd">        array of weights</span>
+<span class="sd">    num_users: int, optional</span>
+<span class="sd">        Number of distinct users in the dataset.</span>
+<span class="sd">        Must be larger than the maximum user id</span>
+<span class="sd">        in user_ids.</span>
+<span class="sd">    num_items: int, optional</span>
+<span class="sd">        Number of distinct items in the dataset.</span>
+<span class="sd">        Must be larger than the maximum item id</span>
+<span class="sd">        in item_ids.</span>
+
+<span class="sd">    Attributes</span>
+<span class="sd">    ----------</span>
+
+<span class="sd">    user_ids: array of np.int32</span>
+<span class="sd">        array of user ids of the user-item pairs</span>
+<span class="sd">    item_ids: array of np.int32</span>
+<span class="sd">        array of item ids of the user-item pairs</span>
+<span class="sd">    ratings: array of np.float32, optional</span>
+<span class="sd">        array of ratings</span>
+<span class="sd">    timestamps: array of np.int32, optional</span>
+<span class="sd">        array of timestamps</span>
+<span class="sd">    weights: array of np.float32, optional</span>
+<span class="sd">        array of weights</span>
+<span class="sd">    num_users: int, optional</span>
+<span class="sd">        Number of distinct users in the dataset.</span>
+<span class="sd">    num_items: int, optional</span>
+<span class="sd">        Number of distinct items in the dataset.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">user_ids</span><span class="p">,</span> <span class="n">item_ids</span><span class="p">,</span>
+                 <span class="n">ratings</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                 <span class="n">timestamps</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                 <span class="n">weights</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                 <span class="n">num_users</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                 <span class="n">num_items</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">num_users</span> <span class="o">=</span> <span class="n">num_users</span> <span class="ow">or</span> <span class="nb">int</span><span class="p">(</span><span class="n">user_ids</span><span class="o">.</span><span class="n">max</span><span class="p">()</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">num_items</span> <span class="o">=</span> <span class="n">num_items</span> <span class="ow">or</span> <span class="nb">int</span><span class="p">(</span><span class="n">item_ids</span><span class="o">.</span><span class="n">max</span><span class="p">()</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">user_ids</span> <span class="o">=</span> <span class="n">user_ids</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">item_ids</span> <span class="o">=</span> <span class="n">item_ids</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">ratings</span> <span class="o">=</span> <span class="n">ratings</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">timestamps</span> <span class="o">=</span> <span class="n">timestamps</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">weights</span> <span class="o">=</span> <span class="n">weights</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_check</span><span class="p">()</span>
+
+    <span class="k">def</span> <span class="nf">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+
+        <span class="k">return</span> <span class="p">(</span><span class="s1">&#39;&lt;Interactions dataset (</span><span class="si">{num_users}</span><span class="s1"> users x </span><span class="si">{num_items}</span><span class="s1"> items &#39;</span>
+                <span class="s1">&#39;x </span><span class="si">{num_interactions}</span><span class="s1"> interactions)&gt;&#39;</span>
+                <span class="o">.</span><span class="n">format</span><span class="p">(</span>
+                    <span class="n">num_users</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">num_users</span><span class="p">,</span>
+                    <span class="n">num_items</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">num_items</span><span class="p">,</span>
+                    <span class="n">num_interactions</span><span class="o">=</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+                <span class="p">))</span>
+
+    <span class="k">def</span> <span class="nf">__len__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+
+        <span class="k">return</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">user_ids</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">_check</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">user_ids</span><span class="o">.</span><span class="n">max</span><span class="p">()</span> <span class="o">&gt;=</span> <span class="bp">self</span><span class="o">.</span><span class="n">num_users</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;Maximum user id greater &#39;</span>
+                             <span class="s1">&#39;than declared number of users.&#39;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">item_ids</span><span class="o">.</span><span class="n">max</span><span class="p">()</span> <span class="o">&gt;=</span> <span class="bp">self</span><span class="o">.</span><span class="n">num_items</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;Maximum item id greater &#39;</span>
+                             <span class="s1">&#39;than declared number of items.&#39;</span><span class="p">)</span>
+
+        <span class="n">num_interactions</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">user_ids</span><span class="p">)</span>
+
+        <span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="p">((</span><span class="s1">&#39;item IDs&#39;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">item_ids</span><span class="p">),</span>
+                            <span class="p">(</span><span class="s1">&#39;ratings&#39;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">ratings</span><span class="p">),</span>
+                            <span class="p">(</span><span class="s1">&#39;timestamps&#39;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">timestamps</span><span class="p">),</span>
+                            <span class="p">(</span><span class="s1">&#39;weights&#39;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">weights</span><span class="p">)):</span>
+
+            <span class="k">if</span> <span class="n">value</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="k">continue</span>
+
+            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">value</span><span class="p">)</span> <span class="o">!=</span> <span class="n">num_interactions</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;Invalid </span><span class="si">{}</span><span class="s1"> dimensions: length &#39;</span>
+                                 <span class="s1">&#39;must be equal to number of interactions&#39;</span>
+                                 <span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">name</span><span class="p">))</span>
+
+<div class="viewcode-block" id="Interactions.tocoo"><a class="viewcode-back" href="../../interactions.html#spotlight.interactions.Interactions.tocoo">[docs]</a>    <span class="k">def</span> <span class="nf">tocoo</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Transform to a scipy.sparse COO matrix.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="n">row</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">user_ids</span>
+        <span class="n">col</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">item_ids</span>
+        <span class="n">data</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">ratings</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">ratings</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">np</span><span class="o">.</span><span class="n">ones</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="p">))</span>
+
+        <span class="k">return</span> <span class="n">sp</span><span class="o">.</span><span class="n">coo_matrix</span><span class="p">((</span><span class="n">data</span><span class="p">,</span> <span class="p">(</span><span class="n">row</span><span class="p">,</span> <span class="n">col</span><span class="p">)),</span>
+                             <span class="n">shape</span><span class="o">=</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">num_users</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">num_items</span><span class="p">))</span></div>
+
+<div class="viewcode-block" id="Interactions.tocsr"><a class="viewcode-back" href="../../interactions.html#spotlight.interactions.Interactions.tocsr">[docs]</a>    <span class="k">def</span> <span class="nf">tocsr</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Transform to a scipy.sparse CSR matrix.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">tocoo</span><span class="p">()</span><span class="o">.</span><span class="n">tocsr</span><span class="p">()</span></div>
+
+<div class="viewcode-block" id="Interactions.to_sequence"><a class="viewcode-back" href="../../interactions.html#spotlight.interactions.Interactions.to_sequence">[docs]</a>    <span class="k">def</span> <span class="nf">to_sequence</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">max_sequence_length</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span> <span class="n">min_sequence_length</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">step_size</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Transform to sequence form.</span>
+
+<span class="sd">        User-item interaction pairs are sorted by their timestamps,</span>
+<span class="sd">        and sequences of up to max_sequence_length events are arranged</span>
+<span class="sd">        into a (zero-padded from the left) matrix with dimensions</span>
+<span class="sd">        (num_sequences x max_sequence_length).</span>
+
+<span class="sd">        Valid subsequences of users&#39; interactions are returned. For</span>
+<span class="sd">        example, if a user interacted with items [1, 2, 3, 4, 5], the</span>
+<span class="sd">        returned interactions matrix at sequence length 5 and step size</span>
+<span class="sd">        1 will be be given by:</span>
+
+<span class="sd">        .. code-block:: python</span>
+
+<span class="sd">           [[1, 2, 3, 4, 5],</span>
+<span class="sd">            [0, 1, 2, 3, 4],</span>
+<span class="sd">            [0, 0, 1, 2, 3],</span>
+<span class="sd">            [0, 0, 0, 1, 2],</span>
+<span class="sd">            [0, 0, 0, 0, 1]]</span>
+
+<span class="sd">        At step size 2:</span>
+
+<span class="sd">        .. code-block:: python</span>
+
+<span class="sd">           [[1, 2, 3, 4, 5],</span>
+<span class="sd">            [0, 0, 1, 2, 3],</span>
+<span class="sd">            [0, 0, 0, 0, 1]]</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+
+<span class="sd">        max_sequence_length: int, optional</span>
+<span class="sd">            Maximum sequence length. Subsequences shorter than this</span>
+<span class="sd">            will be left-padded with zeros.</span>
+<span class="sd">        min_sequence_length: int, optional</span>
+<span class="sd">            If set, only sequences with at least min_sequence_length</span>
+<span class="sd">            non-padding elements will be returned.</span>
+<span class="sd">        step-size: int, optional</span>
+<span class="sd">            The returned subsequences are the effect of moving a</span>
+<span class="sd">            a sliding window over the input. This parameter</span>
+<span class="sd">            governs the stride of that window. Increasing it will</span>
+<span class="sd">            result in fewer subsequences being returned.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+
+<span class="sd">        sequence interactions: :class:`~SequenceInteractions`</span>
+<span class="sd">            The resulting sequence interactions.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">timestamps</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;Cannot convert to sequences, &#39;</span>
+                             <span class="s1">&#39;timestamps not available.&#39;</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="mi">0</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">item_ids</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;0 is used as an item id, conflicting &#39;</span>
+                             <span class="s1">&#39;with the sequence padding value.&#39;</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">step_size</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">step_size</span> <span class="o">=</span> <span class="n">max_sequence_length</span>
+
+        <span class="c1"># Sort first by user id, then by timestamp</span>
+        <span class="n">sort_indices</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">lexsort</span><span class="p">((</span><span class="bp">self</span><span class="o">.</span><span class="n">timestamps</span><span class="p">,</span>
+                                   <span class="bp">self</span><span class="o">.</span><span class="n">user_ids</span><span class="p">))</span>
+
+        <span class="n">user_ids</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">user_ids</span><span class="p">[</span><span class="n">sort_indices</span><span class="p">]</span>
+        <span class="n">item_ids</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">item_ids</span><span class="p">[</span><span class="n">sort_indices</span><span class="p">]</span>
+
+        <span class="n">user_ids</span><span class="p">,</span> <span class="n">indices</span><span class="p">,</span> <span class="n">counts</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">unique</span><span class="p">(</span><span class="n">user_ids</span><span class="p">,</span>
+                                              <span class="n">return_index</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+                                              <span class="n">return_counts</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+        <span class="n">num_subsequences</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">ceil</span><span class="p">(</span><span class="n">counts</span> <span class="o">/</span> <span class="nb">float</span><span class="p">(</span><span class="n">step_size</span><span class="p">))</span><span class="o">.</span><span class="n">sum</span><span class="p">())</span>
+
+        <span class="n">sequences</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">num_subsequences</span><span class="p">,</span> <span class="n">max_sequence_length</span><span class="p">),</span>
+                             <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">int32</span><span class="p">)</span>
+        <span class="n">sequence_users</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">empty</span><span class="p">(</span><span class="n">num_subsequences</span><span class="p">,</span>
+                                  <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">int32</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="p">(</span><span class="n">uid</span><span class="p">,</span>
+                <span class="n">seq</span><span class="p">)</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">_generate_sequences</span><span class="p">(</span><span class="n">user_ids</span><span class="p">,</span>
+                                                      <span class="n">item_ids</span><span class="p">,</span>
+                                                      <span class="n">indices</span><span class="p">,</span>
+                                                      <span class="n">max_sequence_length</span><span class="p">,</span>
+                                                      <span class="n">step_size</span><span class="p">)):</span>
+            <span class="n">sequences</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="o">-</span><span class="nb">len</span><span class="p">(</span><span class="n">seq</span><span class="p">):]</span> <span class="o">=</span> <span class="n">seq</span>
+            <span class="n">sequence_users</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">uid</span>
+
+        <span class="k">if</span> <span class="n">min_sequence_length</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">long_enough</span> <span class="o">=</span> <span class="n">sequences</span><span class="p">[:,</span> <span class="o">-</span><span class="n">min_sequence_length</span><span class="p">]</span> <span class="o">!=</span> <span class="mi">0</span>
+            <span class="n">sequences</span> <span class="o">=</span> <span class="n">sequences</span><span class="p">[</span><span class="n">long_enough</span><span class="p">]</span>
+            <span class="n">sequence_users</span> <span class="o">=</span> <span class="n">sequence_users</span><span class="p">[</span><span class="n">long_enough</span><span class="p">]</span>
+
+        <span class="k">return</span> <span class="p">(</span><span class="n">SequenceInteractions</span><span class="p">(</span><span class="n">sequences</span><span class="p">,</span>
+                                     <span class="n">user_ids</span><span class="o">=</span><span class="n">sequence_users</span><span class="p">,</span>
+                                     <span class="n">num_items</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">num_items</span><span class="p">))</span></div></div>
+
+
+<div class="viewcode-block" id="SequenceInteractions"><a class="viewcode-back" href="../../interactions.html#spotlight.interactions.SequenceInteractions">[docs]</a><span class="k">class</span> <span class="nc">SequenceInteractions</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Interactions encoded as a sequence matrix.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+
+<span class="sd">    sequences: array of np.int32 of shape (num_sequences x max_sequence_length)</span>
+<span class="sd">        The interactions sequence matrix, as produced by</span>
+<span class="sd">        :func:`~Interactions.to_sequence`</span>
+<span class="sd">    num_items: int, optional</span>
+<span class="sd">        The number of distinct items in the data</span>
+
+<span class="sd">    Attributes</span>
+<span class="sd">    ----------</span>
+
+<span class="sd">    sequences: array of np.int32 of shape (num_sequences x max_sequence_length)</span>
+<span class="sd">        The interactions sequence matrix, as produced by</span>
+<span class="sd">        :func:`~Interactions.to_sequence`</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span>
+                 <span class="n">sequences</span><span class="p">,</span>
+                 <span class="n">user_ids</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">num_items</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">sequences</span> <span class="o">=</span> <span class="n">sequences</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">user_ids</span> <span class="o">=</span> <span class="n">user_ids</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">max_sequence_length</span> <span class="o">=</span> <span class="n">sequences</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+
+        <span class="k">if</span> <span class="n">num_items</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">num_items</span> <span class="o">=</span> <span class="n">sequences</span><span class="o">.</span><span class="n">max</span><span class="p">()</span> <span class="o">+</span> <span class="mi">1</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">num_items</span> <span class="o">=</span> <span class="n">num_items</span></div>
+</pre></div>
+
+           </div>
+           <div class="articleComments">
+            
+           </div>
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2017, Maciej Kula.
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/snide/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    <script type="text/javascript">
+        var DOCUMENTATION_OPTIONS = {
+            URL_ROOT:'../../',
+            VERSION:'0.1.0',
+            COLLAPSE_INDEX:false,
+            FILE_SUFFIX:'.html',
+            HAS_SOURCE:  true,
+            SOURCELINK_SUFFIX: '.txt'
+        };
+    </script>
+      <script type="text/javascript" src="../../_static/jquery.js"></script>
+      <script type="text/javascript" src="../../_static/underscore.js"></script>
+      <script type="text/javascript" src="../../_static/doctools.js"></script>
+
+  
+
+  
+  
+    <script type="text/javascript" src="../../_static/js/theme.js"></script>
+  
+
+  
+  
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.StickyNav.enable();
+      });
+  </script>
+   
+
+</body>
+</html>

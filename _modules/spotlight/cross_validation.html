@@ -1,0 +1,423 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>spotlight.cross_validation &mdash; Spotlight 0.1.0 documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  
+  
+    <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
+  
+
+  
+    <link rel="stylesheet" href="../../_static/css/spotlight_theme.css" type="text/css" />
+  
+
+  
+        <link rel="index" title="Index"
+              href="../../genindex.html"/>
+        <link rel="search" title="Search" href="../../search.html"/>
+    <link rel="top" title="Spotlight 0.1.0 documentation" href="../../index.html"/>
+        <link rel="up" title="Module code" href="../index.html"/> 
+
+  
+  <script src="../../_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+   
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+          
+            <a href="../../index.html">
+          
+
+          
+            
+            <img src="../../_static/spotlight.svg" class="logo" />
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                0.1.0
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="../../interactions.html">Interactions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../datasets/datasets.html">Datasets</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../datasets/synthetic.html">Synthetic</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../datasets/movielens.html">Movielens</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../cross_validation.html">Cross validation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../sequence/sequence.html">Sequence models</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../sequence/implicit.html">Implicit feedback models</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../sequence/representations.html">Sequence representations</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../factorization/factorization.html">Factorization models</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../factorization/implicit.html">Implicit feedback models</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../factorization/explicit.html">Explicit feedback models</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../factorization/representations.html">Latent representations</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../losses.html">Loss functions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../evaluation.html">Evaluation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../sampling.html">Sampling</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">Spotlight</a>
+        
+      </nav>
+
+
+      
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../../index.html">Docs</a> &raquo;</li>
+        
+          <li><a href="../index.html">Module code</a> &raquo;</li>
+        
+      <li>spotlight.cross_validation</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <h1>Source code for spotlight.cross_validation</h1><div class="highlight"><pre>
+<span></span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">Module with functionality for splitting and shuffling datasets.</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+
+<span class="kn">from</span> <span class="nn">sklearn.utils</span> <span class="k">import</span> <span class="n">murmurhash3_32</span>
+
+<span class="kn">from</span> <span class="nn">spotlight.interactions</span> <span class="k">import</span> <span class="n">Interactions</span>
+
+
+<span class="k">def</span> <span class="nf">_index_or_none</span><span class="p">(</span><span class="n">array</span><span class="p">,</span> <span class="n">shuffle_index</span><span class="p">):</span>
+
+    <span class="k">if</span> <span class="n">array</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">return</span> <span class="kc">None</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">array</span><span class="p">[</span><span class="n">shuffle_index</span><span class="p">]</span>
+
+
+<div class="viewcode-block" id="shuffle_interactions"><a class="viewcode-back" href="../../cross_validation.html#spotlight.cross_validation.shuffle_interactions">[docs]</a><span class="k">def</span> <span class="nf">shuffle_interactions</span><span class="p">(</span><span class="n">interactions</span><span class="p">,</span>
+                         <span class="n">random_state</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Shuffle interactions.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+
+<span class="sd">    interactions: :class:`spotlight.interactions.Interactions`</span>
+<span class="sd">        The interactions to shuffle.</span>
+<span class="sd">    random_state: np.random.RandomState, optional</span>
+<span class="sd">        The random state used for the shuffle.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+
+<span class="sd">    interactions: :class:`spotlight.interactions.Interactions`</span>
+<span class="sd">        The shuffled interactions.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">if</span> <span class="n">random_state</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">random_state</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">RandomState</span><span class="p">()</span>
+
+    <span class="n">shuffle_indices</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">interactions</span><span class="o">.</span><span class="n">user_ids</span><span class="p">))</span>
+    <span class="n">random_state</span><span class="o">.</span><span class="n">shuffle</span><span class="p">(</span><span class="n">shuffle_indices</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">Interactions</span><span class="p">(</span><span class="n">interactions</span><span class="o">.</span><span class="n">user_ids</span><span class="p">[</span><span class="n">shuffle_indices</span><span class="p">],</span>
+                        <span class="n">interactions</span><span class="o">.</span><span class="n">item_ids</span><span class="p">[</span><span class="n">shuffle_indices</span><span class="p">],</span>
+                        <span class="n">ratings</span><span class="o">=</span><span class="n">_index_or_none</span><span class="p">(</span><span class="n">interactions</span><span class="o">.</span><span class="n">ratings</span><span class="p">,</span>
+                                               <span class="n">shuffle_indices</span><span class="p">),</span>
+                        <span class="n">timestamps</span><span class="o">=</span><span class="n">_index_or_none</span><span class="p">(</span><span class="n">interactions</span><span class="o">.</span><span class="n">timestamps</span><span class="p">,</span>
+                                                  <span class="n">shuffle_indices</span><span class="p">),</span>
+                        <span class="n">weights</span><span class="o">=</span><span class="n">_index_or_none</span><span class="p">(</span><span class="n">interactions</span><span class="o">.</span><span class="n">weights</span><span class="p">,</span>
+                                               <span class="n">shuffle_indices</span><span class="p">),</span>
+                        <span class="n">num_users</span><span class="o">=</span><span class="n">interactions</span><span class="o">.</span><span class="n">num_users</span><span class="p">,</span>
+                        <span class="n">num_items</span><span class="o">=</span><span class="n">interactions</span><span class="o">.</span><span class="n">num_items</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="random_train_test_split"><a class="viewcode-back" href="../../cross_validation.html#spotlight.cross_validation.random_train_test_split">[docs]</a><span class="k">def</span> <span class="nf">random_train_test_split</span><span class="p">(</span><span class="n">interactions</span><span class="p">,</span>
+                            <span class="n">test_percentage</span><span class="o">=</span><span class="mf">0.2</span><span class="p">,</span>
+                            <span class="n">random_state</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Randomly split interactions between training and testing.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+
+<span class="sd">    interactions: :class:`spotlight.interactions.Interactions`</span>
+<span class="sd">        The interactions to shuffle.</span>
+<span class="sd">    test_percentage: float, optional</span>
+<span class="sd">        The fraction of interactions to place in the test set.</span>
+<span class="sd">    random_state: np.random.RandomState, optional</span>
+<span class="sd">        The random state used for the shuffle.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+
+<span class="sd">    (train, test): (:class:`spotlight.interactions.Interactions`,</span>
+<span class="sd">                    :class:`spotlight.interactions.Interactions`)</span>
+<span class="sd">         A tuple of (train data, test data)</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">interactions</span> <span class="o">=</span> <span class="n">shuffle_interactions</span><span class="p">(</span><span class="n">interactions</span><span class="p">,</span>
+                                        <span class="n">random_state</span><span class="o">=</span><span class="n">random_state</span><span class="p">)</span>
+
+    <span class="n">cutoff</span> <span class="o">=</span> <span class="nb">int</span><span class="p">((</span><span class="mf">1.0</span> <span class="o">-</span> <span class="n">test_percentage</span><span class="p">)</span> <span class="o">*</span> <span class="nb">len</span><span class="p">(</span><span class="n">interactions</span><span class="p">))</span>
+
+    <span class="n">train_idx</span> <span class="o">=</span> <span class="nb">slice</span><span class="p">(</span><span class="kc">None</span><span class="p">,</span> <span class="n">cutoff</span><span class="p">)</span>
+    <span class="n">test_idx</span> <span class="o">=</span> <span class="nb">slice</span><span class="p">(</span><span class="n">cutoff</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+
+    <span class="n">train</span> <span class="o">=</span> <span class="n">Interactions</span><span class="p">(</span><span class="n">interactions</span><span class="o">.</span><span class="n">user_ids</span><span class="p">[</span><span class="n">train_idx</span><span class="p">],</span>
+                         <span class="n">interactions</span><span class="o">.</span><span class="n">item_ids</span><span class="p">[</span><span class="n">train_idx</span><span class="p">],</span>
+                         <span class="n">ratings</span><span class="o">=</span><span class="n">_index_or_none</span><span class="p">(</span><span class="n">interactions</span><span class="o">.</span><span class="n">ratings</span><span class="p">,</span>
+                                                <span class="n">train_idx</span><span class="p">),</span>
+                         <span class="n">timestamps</span><span class="o">=</span><span class="n">_index_or_none</span><span class="p">(</span><span class="n">interactions</span><span class="o">.</span><span class="n">timestamps</span><span class="p">,</span>
+                                                   <span class="n">train_idx</span><span class="p">),</span>
+                         <span class="n">weights</span><span class="o">=</span><span class="n">_index_or_none</span><span class="p">(</span><span class="n">interactions</span><span class="o">.</span><span class="n">weights</span><span class="p">,</span>
+                                                <span class="n">train_idx</span><span class="p">),</span>
+                         <span class="n">num_users</span><span class="o">=</span><span class="n">interactions</span><span class="o">.</span><span class="n">num_users</span><span class="p">,</span>
+                         <span class="n">num_items</span><span class="o">=</span><span class="n">interactions</span><span class="o">.</span><span class="n">num_items</span><span class="p">)</span>
+    <span class="n">test</span> <span class="o">=</span> <span class="n">Interactions</span><span class="p">(</span><span class="n">interactions</span><span class="o">.</span><span class="n">user_ids</span><span class="p">[</span><span class="n">test_idx</span><span class="p">],</span>
+                        <span class="n">interactions</span><span class="o">.</span><span class="n">item_ids</span><span class="p">[</span><span class="n">test_idx</span><span class="p">],</span>
+                        <span class="n">ratings</span><span class="o">=</span><span class="n">_index_or_none</span><span class="p">(</span><span class="n">interactions</span><span class="o">.</span><span class="n">ratings</span><span class="p">,</span>
+                                               <span class="n">test_idx</span><span class="p">),</span>
+                        <span class="n">timestamps</span><span class="o">=</span><span class="n">_index_or_none</span><span class="p">(</span><span class="n">interactions</span><span class="o">.</span><span class="n">timestamps</span><span class="p">,</span>
+                                                  <span class="n">test_idx</span><span class="p">),</span>
+                        <span class="n">weights</span><span class="o">=</span><span class="n">_index_or_none</span><span class="p">(</span><span class="n">interactions</span><span class="o">.</span><span class="n">weights</span><span class="p">,</span>
+                                               <span class="n">test_idx</span><span class="p">),</span>
+                        <span class="n">num_users</span><span class="o">=</span><span class="n">interactions</span><span class="o">.</span><span class="n">num_users</span><span class="p">,</span>
+                        <span class="n">num_items</span><span class="o">=</span><span class="n">interactions</span><span class="o">.</span><span class="n">num_items</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">train</span><span class="p">,</span> <span class="n">test</span></div>
+
+
+<div class="viewcode-block" id="user_based_train_test_split"><a class="viewcode-back" href="../../cross_validation.html#spotlight.cross_validation.user_based_train_test_split">[docs]</a><span class="k">def</span> <span class="nf">user_based_train_test_split</span><span class="p">(</span><span class="n">interactions</span><span class="p">,</span>
+                                <span class="n">test_percentage</span><span class="o">=</span><span class="mf">0.2</span><span class="p">,</span>
+                                <span class="n">random_state</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Split interactions between a train and a test set based on</span>
+<span class="sd">    user ids, so that a given user&#39;s entire interaction history</span>
+<span class="sd">    is either in the train, or the test set.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+
+<span class="sd">    interactions: :class:`spotlight.interactions.Interactions`</span>
+<span class="sd">        The interactions to shuffle.</span>
+<span class="sd">    test_percentage: float, optional</span>
+<span class="sd">        The fraction of users to place in the test set.</span>
+<span class="sd">    random_state: np.random.RandomState, optional</span>
+<span class="sd">        The random state used for the shuffle.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+
+<span class="sd">    (train, test): (:class:`spotlight.interactions.Interactions`,</span>
+<span class="sd">                    :class:`spotlight.interactions.Interactions`)</span>
+<span class="sd">         A tuple of (train data, test data)</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">if</span> <span class="n">random_state</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">random_state</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">RandomState</span><span class="p">()</span>
+
+    <span class="n">minint</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">iinfo</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">uint32</span><span class="p">)</span><span class="o">.</span><span class="n">min</span>
+    <span class="n">maxint</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">iinfo</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">uint32</span><span class="p">)</span><span class="o">.</span><span class="n">max</span>
+
+    <span class="n">seed</span> <span class="o">=</span> <span class="n">random_state</span><span class="o">.</span><span class="n">randint</span><span class="p">(</span><span class="n">minint</span><span class="p">,</span> <span class="n">maxint</span><span class="p">)</span>
+
+    <span class="n">in_test</span> <span class="o">=</span> <span class="p">((</span><span class="n">murmurhash3_32</span><span class="p">(</span><span class="n">interactions</span><span class="o">.</span><span class="n">user_ids</span><span class="p">,</span>
+                               <span class="n">seed</span><span class="o">=</span><span class="n">seed</span><span class="p">,</span>
+                               <span class="n">positive</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span> <span class="o">%</span> <span class="mi">100</span> <span class="o">/</span>
+                <span class="mf">100.0</span><span class="p">)</span> <span class="o">&lt;</span>
+               <span class="n">test_percentage</span><span class="p">)</span>
+    <span class="n">in_train</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">logical_not</span><span class="p">(</span><span class="n">in_test</span><span class="p">)</span>
+
+    <span class="n">train</span> <span class="o">=</span> <span class="n">Interactions</span><span class="p">(</span><span class="n">interactions</span><span class="o">.</span><span class="n">user_ids</span><span class="p">[</span><span class="n">in_train</span><span class="p">],</span>
+                         <span class="n">interactions</span><span class="o">.</span><span class="n">item_ids</span><span class="p">[</span><span class="n">in_train</span><span class="p">],</span>
+                         <span class="n">ratings</span><span class="o">=</span><span class="n">_index_or_none</span><span class="p">(</span><span class="n">interactions</span><span class="o">.</span><span class="n">ratings</span><span class="p">,</span>
+                                                <span class="n">in_train</span><span class="p">),</span>
+                         <span class="n">timestamps</span><span class="o">=</span><span class="n">_index_or_none</span><span class="p">(</span><span class="n">interactions</span><span class="o">.</span><span class="n">timestamps</span><span class="p">,</span>
+                                                   <span class="n">in_train</span><span class="p">),</span>
+                         <span class="n">weights</span><span class="o">=</span><span class="n">_index_or_none</span><span class="p">(</span><span class="n">interactions</span><span class="o">.</span><span class="n">weights</span><span class="p">,</span>
+                                                <span class="n">in_train</span><span class="p">),</span>
+                         <span class="n">num_users</span><span class="o">=</span><span class="n">interactions</span><span class="o">.</span><span class="n">num_users</span><span class="p">,</span>
+                         <span class="n">num_items</span><span class="o">=</span><span class="n">interactions</span><span class="o">.</span><span class="n">num_items</span><span class="p">)</span>
+    <span class="n">test</span> <span class="o">=</span> <span class="n">Interactions</span><span class="p">(</span><span class="n">interactions</span><span class="o">.</span><span class="n">user_ids</span><span class="p">[</span><span class="n">in_test</span><span class="p">],</span>
+                        <span class="n">interactions</span><span class="o">.</span><span class="n">item_ids</span><span class="p">[</span><span class="n">in_test</span><span class="p">],</span>
+                        <span class="n">ratings</span><span class="o">=</span><span class="n">_index_or_none</span><span class="p">(</span><span class="n">interactions</span><span class="o">.</span><span class="n">ratings</span><span class="p">,</span>
+                                               <span class="n">in_test</span><span class="p">),</span>
+                        <span class="n">timestamps</span><span class="o">=</span><span class="n">_index_or_none</span><span class="p">(</span><span class="n">interactions</span><span class="o">.</span><span class="n">timestamps</span><span class="p">,</span>
+                                                  <span class="n">in_test</span><span class="p">),</span>
+                        <span class="n">weights</span><span class="o">=</span><span class="n">_index_or_none</span><span class="p">(</span><span class="n">interactions</span><span class="o">.</span><span class="n">weights</span><span class="p">,</span>
+                                               <span class="n">in_test</span><span class="p">),</span>
+                        <span class="n">num_users</span><span class="o">=</span><span class="n">interactions</span><span class="o">.</span><span class="n">num_users</span><span class="p">,</span>
+                        <span class="n">num_items</span><span class="o">=</span><span class="n">interactions</span><span class="o">.</span><span class="n">num_items</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">train</span><span class="p">,</span> <span class="n">test</span></div>
+</pre></div>
+
+           </div>
+           <div class="articleComments">
+            
+           </div>
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2017, Maciej Kula.
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/snide/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    <script type="text/javascript">
+        var DOCUMENTATION_OPTIONS = {
+            URL_ROOT:'../../',
+            VERSION:'0.1.0',
+            COLLAPSE_INDEX:false,
+            FILE_SUFFIX:'.html',
+            HAS_SOURCE:  true,
+            SOURCELINK_SUFFIX: '.txt'
+        };
+    </script>
+      <script type="text/javascript" src="../../_static/jquery.js"></script>
+      <script type="text/javascript" src="../../_static/underscore.js"></script>
+      <script type="text/javascript" src="../../_static/doctools.js"></script>
+
+  
+
+  
+  
+    <script type="text/javascript" src="../../_static/js/theme.js"></script>
+  
+
+  
+  
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.StickyNav.enable();
+      });
+  </script>
+   
+
+</body>
+</html>

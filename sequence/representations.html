@@ -189,7 +189,7 @@
 as functions of the items they have interacted with in the past.</p>
 <dl class="class">
 <dt id="spotlight.sequence.representations.CNNNet">
-<em class="property">class </em><code class="descclassname">spotlight.sequence.representations.</code><code class="descname">CNNNet</code><span class="sig-paren">(</span><em>num_items</em>, <em>embedding_dim=32</em>, <em>kernel_width=3</em>, <em>dilation=1</em>, <em>num_layers=1</em>, <em>nonlinearity=’tanh’</em>, <em>residual_connections=True</em>, <em>sparse=False</em>, <em>benchmark=True</em><span class="sig-paren">)</span><a class="headerlink" href="#spotlight.sequence.representations.CNNNet" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="descclassname">spotlight.sequence.representations.</code><code class="descname">CNNNet</code><span class="sig-paren">(</span><em>num_items</em>, <em>embedding_dim=32</em>, <em>kernel_width=3</em>, <em>dilation=1</em>, <em>num_layers=1</em>, <em>nonlinearity=’tanh’</em>, <em>residual_connections=True</em>, <em>sparse=False</em>, <em>benchmark=True</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/spotlight/sequence/representations.html#CNNNet"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#spotlight.sequence.representations.CNNNet" title="Permalink to this definition">¶</a></dt>
 <dd><p>Module representing users through stacked causal atrous convolutions (<a class="footnote-reference" href="#id3" id="id1">[3]</a>, <a class="footnote-reference" href="#id4" id="id2">[4]</a>).</p>
 <p>To represent a sequence, it runs a 1D convolution over the input sequence,
 from left to right. At each timestep, the output of the convolution is
@@ -247,7 +247,7 @@ arXiv preprint arXiv:1610.10099 (2016).</td></tr>
 </table>
 <dl class="method">
 <dt id="spotlight.sequence.representations.CNNNet.forward">
-<code class="descname">forward</code><span class="sig-paren">(</span><em>user_representations</em>, <em>targets</em><span class="sig-paren">)</span><a class="headerlink" href="#spotlight.sequence.representations.CNNNet.forward" title="Permalink to this definition">¶</a></dt>
+<code class="descname">forward</code><span class="sig-paren">(</span><em>user_representations</em>, <em>targets</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/spotlight/sequence/representations.html#CNNNet.forward"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#spotlight.sequence.representations.CNNNet.forward" title="Permalink to this definition">¶</a></dt>
 <dd><p>Compute predictions for target items given user representations.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -272,7 +272,7 @@ arXiv preprint arXiv:1610.10099 (2016).</td></tr>
 
 <dl class="method">
 <dt id="spotlight.sequence.representations.CNNNet.user_representation">
-<code class="descname">user_representation</code><span class="sig-paren">(</span><em>item_sequences</em><span class="sig-paren">)</span><a class="headerlink" href="#spotlight.sequence.representations.CNNNet.user_representation" title="Permalink to this definition">¶</a></dt>
+<code class="descname">user_representation</code><span class="sig-paren">(</span><em>item_sequences</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/spotlight/sequence/representations.html#CNNNet.user_representation"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#spotlight.sequence.representations.CNNNet.user_representation" title="Permalink to this definition">¶</a></dt>
 <dd><p>Compute user representation from a given sequence.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -294,7 +294,7 @@ for prediction or evaluation.</td>
 
 <dl class="class">
 <dt id="spotlight.sequence.representations.LSTMNet">
-<em class="property">class </em><code class="descclassname">spotlight.sequence.representations.</code><code class="descname">LSTMNet</code><span class="sig-paren">(</span><em>num_items</em>, <em>embedding_dim=32</em>, <em>sparse=False</em><span class="sig-paren">)</span><a class="headerlink" href="#spotlight.sequence.representations.LSTMNet" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="descclassname">spotlight.sequence.representations.</code><code class="descname">LSTMNet</code><span class="sig-paren">(</span><em>num_items</em>, <em>embedding_dim=32</em>, <em>sparse=False</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/spotlight/sequence/representations.html#LSTMNet"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#spotlight.sequence.representations.LSTMNet" title="Permalink to this definition">¶</a></dt>
 <dd><p>Module representing users through running a recurrent neural network
 over the sequence, using the hidden state at each timestep as the
 sequence representation, a’la <a class="footnote-reference" href="#id6" id="id5">[2]</a></p>
@@ -324,7 +324,7 @@ recurrent neural networks.” arXiv preprint arXiv:1511.06939 (2015).</td></tr>
 </table>
 <dl class="method">
 <dt id="spotlight.sequence.representations.LSTMNet.forward">
-<code class="descname">forward</code><span class="sig-paren">(</span><em>user_representations</em>, <em>targets</em><span class="sig-paren">)</span><a class="headerlink" href="#spotlight.sequence.representations.LSTMNet.forward" title="Permalink to this definition">¶</a></dt>
+<code class="descname">forward</code><span class="sig-paren">(</span><em>user_representations</em>, <em>targets</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/spotlight/sequence/representations.html#LSTMNet.forward"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#spotlight.sequence.representations.LSTMNet.forward" title="Permalink to this definition">¶</a></dt>
 <dd><p>Compute predictions for target items given user representations.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -349,7 +349,7 @@ recurrent neural networks.” arXiv preprint arXiv:1511.06939 (2015).</td></tr>
 
 <dl class="method">
 <dt id="spotlight.sequence.representations.LSTMNet.user_representation">
-<code class="descname">user_representation</code><span class="sig-paren">(</span><em>item_sequences</em><span class="sig-paren">)</span><a class="headerlink" href="#spotlight.sequence.representations.LSTMNet.user_representation" title="Permalink to this definition">¶</a></dt>
+<code class="descname">user_representation</code><span class="sig-paren">(</span><em>item_sequences</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/spotlight/sequence/representations.html#LSTMNet.user_representation"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#spotlight.sequence.representations.LSTMNet.user_representation" title="Permalink to this definition">¶</a></dt>
 <dd><p>Compute user representation from a given sequence.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -371,7 +371,7 @@ for prediction or evaluation.</td>
 
 <dl class="class">
 <dt id="spotlight.sequence.representations.PoolNet">
-<em class="property">class </em><code class="descclassname">spotlight.sequence.representations.</code><code class="descname">PoolNet</code><span class="sig-paren">(</span><em>num_items</em>, <em>embedding_dim=32</em>, <em>sparse=False</em><span class="sig-paren">)</span><a class="headerlink" href="#spotlight.sequence.representations.PoolNet" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="descclassname">spotlight.sequence.representations.</code><code class="descname">PoolNet</code><span class="sig-paren">(</span><em>num_items</em>, <em>embedding_dim=32</em>, <em>sparse=False</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/spotlight/sequence/representations.html#PoolNet"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#spotlight.sequence.representations.PoolNet" title="Permalink to this definition">¶</a></dt>
 <dd><p>Module representing users through averaging the representations of items
 they have interacted with, a’la <a class="footnote-reference" href="#id8" id="id7">[1]</a>.</p>
 <p>To represent a sequence, it simply averages the representations of all
@@ -402,7 +402,7 @@ on Recommender Systems. ACM, 2016.</td></tr>
 </table>
 <dl class="method">
 <dt id="spotlight.sequence.representations.PoolNet.forward">
-<code class="descname">forward</code><span class="sig-paren">(</span><em>user_representations</em>, <em>targets</em><span class="sig-paren">)</span><a class="headerlink" href="#spotlight.sequence.representations.PoolNet.forward" title="Permalink to this definition">¶</a></dt>
+<code class="descname">forward</code><span class="sig-paren">(</span><em>user_representations</em>, <em>targets</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/spotlight/sequence/representations.html#PoolNet.forward"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#spotlight.sequence.representations.PoolNet.forward" title="Permalink to this definition">¶</a></dt>
 <dd><p>Compute predictions for target items given user representations.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -427,7 +427,7 @@ on Recommender Systems. ACM, 2016.</td></tr>
 
 <dl class="method">
 <dt id="spotlight.sequence.representations.PoolNet.user_representation">
-<code class="descname">user_representation</code><span class="sig-paren">(</span><em>item_sequences</em><span class="sig-paren">)</span><a class="headerlink" href="#spotlight.sequence.representations.PoolNet.user_representation" title="Permalink to this definition">¶</a></dt>
+<code class="descname">user_representation</code><span class="sig-paren">(</span><em>item_sequences</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/spotlight/sequence/representations.html#PoolNet.user_representation"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#spotlight.sequence.representations.PoolNet.user_representation" title="Permalink to this definition">¶</a></dt>
 <dd><p>Compute user representation from a given sequence.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
