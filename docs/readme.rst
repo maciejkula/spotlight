@@ -28,7 +28,7 @@ and prototyping of new recommender models.
 See the full `documentation <https://maciejkula.github.io/spotlight/>`_ for details.
 
 Installation
-------------
+~~~~~~~~~~~~
 
 .. code-block:: python
 
@@ -36,10 +36,10 @@ Installation
 
 
 Usage
-=====
+~~~~~
 
 Factorization models
---------------------
+====================
 
 To fit an explicit feedback model on the MovieLens dataset:
 
@@ -86,7 +86,7 @@ To fit an implicit ranking model with a BPR pairwise loss on the MovieLens datas
 
 
 Sequential models
------------------
+=================
 
 Recommendations can be seen as a sequence prediction task: given the items a user
 has interacted with in the past, what will be the next item they will interact
@@ -127,7 +127,7 @@ recommendation models, including
   
 
 Datasets
---------
+========
 
 Spotlight offers a slew of popular datasets, including Movielens 100K, 1M, 10M, and 20M.
 It also incorporates utilities for creating synthetic datasets. For example, `generate_sequential`
@@ -151,13 +151,13 @@ a function of their previous interactions:
 
 
 Examples
-========
+~~~~~~~~
 
 1. `Rating prediction on the Movielens dataset <https://github.com/maciejkula/spotlight/tree/master/examples/movielens_explicit>`_.
 2. `Using causal convolutions for sequence recommendations <https://github.com/maciejkula/spotlight/tree/master/examples/movielens_sequence>`_.
 
 
 Contributing
-============
+~~~~~~~~~~~~
 
 Spotlight is meant to be extensible: pull requests are welcome. In particular, we accept implementations of new recommendation models into the Spotlight model zoo: if you've just published a paper describing your new model, or have an implementation of a model from the literature, make a PR!
