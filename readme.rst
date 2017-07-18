@@ -7,6 +7,15 @@
 .. image:: https://travis-ci.org/maciejkula/spotlight.svg?branch=master
    :target: https://travis-ci.org/maciejkula/spotlight
 
+.. image:: https://badges.gitter.im/gitterHQ/gitter.png
+   :target: https://gitter.im/spotlight-recommendations/Lobby
+
+.. image:: https://anaconda.org/maciejkula/spotlight/badges/version.svg
+   :target: https://anaconda.org/maciejkula/spotlight
+
+.. image:: https://img.shields.io/badge/docs-latest-brightgreen.svg?style=flat
+   :target: https://maciejkula.github.io/spotlight/
+
 |
 
 Spotlight uses `PyTorch <http://pytorch.org/>`_ to build both deep and shallow
@@ -140,7 +149,8 @@ a function of their previous interactions:
 Examples
 ========
 
-1. `Using causal convolutions for sequence recommendations <https://github.com/maciejkula/spotlight/tree/master/examples/movielens_sequence>`_.
+1. `Rating prediction on the Movielens dataset <https://github.com/maciejkula/spotlight/tree/master/examples/movielens_explicit>`_.
+2. `Using causal convolutions for sequence recommendations <https://github.com/maciejkula/spotlight/tree/master/examples/movielens_sequence>`_.
 
 
 Contributing
