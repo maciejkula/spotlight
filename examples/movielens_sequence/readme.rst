@@ -114,14 +114,15 @@ Experiments
 
 To see how causal CNNs compare to more traditional sequence models we
 can have a look at how they perform at predicting the next rated movie
-on the Movielens 1M dataset. With 1 million interactions spread among
+on the `Movielens 1M dataset <https://grouplens.org/datasets/movielens/1m/>`_. With 1 million interactions spread among
 6000 users and around 4000 movies it should be small enough to run quick
 experiments, but large enough to yield meaningful results.
 
 I chose to split the dataset into 80% train, and 10% test and validation
 sets. I construct 200-long sequences by splitting each user's item
 sequence into 200-long chunks; if a chunk is shorter than 200 elements,
-it's padded with zeros.
+it's padded with zeros. I use `mean reciprocal rank <https://en.wikipedia.org/wiki/Mean_reciprocal_rank>`_ (MRR) as the evaluation
+metric.
 
 To choose hyperparameters, I run a quick, coarse grained hyperparameter
 search, using random sampling to draw 100 hyperparameter sets. With the
