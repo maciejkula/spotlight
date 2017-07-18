@@ -200,12 +200,11 @@ and prototyping of new recommender models.</p>
 <div class="highlight-python"><div class="highlight"><pre><span></span><span class="n">conda</span> <span class="n">install</span> <span class="o">-</span><span class="n">c</span> <span class="n">maciejkula</span> <span class="o">-</span><span class="n">c</span> <span class="n">soumith</span> <span class="n">spotlight</span><span class="o">=</span><span class="mf">0.1</span><span class="o">.</span><span class="mi">0</span>
 </pre></div>
 </div>
+</div>
 <div class="section" id="usage">
-<h2>Usage<a class="headerlink" href="#usage" title="Permalink to this headline">¶</a></h2>
-</div>
-</div>
+<h1>Usage<a class="headerlink" href="#usage" title="Permalink to this headline">¶</a></h1>
 <div class="section" id="factorization-models">
-<h1>Factorization models<a class="headerlink" href="#factorization-models" title="Permalink to this headline">¶</a></h1>
+<h2>Factorization models<a class="headerlink" href="#factorization-models" title="Permalink to this headline">¶</a></h2>
 <p>To fit an explicit feedback model on the MovieLens dataset:</p>
 <div class="highlight-default"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">spotlight.cross_validation</span> <span class="k">import</span> <span class="n">random_train_test_split</span>
 <span class="kn">from</span> <span class="nn">spotlight.datasets.movielens</span> <span class="k">import</span> <span class="n">get_movielens_dataset</span>
@@ -241,7 +240,7 @@ and prototyping of new recommender models.</p>
 </div>
 </div>
 <div class="section" id="sequential-models">
-<h1>Sequential models<a class="headerlink" href="#sequential-models" title="Permalink to this headline">¶</a></h1>
+<h2>Sequential models<a class="headerlink" href="#sequential-models" title="Permalink to this headline">¶</a></h2>
 <p>Recommendations can be seen as a sequence prediction task: given the items a user
 has interacted with in the past, what will be the next item they will interact
 with? Spotlight provides a range of models and utilities for fitting next item
@@ -277,7 +276,7 @@ recommendation models, including</p>
 </div>
 </div>
 <div class="section" id="datasets">
-<h1>Datasets<a class="headerlink" href="#datasets" title="Permalink to this headline">¶</a></h1>
+<h2>Datasets<a class="headerlink" href="#datasets" title="Permalink to this headline">¶</a></h2>
 <p>Spotlight offers a slew of popular datasets, including Movielens 100K, 1M, 10M, and 20M.
 It also incorporates utilities for creating synthetic datasets. For example, <cite>generate_sequential</cite>
 generates a Markov-chain-derived interaction dataset, where the next item a user chooses is
@@ -293,17 +292,18 @@ a function of their previous interactions:</p>
                               <span class="n">order</span><span class="o">=</span><span class="mi">3</span><span class="p">)</span>
 </pre></div>
 </div>
+</div>
+</div>
 <div class="section" id="examples">
-<h2>Examples<a class="headerlink" href="#examples" title="Permalink to this headline">¶</a></h2>
+<h1>Examples<a class="headerlink" href="#examples" title="Permalink to this headline">¶</a></h1>
 <ol class="arabic simple">
 <li><a class="reference external" href="https://github.com/maciejkula/spotlight/tree/master/examples/movielens_explicit">Rating prediction on the Movielens dataset</a>.</li>
 <li><a class="reference external" href="https://github.com/maciejkula/spotlight/tree/master/examples/movielens_sequence">Using causal convolutions for sequence recommendations</a>.</li>
 </ol>
 </div>
 <div class="section" id="contributing">
-<h2>Contributing<a class="headerlink" href="#contributing" title="Permalink to this headline">¶</a></h2>
+<h1>Contributing<a class="headerlink" href="#contributing" title="Permalink to this headline">¶</a></h1>
 <p>Spotlight is meant to be extensible: pull requests are welcome. In particular, we accept implementations of new recommendation models into the Spotlight model zoo: if you’ve just published a paper describing your new model, or have an implementation of a model from the literature, make a PR!</p>
-</div>
 <div class="section" id="contents">
 <h2>Contents<a class="headerlink" href="#contents" title="Permalink to this headline">¶</a></h2>
 <div class="toctree-wrapper compound">
