@@ -1,4 +1,4 @@
-from setuptools import setup
+from setuptools import find_packages, setup
 
 
 # Import version
@@ -9,7 +9,7 @@ from spotlight import __version__ as version  # NOQA
 setup(
     name='spotlight',
     version=version,
-    packages=['spotlight'],
+    packages=find_packages(),
     license='MIT',
     classifiers=['Development Status :: 3 - Alpha',
                  'License :: OSI Approved :: MIT License',
