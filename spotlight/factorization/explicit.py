@@ -15,7 +15,7 @@ from spotlight.factorization._components import _predict_process_ids
 from spotlight.factorization.representations import BilinearNet
 from spotlight.losses import (regression_loss,
                               poisson_loss)
-from spotlight.torch_utils import cpu, gpu, minibatch, set_seed, shuffle
+from spotlight.torch_utils import cpu, gpu, set_seed
 
 
 class ExplicitFactorizationModel(object):
@@ -181,31 +181,17 @@ class ExplicitFactorizationModel(object):
 
         for epoch_num in range(self._n_iter):
 
-            users, items, ratings = shuffle(user_ids,
-                                            item_ids,
-                                            interactions.ratings,
-                                            random_state=self._random_state)
-
-            user_ids_tensor = gpu(torch.from_numpy(users),
-                                  self._use_cuda)
-            item_ids_tensor = gpu(torch.from_numpy(items),
-                                  self._use_cuda)
-            ratings_tensor = gpu(torch.from_numpy(ratings),
-                                 self._use_cuda)
+            interactions.shuffle(random_state=self._random_state)
 
             epoch_loss = 0.0
 
             for (minibatch_num,
-                 (batch_user,
-                  batch_item,
-                  batch_ratings)) in enumerate(minibatch(user_ids_tensor,
-                                                         item_ids_tensor,
-                                                         ratings_tensor,
-                                                         batch_size=self._batch_size)):
+                 minibatch) in enumerate(interactions.minibatches(use_cuda=self._use_cuda,
+                                                                  batch_size=self._batch_size)):
 
-                user_var = Variable(batch_user)
-                item_var = Variable(batch_item)
-                ratings_var = Variable(batch_ratings)
+                user_var = Variable(minibatch.user_ids)
+                item_var = Variable(minibatch.item_ids)
+                ratings_var = Variable(minibatch.ratings)
 
                 predictions = self._net(user_var, item_var)
 

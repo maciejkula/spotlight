@@ -7,6 +7,11 @@ import numpy as np
 
 import scipy.sparse as sp
 
+import torch
+
+from spotlight.helpers import iter_none, make_tuple
+from spotlight.torch_utils import gpu, minibatch
+
 
 def _sliding_window(tensor, window_size, step_size=1):
 
@@ -35,6 +40,26 @@ def _generate_sequences(user_ids, item_ids,
             yield (user_ids[i], seq)
 
 
+def _slice_or_none(arg, slc):
+
+    if arg is None:
+        return None
+    elif isinstance(arg, tuple):
+        return tuple(x[slc] for x in arg)
+    else:
+        return arg[slc]
+
+
+def _tensor_or_none(arg, use_cuda):
+
+    if arg is None:
+        return None
+    elif isinstance(arg, tuple):
+        return tuple(gpu(torch.from_numpy(x), use_cuda) for x in arg)
+    else:
+        return gpu(torch.from_numpy(arg), use_cuda)
+
+
 class Interactions(object):
     """
     Interactions object. Contains (at a minimum) pair of user-item
@@ -54,9 +79,9 @@ class Interactions(object):
     Parameters
     ----------
 
-    user_ids: array of np.int32
+    user_ids: array of np.int64
         array of user ids of the user-item pairs
-    item_ids: array of np.int32
+    item_ids: array of np.int64
         array of item ids of the user-item pairs
     ratings: array of np.float32, optional
         array of ratings
@@ -96,17 +121,24 @@ class Interactions(object):
                  ratings=None,
                  timestamps=None,
                  weights=None,
+                 user_features=None,
+                 item_features=None,
+                 context_features=None,
                  num_users=None,
                  num_items=None):
 
         self.num_users = num_users or int(user_ids.max() + 1)
         self.num_items = num_items or int(item_ids.max() + 1)
 
-        self.user_ids = user_ids
-        self.item_ids = item_ids
+        self.user_ids = user_ids.astype(np.int64)
+        self.item_ids = item_ids.astype(np.int64)
         self.ratings = ratings
         self.timestamps = timestamps
         self.weights = weights
+
+        self.user_features = user_features
+        self.item_features = item_features
+        self.context_features = context_features
 
         self._check()
 
@@ -133,6 +165,21 @@ class Interactions(object):
             raise ValueError('Maximum item id greater '
                              'than declared number of items.')
 
+        for feature in make_tuple(self.user_features):
+            if feature.shape[0] != self.num_users:
+                raise ValueError('Number of user features not '
+                                 'equal to number of users.')
+
+        for feature in make_tuple(self.item_features):
+            if feature.shape[0] != self.num_items:
+                raise ValueError('Number of item features not '
+                                 'equal to number of items.')
+
+        for feature in make_tuple(self.context_features):
+            if feature.shape[0] != len(self):
+                raise ValueError('Number of context features not '
+                                 'equal to number of interactions.')
+
         num_interactions = len(self.user_ids)
 
         for name, value in (('item IDs', self.item_ids),
@@ -147,6 +194,51 @@ class Interactions(object):
                 raise ValueError('Invalid {} dimensions: length '
                                  'must be equal to number of interactions'
                                  .format(name))
+
+    def shuffle(self, random_state=None):
+
+        if random_state is None:
+            random_state = np.random.RandomState()
+
+        shuffle_indices = np.arange(len(self.user_ids))
+        random_state.shuffle(shuffle_indices)
+
+        self.user_ids = self.user_ids[shuffle_indices]
+        self.item_ids = self.item_ids[shuffle_indices]
+        self.ratings = _slice_or_none(self.ratings, shuffle_indices)
+        self.timestamps = _slice_or_none(self.timestamps, shuffle_indices)
+        self.weights = _slice_or_none(self.timestamps, shuffle_indices)
+        self.context_features = _slice_or_none(self.context_features, shuffle_indices)
+
+    def minibatches(self, use_cuda=False, batch_size=128):
+
+        batch_generator = zip(*(minibatch(*make_tuple(_tensor_or_none(attr, use_cuda)),
+                                          batch_size=batch_size)
+                                if attr is not None
+                                else iter_none()
+                                for attr in (self.user_ids,
+                                             self.item_ids,
+                                             self.ratings,
+                                             self.timestamps,
+                                             self.weights,
+                                             self.context_features)))
+
+        user_features = _tensor_or_none(self.user_features, use_cuda)
+        item_features = _tensor_or_none(self.item_features, use_cuda)
+
+        for (uids_batch, iids_batch, ratings_batch, timestamps_batch,
+             weights_batch, cf_batch) in batch_generator:
+
+            yield InteractionsMinibatch(
+                user_ids=uids_batch,
+                item_ids=iids_batch,
+                ratings=ratings_batch,
+                timestamps=timestamps_batch,
+                weights=weights_batch,
+                user_features=_slice_or_none(user_features, uids_batch),
+                item_features=_slice_or_none(item_features, iids_batch),
+                context_features=cf_batch
+            )
 
     def tocoo(self):
         """
@@ -264,6 +356,29 @@ class Interactions(object):
         return (SequenceInteractions(sequences,
                                      user_ids=sequence_users,
                                      num_items=self.num_items))
+
+
+class InteractionsMinibatch(object):
+
+    def __init__(self,
+                 user_ids,
+                 item_ids,
+                 ratings=None,
+                 timestamps=None,
+                 weights=None,
+                 user_features=None,
+                 item_features=None,
+                 context_features=None):
+
+        self.user_ids = user_ids
+        self.item_ids = item_ids
+        self.ratings = ratings
+        self.timestamps = timestamps
+        self.weights = weights
+
+        self.user_features = user_features
+        self.item_features = item_features
+        self.context_features = context_features
 
 
 class SequenceInteractions(object):

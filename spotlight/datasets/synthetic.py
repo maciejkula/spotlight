@@ -132,3 +132,40 @@ def generate_sequential(num_users=100,
                         timestamps=timestamps,
                         num_users=num_users,
                         num_items=num_items)
+
+
+def generate_content_based(num_users=100,
+                           num_items=100,
+                           num_interactions=10000,
+                           num_user_features=10,
+                           num_item_features=10,
+                           num_context_features=10,
+                           noise_stddev=0.1,
+                           random_state=None):
+
+    if random_state is None:
+        random_state = np.random.RandomState()
+
+    user_features = random_state.randn(num_users, num_user_features)
+    item_features = random_state.randn(num_items, num_item_features)
+    context_features = random_state.randn(num_interactions, num_context_features)
+
+    user_context_coefficients = random_state.randn(num_user_features + num_context_features,
+                                                   num_item_features)
+
+    user_ids = random_state.randint(0, num_users, num_interactions)
+    context_representations = np.dot(np.hstack([user_features[user_ids], context_features]),
+                                     user_context_coefficients)
+    noise = random_state.randn(num_interactions, num_items) * noise_stddev
+    predictions = (np.dot(context_representations, item_features.T) +
+                   noise)
+    best_items = np.argmax(predictions, axis=1)
+
+    return Interactions(user_ids,
+                        best_items,
+                        timestamps=np.arange(num_interactions),
+                        user_features=user_features,
+                        item_features=item_features,
+                        context_features=context_features,
+                        num_users=num_users,
+                        num_items=num_items)

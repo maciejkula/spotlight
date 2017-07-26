@@ -145,7 +145,7 @@ def user_based_train_test_split(interactions,
 
     seed = random_state.randint(minint, maxint)
 
-    in_test = ((murmurhash3_32(interactions.user_ids,
+    in_test = ((murmurhash3_32(interactions.user_ids.astype(np.int32),
                                seed=seed,
                                positive=True) % 100 /
                 100.0) <
