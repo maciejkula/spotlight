@@ -22,13 +22,14 @@ def cpu(tensor):
 def minibatch(*tensors, **kwargs):
 
     batch_size = kwargs.get('batch_size', 128)
+    length = min(len(x) for x in tensors if hasattr(x, '__len__'))
 
     if len(tensors) == 1:
         tensor = tensors[0]
-        for i in range(0, len(tensor), batch_size):
+        for i in range(0, length, batch_size):
             yield tensor[i:i + batch_size]
     else:
-        for i in range(0, len(tensors[0]), batch_size):
+        for i in range(0, length, batch_size):
             yield tuple(x[i:i + batch_size] for x in tensors)
 
 
