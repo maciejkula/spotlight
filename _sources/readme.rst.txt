@@ -16,6 +16,9 @@
 .. image:: https://img.shields.io/badge/docs-latest-brightgreen.svg?style=flat
    :target: https://maciejkula.github.io/spotlight/
 
+.. image:: https://img.shields.io/badge/progress%20tracker-trello-brightgreen.svg
+   :target: https://trello.com/b/G5iFgS1W/spotlight
+
 |
 
 Spotlight uses `PyTorch <http://pytorch.org/>`_ to build both deep and shallow
@@ -160,4 +163,6 @@ Examples
 Contributing
 ~~~~~~~~~~~~
 
-Spotlight is meant to be extensible: pull requests are welcome. In particular, we accept implementations of new recommendation models into the Spotlight model zoo: if you've just published a paper describing your new model, or have an implementation of a model from the literature, make a PR!
+Spotlight is meant to be extensible: pull requests are welcome. Development progress is tracked on `Trello <https://trello.com/b/G5iFgS1W/spotlight>`_: have a look at the outstanding tickets to get an idea of what would be a useful contribution.
+
+We accept implementations of new recommendation models into the Spotlight model zoo: if you've just published a paper describing your new model, or have an implementation of a model from the literature, make a PR!
