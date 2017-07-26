@@ -3,7 +3,7 @@ import numpy as np
 import pytest
 
 from spotlight.cross_validation import random_train_test_split
-from spotlight.datasets import movielens
+from spotlight.datasets import movielens, synthetic
 from spotlight.interactions import Interactions
 
 
@@ -62,6 +62,46 @@ def _test_temporal_order(sequence_users, sequences, interactions):
             next_item_timestamp = interaction_matrix[user_id, next_item_id]
 
             assert item_timestamp <= next_item_timestamp
+
+
+@pytest.mark.parametrize('minibatch_size', [
+    5,
+    100,
+    200,
+])
+def test_minibatching_synthetic(minibatch_size):
+
+    interactions = synthetic.generate_content_based(num_users=10,
+                                                    num_items=15,
+                                                    num_user_features=3,
+                                                    num_interactions=1000)
+
+    # Test that tuples of features work too.
+    interactions.user_features = (interactions.user_features,) * 3
+    interactions.item_features = (interactions.item_features,) * 3
+    interactions.context_features = (interactions.context_features,) * 3
+
+    for minibatch in interactions.minibatches(batch_size=minibatch_size):
+        assert len(minibatch.item_ids) <= minibatch_size
+
+    assert sum(len(x.item_ids) for x in
+               interactions.minibatches(batch_size=minibatch_size)) == len(interactions)
+
+
+@pytest.mark.parametrize('minibatch_size', [
+    5,
+    100,
+    200,
+])
+def test_minibatching_movielens(minibatch_size):
+
+    interactions = movielens.get_movielens_dataset('100K')
+
+    for minibatch in interactions.minibatches(batch_size=minibatch_size):
+        assert len(minibatch.item_ids) <= minibatch_size
+
+    assert sum(len(x.item_ids) for x in
+               interactions.minibatches(batch_size=minibatch_size)) == len(interactions)
 
 
 def test_known_output_step_1():

@@ -17,7 +17,7 @@ from spotlight.losses import (adaptive_hinge_loss,
                               pointwise_loss)
 from spotlight.factorization.representations import BilinearNet
 from spotlight.sampling import sample_items
-from spotlight.torch_utils import cpu, gpu, minibatch, set_seed, shuffle
+from spotlight.torch_utils import cpu, gpu, set_seed
 
 
 class ImplicitFactorizationModel(object):
@@ -189,25 +189,16 @@ class ImplicitFactorizationModel(object):
 
         for epoch_num in range(self._n_iter):
 
-            users, items = shuffle(user_ids,
-                                   item_ids,
-                                   random_state=self._random_state)
-
-            user_ids_tensor = gpu(torch.from_numpy(users),
-                                  self._use_cuda)
-            item_ids_tensor = gpu(torch.from_numpy(items),
-                                  self._use_cuda)
+            interactions.shuffle(random_state=self._random_state)
 
             epoch_loss = 0.0
 
             for (minibatch_num,
-                 (batch_user,
-                  batch_item)) in enumerate(minibatch(user_ids_tensor,
-                                                      item_ids_tensor,
-                                                      batch_size=self._batch_size)):
+                 minibatch) in enumerate(interactions.minibatches(use_cuda=self._use_cuda,
+                                                                  batch_size=self._batch_size)):
 
-                user_var = Variable(batch_user)
-                item_var = Variable(batch_item)
+                user_var = Variable(minibatch.user_ids)
+                item_var = Variable(minibatch.item_ids)
                 positive_prediction = self._net(user_var, item_var)
 
                 if self._loss == 'adaptive_hinge':
