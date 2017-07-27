@@ -189,18 +189,15 @@ class ExplicitFactorizationModel(object):
                  minibatch) in enumerate(interactions.minibatches(use_cuda=self._use_cuda,
                                                                   batch_size=self._batch_size)):
 
-                user_var = Variable(minibatch.user_ids)
-                item_var = Variable(minibatch.item_ids)
-                ratings_var = Variable(minibatch.ratings)
-
-                predictions = self._net(user_var, item_var)
+                predictions = self._net(minibatch.user_ids,
+                                        minibatch.item_ids)
 
                 if self._loss == 'poisson':
                     predictions = torch.exp(predictions)
 
                 self._optimizer.zero_grad()
 
-                loss = self._loss_func(ratings_var, predictions)
+                loss = self._loss_func(minibatch.ratings, predictions)
                 epoch_loss += loss.data[0]
 
                 loss.backward()

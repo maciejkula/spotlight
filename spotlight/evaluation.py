@@ -32,24 +32,23 @@ def mrr_score(model, test, train=None):
         Array of MRR scores for each user in test.
     """
 
-    test = test.tocsr()
-
     if train is not None:
         train = train.tocsr()
 
     mrrs = []
 
-    for user_id, row in enumerate(test):
+    for minibatch in test.minibatches(batch_size=1):
 
-        if not len(row.indices):
-            continue
-
-        predictions = -model.predict(user_id)
-
+        user_id = int(minibatch.user_ids[0].data.numpy())
+        item_id = int(minibatch.item_ids[0].data.numpy())
+        predictions = -model.predict(user_id,
+                                     user_features=minibatch.user_features,
+                                     context_features=minibatch.context_features,
+                                     item_features=minibatch.item_features)
         if train is not None:
             predictions[train[user_id].indices] = FLOAT_MAX
 
-        mrr = (1.0 / st.rankdata(predictions)[row.indices]).mean()
+        mrr = (1.0 / st.rankdata(predictions)[item_id])
 
         mrrs.append(mrr)
 

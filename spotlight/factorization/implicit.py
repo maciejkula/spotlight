@@ -16,7 +16,10 @@ from spotlight.losses import (adaptive_hinge_loss,
                               bpr_loss,
                               hinge_loss,
                               pointwise_loss)
-from spotlight.factorization.representations import BilinearNet
+from spotlight.factorization.representations import (BilinearNet,
+                                                     HybridContainer,
+                                                     HybridContextNet,
+                                                     HybridItemNet)
 from spotlight.sampling import sample_items
 from spotlight.torch_utils import cpu, gpu, set_seed
 
@@ -119,13 +122,29 @@ class ImplicitFactorizationModel(object):
          self._num_items) = (interactions.num_users,
                              interactions.num_items)
 
-        self._net = gpu(
-            BilinearNet(self._num_users,
-                        self._num_items,
-                        self._embedding_dim,
-                        sparse=self._sparse),
-            self._use_cuda
-        )
+        latent_net = BilinearNet(self._num_users,
+                                 self._num_items,
+                                 self._embedding_dim,
+                                 sparse=self._sparse)
+
+        if interactions.num_context_features():
+            context_net = HybridContextNet(self._embedding_dim,
+                                           interactions.num_context_features(),
+                                           self._embedding_dim)
+        else:
+            context_net = None
+
+        if interactions.num_item_features():
+            item_net = HybridItemNet(self._embedding_dim,
+                                     interactions.num_item_features(),
+                                     self._embedding_dim)
+        else:
+            item_net = None
+
+        self._net = gpu(HybridContainer(latent_net,
+                                        context_net,
+                                        item_net),
+                        self._use_cuda)
 
         if self._optimizer_func is None:
             self._optimizer = optim.Adam(
@@ -201,15 +220,19 @@ class ImplicitFactorizationModel(object):
                  minibatch) in enumerate(interactions.minibatches(use_cuda=self._use_cuda,
                                                                   batch_size=self._batch_size)):
 
-                user_var = Variable(minibatch.user_ids)
-                item_var = Variable(minibatch.item_ids)
-                positive_prediction = self._net(user_var, item_var)
+                positive_prediction = self._net(minibatch.user_ids,
+                                                minibatch.item_ids,
+                                                minibatch.user_features,
+                                                minibatch.context_features,
+                                                minibatch.get_item_features(
+                                                    minibatch.item_ids
+                                                ))
 
                 if self._loss == 'adaptive_hinge':
-                    negative_prediction = [self._get_negative_prediction(user_var)
+                    negative_prediction = [self._get_negative_prediction(minibatch)
                                            for _ in range(5)]
                 else:
-                    negative_prediction = self._get_negative_prediction(user_var)
+                    negative_prediction = self._get_negative_prediction(minibatch)
 
                 self._optimizer.zero_grad()
 
@@ -224,20 +247,30 @@ class ImplicitFactorizationModel(object):
             if verbose:
                 print('Epoch {}: loss {}'.format(epoch_num, epoch_loss))
 
-    def _get_negative_prediction(self, user_ids):
+    def _get_negative_prediction(self, minibatch):
 
         negative_items = sample_items(
             self._num_items,
-            len(user_ids),
+            len(minibatch),
             random_state=self._random_state)
         negative_var = Variable(
             gpu(torch.from_numpy(negative_items), self._use_cuda)
         )
-        negative_prediction = self._net(user_ids, negative_var)
+
+        negative_prediction = self._net(minibatch.user_ids,
+                                        negative_var,
+                                        minibatch.user_features,
+                                        minibatch.context_features,
+                                        minibatch.get_item_features(
+                                            negative_var
+                                        ))
 
         return negative_prediction
 
-    def predict(self, user_ids, item_ids=None):
+    def predict(self, user_ids, item_ids=None,
+                user_features=None,
+                context_features=None,
+                item_features=None):
         """
         Make predictions: given a user id, compute the recommendation
         scores for items.
@@ -269,6 +302,16 @@ class ImplicitFactorizationModel(object):
                                                   self._num_items,
                                                   self._use_cuda)
 
-        out = self._net(user_ids, item_ids)
+        if user_features is not None:
+            user_features = user_features.repeat(len(item_ids), 1)
+
+        if context_features is not None:
+            context_features = context_features.repeat(len(item_ids), 1)
+
+        out = self._net(user_ids,
+                        item_ids,
+                        user_features,
+                        context_features,
+                        Variable(item_features))
 
         return cpu(out.data).numpy().flatten()
