@@ -6,6 +6,8 @@ experimentation.
 
 import numpy as np
 
+from sklearn.preprocessing import normalize
+
 from spotlight.interactions import Interactions
 
 
@@ -135,12 +137,12 @@ def generate_sequential(num_users=100,
 
 
 def generate_content_based(num_users=100,
-                           num_items=100,
+                           num_items=1000,
                            num_interactions=10000,
                            num_user_features=10,
                            num_item_features=10,
                            num_context_features=10,
-                           noise_stddev=0.1,
+                           noise_stddev=0.01,
                            random_state=None):
 
     if random_state is None:
@@ -157,8 +159,8 @@ def generate_content_based(num_users=100,
     context_representations = np.dot(np.hstack([user_features[user_ids], context_features]),
                                      user_context_coefficients)
     noise = random_state.randn(num_interactions, num_items) * noise_stddev
-    predictions = (np.dot(context_representations, item_features.T) +
-                   noise)
+    predictions = normalize(np.dot(context_representations, item_features.T))
+    predictions += noise
     best_items = np.argmax(predictions, axis=1)
 
     return Interactions(user_ids,

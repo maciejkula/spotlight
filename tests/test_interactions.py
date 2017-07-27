@@ -84,7 +84,7 @@ def test_minibatching_synthetic(minibatch_size):
     for minibatch in interactions.minibatches(batch_size=minibatch_size):
         assert len(minibatch.item_ids) <= minibatch_size
 
-    assert sum(len(x.item_ids) for x in
+    assert sum(len(x) for x in
                interactions.minibatches(batch_size=minibatch_size)) == len(interactions)
 
 
@@ -100,7 +100,7 @@ def test_minibatching_movielens(minibatch_size):
     for minibatch in interactions.minibatches(batch_size=minibatch_size):
         assert len(minibatch.item_ids) <= minibatch_size
 
-    assert sum(len(x.item_ids) for x in
+    assert sum(len(x) for x in
                interactions.minibatches(batch_size=minibatch_size)) == len(interactions)
 
 

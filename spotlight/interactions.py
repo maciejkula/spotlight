@@ -9,6 +9,8 @@ import scipy.sparse as sp
 
 import torch
 
+from torch.autograd import Variable
+
 from spotlight.helpers import iter_none, make_tuple
 from spotlight.torch_utils import gpu, minibatch
 
@@ -58,6 +60,36 @@ def _tensor_or_none(arg, use_cuda):
         return tuple(gpu(torch.from_numpy(x), use_cuda) for x in arg)
     else:
         return gpu(torch.from_numpy(arg), use_cuda)
+
+
+def _variable_or_none(arg):
+
+    if arg is None:
+        return None
+    elif isinstance(arg, tuple):
+        return tuple(Variable(x) for x in arg)
+    else:
+        return Variable(arg)
+
+
+def _dim_or_zero(arg, axis=1):
+
+    if arg is None:
+        return 0
+    elif isinstance(arg, tuple):
+        return sum(x.shape[axis] for x in arg)
+    else:
+        return arg.shape[axis]
+
+
+def _float_or_none(arg):
+
+    if arg is None:
+        return None
+    elif isinstance(arg, tuple):
+        return (x.astype(np.float32) for x in arg)
+    else:
+        return arg.astype(np.float32)
 
 
 class Interactions(object):
@@ -132,13 +164,13 @@ class Interactions(object):
 
         self.user_ids = user_ids.astype(np.int64)
         self.item_ids = item_ids.astype(np.int64)
-        self.ratings = ratings
+        self.ratings = _float_or_none(ratings)
         self.timestamps = timestamps
-        self.weights = weights
+        self.weights = _float_or_none(weights)
 
-        self.user_features = user_features
-        self.item_features = item_features
-        self.context_features = context_features
+        self.user_features = _float_or_none(user_features)
+        self.item_features = _float_or_none(item_features)
+        self.context_features = _float_or_none(context_features)
 
         self._check()
 
@@ -236,9 +268,17 @@ class Interactions(object):
                 timestamps=timestamps_batch,
                 weights=weights_batch,
                 user_features=_slice_or_none(user_features, uids_batch),
-                item_features=_slice_or_none(item_features, iids_batch),
+                item_features=item_features,
                 context_features=cf_batch
             )
+
+    def num_context_features(self):
+
+        return _dim_or_zero(self.user_features) + _dim_or_zero(self.context_features)
+
+    def num_item_features(self):
+
+        return _dim_or_zero(self.item_features)
 
     def tocoo(self):
         """
@@ -370,15 +410,26 @@ class InteractionsMinibatch(object):
                  item_features=None,
                  context_features=None):
 
-        self.user_ids = user_ids
-        self.item_ids = item_ids
-        self.ratings = ratings
-        self.timestamps = timestamps
-        self.weights = weights
+        self.user_ids = _variable_or_none(user_ids)
+        self.item_ids = _variable_or_none(item_ids)
+        self.ratings = _variable_or_none(ratings)
+        self.timestamps = _variable_or_none(timestamps)
+        self.weights = _variable_or_none(weights)
 
-        self.user_features = user_features
+        self.user_features = _variable_or_none(user_features)
         self.item_features = item_features
-        self.context_features = context_features
+        self.context_features = _variable_or_none(context_features)
+
+    def get_item_features(self, item_ids):
+
+        if isinstance(item_ids, Variable):
+            item_ids = item_ids.data
+
+        return _variable_or_none(_slice_or_none(self.item_features, item_ids))
+
+    def __len__(self):
+
+        return len(self.user_ids)
 
 
 class SequenceInteractions(object):

@@ -68,3 +68,18 @@ def set_seed(seed, cuda=False):
 
     if cuda:
         torch.cuda.manual_seed(seed)
+
+
+def concatenate(tensors, axis=0):
+
+    inputs = []
+
+    for tensor in tensors:
+        if tensor is None:
+            continue
+        elif isinstance(tensor, tuple()):
+            inputs.extend(tensor)
+        else:
+            inputs.append(tensor)
+
+    return torch.cat(inputs, dim=axis)
