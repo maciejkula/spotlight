@@ -12,7 +12,7 @@ import torch
 from torch.autograd import Variable
 
 from spotlight.helpers import iter_none, make_tuple
-from spotlight.torch_utils import gpu, minibatch
+from spotlight.torch_utils import gpu, grouped_minibatch, minibatch
 
 
 def _sliding_window(tensor, window_size, step_size=1):
@@ -227,6 +227,15 @@ class Interactions(object):
                                  'must be equal to number of interactions'
                                  .format(name))
 
+    def _sort(self, indices):
+
+        self.user_ids = self.user_ids[indices]
+        self.item_ids = self.item_ids[indices]
+        self.ratings = _slice_or_none(self.ratings, indices)
+        self.timestamps = _slice_or_none(self.timestamps, indices)
+        self.weights = _slice_or_none(self.timestamps, indices)
+        self.context_features = _slice_or_none(self.context_features, indices)
+
     def shuffle(self, random_state=None):
 
         if random_state is None:
@@ -235,12 +244,7 @@ class Interactions(object):
         shuffle_indices = np.arange(len(self.user_ids))
         random_state.shuffle(shuffle_indices)
 
-        self.user_ids = self.user_ids[shuffle_indices]
-        self.item_ids = self.item_ids[shuffle_indices]
-        self.ratings = _slice_or_none(self.ratings, shuffle_indices)
-        self.timestamps = _slice_or_none(self.timestamps, shuffle_indices)
-        self.weights = _slice_or_none(self.timestamps, shuffle_indices)
-        self.context_features = _slice_or_none(self.context_features, shuffle_indices)
+        self._sort(shuffle_indices)
 
     def minibatches(self, use_cuda=False, batch_size=128):
 
@@ -271,6 +275,45 @@ class Interactions(object):
                 item_features=item_features,
                 context_features=cf_batch
             )
+
+    def contexts(self, use_cuda=False):
+
+        if self.num_context_features():
+            for batch in self.minibatches(use_cuda=use_cuda, batch_size=1):
+                yield batch
+        else:
+            # Sort by user id
+            sort_indices = np.argsort(self.user_ids)
+            self._sort(sort_indices)
+
+            batch_generator = zip(*(grouped_minibatch(
+                self.user_ids,
+                *make_tuple(_tensor_or_none(attr, use_cuda)))
+                                    if attr is not None
+                                    else iter_none()
+                                    for attr in (self.user_ids,
+                                                 self.item_ids,
+                                                 self.ratings,
+                                                 self.timestamps,
+                                                 self.weights,
+                                                 self.context_features)))
+
+            user_features = _tensor_or_none(self.user_features, use_cuda)
+            item_features = _tensor_or_none(self.item_features, use_cuda)
+
+            for (uids_batch, iids_batch, ratings_batch, timestamps_batch,
+                 weights_batch, cf_batch) in batch_generator:
+
+                yield InteractionsMinibatch(
+                    user_ids=uids_batch,
+                    item_ids=iids_batch,
+                    ratings=ratings_batch,
+                    timestamps=timestamps_batch,
+                    weights=weights_batch,
+                    user_features=_slice_or_none(user_features, uids_batch),
+                    item_features=item_features,
+                    context_features=cf_batch
+                )
 
     def num_context_features(self):
 
