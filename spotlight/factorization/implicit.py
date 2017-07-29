@@ -16,9 +16,9 @@ from spotlight.losses import (adaptive_hinge_loss,
                               hinge_loss,
                               pointwise_loss)
 from spotlight.factorization.representations import (BilinearNet,
-                                                     HybridContainer,
-                                                     HybridContextNet,
-                                                     HybridItemNet)
+                                                     FeatureNet,
+                                                     HybridContainer)
+
 from spotlight.sampling import sample_items
 from spotlight.torch_utils import cpu, gpu, set_seed
 
@@ -126,21 +126,26 @@ class ImplicitFactorizationModel(object):
                                  self._embedding_dim,
                                  sparse=self._sparse)
 
+        if interactions.num_user_features():
+            user_net = FeatureNet(interactions.num_user_features(),
+                                  self._embedding_dim)
+        else:
+            user_net = None
+
         if interactions.num_context_features():
-            context_net = HybridContextNet(self._embedding_dim,
-                                           interactions.num_context_features(),
-                                           self._embedding_dim)
+            context_net = FeatureNet(interactions.num_context_features(),
+                                     self._embedding_dim)
         else:
             context_net = None
 
         if interactions.num_item_features():
-            item_net = HybridItemNet(self._embedding_dim,
-                                     interactions.num_item_features(),
-                                     self._embedding_dim)
+            item_net = FeatureNet(interactions.num_item_features(),
+                                  self._embedding_dim)
         else:
             item_net = None
 
         self._net = gpu(HybridContainer(latent_net,
+                                        user_net,
                                         context_net,
                                         item_net),
                         self._use_cuda)
