@@ -37,18 +37,21 @@ def mrr_score(model, test, train=None):
 
     mrrs = []
 
-    for minibatch in test.minibatches(batch_size=1):
+    item_ids = np.arange(test.num_items).astype(np.int64)
 
-        user_id = int(minibatch.user_ids[0].data.numpy())
-        item_id = int(minibatch.item_ids[0].data.numpy())
+    for context in test.contexts():
+
+        user_id = int(context.user_ids[0].data.numpy())
+        target_item_ids = context.item_ids[0].data.numpy()
         predictions = -model.predict(user_id,
-                                     user_features=minibatch.user_features,
-                                     context_features=minibatch.context_features,
-                                     item_features=minibatch.item_features)
+                                     item_ids,
+                                     user_features=context.user_features,
+                                     context_features=context.context_features,
+                                     item_features=context.item_features)
         if train is not None:
             predictions[train[user_id].indices] = FLOAT_MAX
 
-        mrr = (1.0 / st.rankdata(predictions)[item_id])
+        mrr = (1.0 / st.rankdata(predictions)[target_item_ids]).mean()
 
         mrrs.append(mrr)
 
