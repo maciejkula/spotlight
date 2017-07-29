@@ -4,6 +4,7 @@ factorization models.
 """
 
 import torch.nn as nn
+import torch.nn.functional as F
 
 from spotlight.layers import ScaledEmbedding, ZeroEmbedding
 from spotlight.torch_utils import concatenate
@@ -39,6 +40,24 @@ class HybridContainer(nn.Module):
                            item_representation, item_bias)
 
 
+class FeatureNet(nn.Module):
+
+    def __init__(self, input_dim, output_dim, bias=False):
+
+        super(FeatureNet, self).__init__()
+
+        self.input_dim = input_dim
+        self.output_dim = output_dim
+
+        self.fc_1 = nn.Linear(self.input_dim,
+                              self.output_dim,
+                              bias=bias)
+
+    def forward(self, features):
+
+        return self.fc_1(features)
+
+
 class HybridContextNet(nn.Module):
 
     def __init__(self, embedding_dim, num_context_features, output_dim):
@@ -49,16 +68,28 @@ class HybridContextNet(nn.Module):
         self.num_context_features = num_context_features
         self.output_dim = output_dim
 
-        self.fc_layer = nn.Linear(self.embedding_dim +
-                                  self.num_context_features,
-                                  output_dim)
+        self.fc_1 = nn.Linear(#self.embedding_dim +
+                              self.num_context_features,
+                              output_dim,
+                              bias=False)
 
     def forward(self, user_representation, user_features, context_features):
 
         inputs = (user_representation, user_features, context_features)
         x = concatenate(inputs, axis=1)
 
-        return self.fc_layer(x)
+        # x = F.tanh(self.fc_1(context_features))
+        #x = F.tanh(self.fc_1(context_features))
+        x = self.fc_1(context_features)
+
+        # assert False
+
+        return x + user_representation
+        # return x + user_representation
+        # return user_representation
+        return user_representation
+
+        # return F.tanh(self.fc_layer(context_features)) + user_representation
 
 
 class HybridItemNet(nn.Module):
