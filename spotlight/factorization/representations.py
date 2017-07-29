@@ -7,20 +7,25 @@ import torch.nn as nn
 import torch.nn.functional as F
 
 from spotlight.layers import ScaledEmbedding, ZeroEmbedding
-from spotlight.torch_utils import concatenate
 
 
 class HybridContainer(nn.Module):
 
-    def __init__(self, latent_module, context_module=None, item_module=None):
+    def __init__(self,
+                 latent_module,
+                 user_module=None,
+                 context_module=None,
+                 item_module=None):
 
         super(HybridContainer, self).__init__()
 
         self.latent = latent_module
+        self.user = user_module
         self.context = context_module
         self.item = item_module
 
-    def forward(self, user_ids, item_ids,
+    def forward(self, user_ids,
+                item_ids,
                 user_features=None,
                 context_features=None,
                 item_features=None):
@@ -28,23 +33,35 @@ class HybridContainer(nn.Module):
         user_representation, user_bias = self.latent.user_representation(user_ids)
         item_representation, item_bias = self.latent.item_representation(item_ids)
 
+        if self.user is not None:
+            user_representation += self.user(user_features)
         if self.context is not None:
-            user_representation = self.context(user_representation,
-                                               user_features,
-                                               context_features)
+            user_representation += self.context(context_features)
         if self.item is not None:
-            item_representation = self.item(item_representation,
-                                            item_features)
+            item_representation += self.item(item_features)
 
-        return self.latent(user_representation, user_bias,
-                           item_representation, item_bias)
+        dot = (user_representation * item_representation).sum(1)
+
+        return dot + user_bias + item_bias
 
 
 class FeatureNet(nn.Module):
 
-    def __init__(self, input_dim, output_dim, bias=False):
+    def __init__(self, input_dim, output_dim, bias=False, nonlinearity='tanh'):
 
         super(FeatureNet, self).__init__()
+
+        if nonlinearity == 'tanh':
+            self.nonlinearity = F.tanh
+        elif nonlinearity == 'relu':
+            self.nonlinearity = F.relu
+        elif nonlinearity == 'sigmoid':
+            self.nonlinearity = F.sigmoid
+        elif nonlinearity == 'linear':
+            self.nonlinearity = lambda x: x
+        else:
+            raise ValueError('Nonlineariy must be one of '
+                             '(tanh, relu, sigmoid, linear)')
 
         self.input_dim = input_dim
         self.output_dim = output_dim
@@ -55,63 +72,7 @@ class FeatureNet(nn.Module):
 
     def forward(self, features):
 
-        return self.fc_1(features)
-
-
-class HybridContextNet(nn.Module):
-
-    def __init__(self, embedding_dim, num_context_features, output_dim):
-
-        super(HybridContextNet, self).__init__()
-
-        self.embedding_dim = embedding_dim
-        self.num_context_features = num_context_features
-        self.output_dim = output_dim
-
-        self.fc_1 = nn.Linear(#self.embedding_dim +
-                              self.num_context_features,
-                              output_dim,
-                              bias=False)
-
-    def forward(self, user_representation, user_features, context_features):
-
-        inputs = (user_representation, user_features, context_features)
-        x = concatenate(inputs, axis=1)
-
-        # x = F.tanh(self.fc_1(context_features))
-        #x = F.tanh(self.fc_1(context_features))
-        x = self.fc_1(context_features)
-
-        # assert False
-
-        return x + user_representation
-        # return x + user_representation
-        # return user_representation
-        return user_representation
-
-        # return F.tanh(self.fc_layer(context_features)) + user_representation
-
-
-class HybridItemNet(nn.Module):
-
-    def __init__(self, embedding_dim, num_item_features, output_dim):
-
-        super(HybridItemNet, self).__init__()
-
-        self.embedding_dim = embedding_dim
-        self.num_item_features = num_item_features
-        self.output_dim = output_dim
-
-        self.fc_layer = nn.Linear(self.embedding_dim +
-                                  self.num_item_features,
-                                  output_dim)
-
-    def forward(self, item_representation, item_features):
-
-        inputs = (item_representation, item_features)
-        x = concatenate(inputs, axis=1)
-
-        return self.fc_layer(x)
+        return self.nonlinearity(self.fc_1(features))
 
 
 class BilinearNet(nn.Module):

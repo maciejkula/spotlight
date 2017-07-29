@@ -278,7 +278,7 @@ class Interactions(object):
 
     def contexts(self, use_cuda=False):
 
-        if self.num_context_features() or True:
+        if self.num_context_features():
             for batch in self.minibatches(use_cuda=use_cuda, batch_size=1):
                 yield batch
         else:
@@ -315,9 +315,13 @@ class Interactions(object):
                     context_features=cf_batch
                 )
 
+    def num_user_features(self):
+
+        return _dim_or_zero(self.user_features)
+
     def num_context_features(self):
 
-        return _dim_or_zero(self.user_features) + _dim_or_zero(self.context_features)
+        return _dim_or_zero(self.context_features)
 
     def num_item_features(self):
 
