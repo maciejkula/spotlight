@@ -6,7 +6,7 @@ import scipy.stats as st
 FLOAT_MAX = np.finfo(np.float32).max
 
 
-def mrr_score(model, test, train=None):
+def mrr_score(model, test, train=None, average_per_context=True):
     """
     Compute mean reciprocal rank (MRR) scores. One score
     is given for every user with interactions in the test
@@ -51,9 +51,12 @@ def mrr_score(model, test, train=None):
         if train is not None:
             predictions[train[user_id].indices] = FLOAT_MAX
 
-        mrr = (1.0 / st.rankdata(predictions)[target_item_ids]).mean()
+        mrr = (1.0 / st.rankdata(predictions)[target_item_ids])
 
-        mrrs.append(mrr)
+        if average_per_context:
+            mrrs.append(mrr.mean())
+        else:
+            mrrs.extend(mrr.tolist())
 
     return np.array(mrrs)
 
