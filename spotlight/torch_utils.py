@@ -3,6 +3,16 @@ import numpy as np
 import torch
 
 
+def _slice_or_none(arg, slc):
+
+    if arg is None:
+        return None
+    elif isinstance(arg, tuple):
+        return tuple(x[slc] for x in arg)
+    else:
+        return arg[slc]
+
+
 def gpu(tensor, gpu=False):
 
     if gpu:
@@ -31,6 +41,22 @@ def minibatch(*tensors, **kwargs):
     else:
         for i in range(0, length, batch_size):
             yield tuple(x[i:i + batch_size] for x in tensors)
+
+
+def grouped_minibatch(groupby_array, *tensors):
+
+    values, group_indices = np.unique(groupby_array, return_index=True)
+    group_indices = np.concatenate((group_indices, [len(groupby_array)]))
+
+    if len(tensors) == 1:
+        tensor = tensors[0]
+        for i in range(len(values)):
+            slc = slice(group_indices[i], group_indices[i + 1])
+            yield tensor[slc]
+    else:
+        for i in range(len(values)):
+            slc = slice(group_indices[i], group_indices[i + 1])
+            yield tuple(x[slc] for x in tensors)
 
 
 def shuffle(*arrays, **kwargs):

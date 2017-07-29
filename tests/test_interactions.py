@@ -187,3 +187,38 @@ def test_to_sequence_min_length():
     sequences = interactions.to_sequence(max_sequence_length=20,
                                          min_sequence_length=min_sequence_length)
     assert not np.any((sequences.sequences != 0).sum(axis=1) < min_sequence_length)
+
+
+def test_contexts_collaborative():
+
+    interactions = movielens.get_movielens_dataset('100K')
+
+    # Because this is a purely CF dataset, the number of contexts
+    # should be equal to the number of users.
+    assert sum(1 for _ in interactions.contexts()) == len(set(interactions.user_ids))
+
+    # The contexts should add up to the entire dataset.
+    assert sum(len(x) for x in interactions.contexts()) == len(interactions)
+
+    for context in interactions.contexts():
+        # There should only be one user in any context
+        assert len(set(context.user_ids.data)) == 1
+
+
+def test_contexts_hybrid():
+
+    interactions = synthetic.generate_content_based(num_users=10,
+                                                    num_items=15,
+                                                    num_user_features=3,
+                                                    num_interactions=1000)
+
+    # Because this is a hybrid dataset with context, the number of contexts
+    # should be equal to the number of total interactions.
+    assert sum(1 for _ in interactions.contexts()) == len(interactions)
+
+    # The contexts should add up to the entire dataset.
+    assert sum(len(x) for x in interactions.contexts()) == len(interactions)
+
+    for context in interactions.contexts():
+        # There should only be one user in any context
+        assert len(set(context.user_ids.data)) == 1
