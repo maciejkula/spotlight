@@ -42,7 +42,7 @@ def mrr_score(model, test, train=None, average_per_context=True):
     for context in test.contexts():
 
         user_id = int(context.user_ids[0].data.numpy())
-        target_item_ids = context.item_ids[0].data.numpy()
+        target_item_ids = context.item_ids.data.numpy()
         predictions = -model.predict(user_id,
                                      item_ids,
                                      user_features=context.user_features,
