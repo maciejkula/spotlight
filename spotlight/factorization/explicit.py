@@ -11,8 +11,11 @@ import torch.optim as optim
 from torch.autograd import Variable
 
 from spotlight.helpers import _repr_model
+
 from spotlight.factorization._components import _predict_process_ids
-from spotlight.factorization.representations import BilinearNet
+from spotlight.factorization.representations import (BilinearNet,
+                                                     FeatureNet,
+                                                     HybridContainer)
 from spotlight.losses import (regression_loss,
                               poisson_loss)
 from spotlight.torch_utils import cpu, gpu, set_seed
@@ -109,13 +112,34 @@ class ExplicitFactorizationModel(object):
          self._num_items) = (interactions.num_users,
                              interactions.num_items)
 
-        self._net = gpu(
-            BilinearNet(self._num_users,
-                        self._num_items,
-                        self._embedding_dim,
-                        sparse=self._sparse),
-            self._use_cuda
-        )
+        latent_net = BilinearNet(self._num_users,
+                                 self._num_items,
+                                 self._embedding_dim,
+                                 sparse=self._sparse)
+
+        if interactions.num_user_features():
+            user_net = FeatureNet(interactions.num_user_features(),
+                                  self._embedding_dim)
+        else:
+            user_net = None
+
+        if interactions.num_context_features():
+            context_net = FeatureNet(interactions.num_context_features(),
+                                     self._embedding_dim)
+        else:
+            context_net = None
+
+        if interactions.num_item_features():
+            item_net = FeatureNet(interactions.num_item_features(),
+                                  self._embedding_dim)
+        else:
+            item_net = None
+
+        self._net = gpu(HybridContainer(latent_net,
+                                        user_net,
+                                        context_net,
+                                        item_net),
+                        self._use_cuda)
 
         if self._optimizer_func is None:
             self._optimizer = optim.Adam(
@@ -190,7 +214,12 @@ class ExplicitFactorizationModel(object):
                                                                   batch_size=self._batch_size)):
 
                 predictions = self._net(minibatch.user_ids,
-                                        minibatch.item_ids)
+                                        minibatch.item_ids,
+                                        minibatch.user_features,
+                                        minibatch.context_features,
+                                        minibatch.get_item_features(
+                                            minibatch.item_ids
+                                        ))
 
                 if self._loss == 'poisson':
                     predictions = torch.exp(predictions)
@@ -208,7 +237,10 @@ class ExplicitFactorizationModel(object):
             if verbose:
                 print('Epoch {}: loss {}'.format(epoch_num, epoch_loss))
 
-    def predict(self, user_ids, item_ids=None):
+    def predict(self, user_ids, item_ids=None,
+                user_features=None,
+                context_features=None,
+                item_features=None):
         """
         Make predictions: given a user id, compute the recommendation
         scores for items.
