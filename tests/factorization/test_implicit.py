@@ -13,6 +13,14 @@ RANDOM_STATE = np.random.RandomState(42)
 CUDA = bool(os.environ.get('SPOTLIGHT_CUDA', False))
 
 
+def _min_max_scale(arr):
+
+    arr_min = arr.min()
+    arr_max = arr.max()
+
+    return (arr - arr_min) / (arr_max - arr_min)
+
+
 def test_pointwise():
 
     interactions = movielens.get_movielens_dataset('100K')
@@ -78,6 +86,30 @@ def test_bpr_custom_optimizer():
     mrr = mrr_score(model, test, train=train).mean()
 
     assert mrr > 0.05
+
+
+def test_bpr_hybrid():
+
+    interactions = movielens.get_movielens_dataset('100K')
+
+    normalized_timestamps = _min_max_scale(interactions.timestamps).reshape(-1, 1)
+
+    interactions.context_features = normalized_timestamps / 100
+
+    train, test = random_train_test_split(interactions,
+                                          random_state=RANDOM_STATE)
+
+    model = ImplicitFactorizationModel(loss='bpr',
+                                       n_iter=30,
+                                       batch_size=256,
+                                       learning_rate=1e-2,
+                                       l2=1e-6)
+    model.fit(train, verbose=True)
+    print(model)
+
+    mrr = mrr_score(model, test, train=train).mean()
+
+    assert mrr > 0.07
 
 
 def test_hinge():
