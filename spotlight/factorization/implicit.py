@@ -11,7 +11,8 @@ import torch.optim as optim
 from torch.autograd import Variable
 
 from spotlight.helpers import _repr_model
-from spotlight.factorization._components import _predict_process_ids
+from spotlight.factorization._components import (_predict_process_features,
+                                                 _predict_process_ids)
 from spotlight.losses import (adaptive_hinge_loss,
                               bpr_loss,
                               hinge_loss,
@@ -307,16 +308,18 @@ class ImplicitFactorizationModel(object):
                                                   self._num_items,
                                                   self._use_cuda)
 
-        if user_features is not None:
-            user_features = user_features.repeat(len(item_ids), 1)
-
-        if context_features is not None:
-            context_features = context_features.repeat(len(item_ids), 1)
+        (user_features,
+         context_features,
+         item_features) = _predict_process_features(user_features,
+                                                    context_features,
+                                                    item_features,
+                                                    len(item_ids),
+                                                    self._use_cuda)
 
         out = self._net(user_ids,
                         item_ids,
                         user_features,
                         context_features,
-                        Variable(item_features))
+                        item_features)
 
         return cpu(out.data).numpy().flatten()
