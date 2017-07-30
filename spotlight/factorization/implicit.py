@@ -11,6 +11,8 @@ import torch.optim as optim
 from torch.autograd import Variable
 
 from spotlight.helpers import _repr_model
+from spotlight.factorization._components import (_predict_process_features,
+                                                 _predict_process_ids)
 from spotlight.losses import (adaptive_hinge_loss,
                               bpr_loss,
                               hinge_loss,
@@ -298,30 +300,24 @@ class ImplicitFactorizationModel(object):
 
         self._net.train(False)
 
-        if item_ids is None:
-            item_ids = np.arange(self._num_items)
-
-        if isinstance(user_ids, int):
-            user_ids = np.repeat(user_ids, len(item_ids))
-
         self._check_input(user_ids, item_ids)
 
-        user_ids = torch.from_numpy(user_ids.reshape(-1, 1).astype(np.int64))
-        item_ids = torch.from_numpy(item_ids.reshape(-1, 1).astype(np.int64))
+        user_ids, item_ids = _predict_process_ids(user_ids, item_ids,
+                                                  self._num_items,
+                                                  self._use_cuda)
 
-        user_var = Variable(gpu(user_ids, self._use_cuda))
-        item_var = Variable(gpu(item_ids, self._use_cuda))
+        (user_features,
+         context_features,
+         item_features) = _predict_process_features(user_features,
+                                                    context_features,
+                                                    item_features,
+                                                    len(item_ids),
+                                                    self._use_cuda)
 
-        if user_features is not None:
-            user_features = user_features.repeat(len(item_ids), 1)
-
-        if context_features is not None:
-            context_features = context_features.repeat(len(item_ids), 1)
-
-        out = self._net(user_var,
-                        item_var,
+        out = self._net(user_ids,
+                        item_ids,
                         user_features,
                         context_features,
-                        Variable(item_features))
+                        item_features)
 
         return cpu(out.data).numpy().flatten()

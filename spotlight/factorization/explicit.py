@@ -8,9 +8,9 @@ import torch
 
 import torch.optim as optim
 
-from torch.autograd import Variable
-
 from spotlight.helpers import _repr_model
+from spotlight.factorization._components import (_predict_process_features,
+                                                 _predict_process_ids)
 from spotlight.factorization.representations import (BilinearNet,
                                                      FeatureNet,
                                                      HybridContainer)
@@ -232,7 +232,7 @@ class ExplicitFactorizationModel(object):
             if verbose:
                 print('Epoch {}: loss {}'.format(epoch_num, epoch_loss))
 
-    def predict(self, user_ids, item_ids,
+    def predict(self, user_ids, item_ids=None,
                 user_features=None,
                 context_features=None,
                 item_features=None):
@@ -263,13 +263,23 @@ class ExplicitFactorizationModel(object):
         self._check_input(user_ids, item_ids)
         self._net.train(False)
 
-        user_ids = torch.from_numpy(user_ids.reshape(-1, 1).astype(np.int64))
-        item_ids = torch.from_numpy(item_ids.reshape(-1, 1).astype(np.int64))
+        user_ids, item_ids = _predict_process_ids(user_ids, item_ids,
+                                                  self._num_items,
+                                                  self._use_cuda)
 
-        user_var = Variable(gpu(user_ids, self._use_cuda))
-        item_var = Variable(gpu(item_ids, self._use_cuda))
+        (user_features,
+         context_features,
+         item_features) = _predict_process_features(user_features,
+                                                    context_features,
+                                                    item_features,
+                                                    len(item_ids),
+                                                    self._use_cuda)
 
-        out = self._net(user_var, item_var)
+        out = self._net(user_ids,
+                        item_ids,
+                        user_features,
+                        context_features,
+                        item_features)
 
         if self._loss == 'poisson':
             out = torch.exp(out)

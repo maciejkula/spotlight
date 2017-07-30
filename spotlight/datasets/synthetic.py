@@ -161,10 +161,13 @@ def generate_content_based(num_users=100,
     noise = random_state.randn(num_interactions, num_items) * noise_stddev
     predictions = normalize(np.dot(context_representations, item_features.T))
     predictions += noise
+    ratings = predictions / predictions.mean()
     best_items = np.argmax(predictions, axis=1)
+    ratings = ratings[np.arange(len(predictions)), best_items].reshape(len(best_items))
 
     return Interactions(user_ids,
                         best_items,
+                        ratings=ratings,
                         timestamps=np.arange(num_interactions),
                         user_features=user_features,
                         item_features=item_features,

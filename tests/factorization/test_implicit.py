@@ -154,7 +154,7 @@ def test_adaptive_hinge():
 
 
 @pytest.mark.parametrize('use_features, expected_mrr', [
-    (False, 0.02),
+    (False, 0.01),
     (True, 0.11),
 ])
 def test_synthetic_hybrid(use_features, expected_mrr):
