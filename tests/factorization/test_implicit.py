@@ -66,7 +66,7 @@ def test_bpr_custom_optimizer():
     model = ImplicitFactorizationModel(loss='bpr',
                                        n_iter=10,
                                        batch_size=1024,
-                                       optimizer=adagrad_optimizer)
+                                       optimizer_func=adagrad_optimizer)
     model.fit(train)
 
     mrr = mrr_score(model, test, train=train).mean()
