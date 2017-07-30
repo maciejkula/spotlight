@@ -8,11 +8,9 @@ import torch
 
 import torch.optim as optim
 
-from torch.autograd import Variable
-
 from spotlight.helpers import _repr_model
-
-from spotlight.factorization._components import _predict_process_ids
+from spotlight.factorization._components import (_predict_process_features,
+                                                 _predict_process_ids)
 from spotlight.factorization.representations import (BilinearNet,
                                                      FeatureNet,
                                                      HybridContainer)
@@ -272,7 +270,19 @@ class ExplicitFactorizationModel(object):
                                                   self._num_items,
                                                   self._use_cuda)
 
-        out = self._net(user_ids, item_ids)
+        (user_features,
+         context_features,
+         item_features) = _predict_process_features(user_features,
+                                                    context_features,
+                                                    item_features,
+                                                    len(item_ids),
+                                                    self._use_cuda)
+
+        out = self._net(user_ids,
+                        item_ids,
+                        user_features,
+                        context_features,
+                        item_features)
 
         if self._loss == 'poisson':
             out = torch.exp(out)
