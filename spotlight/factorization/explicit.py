@@ -47,8 +47,10 @@ class ExplicitFactorizationModel(object):
         L2 loss penalty.
     learning_rate: float, optional
         Initial learning rate.
-    optimizer: instance of a PyTorch optimizer, optional
-        Overrides l2 and learning rate if supplied.
+    optimizer: function, optional
+        Function that takes in module parameters as the first argument and
+        returns an instance of a Pytorch optimizer. Overrides l2 and learning
+        rate if supplied. If no optimizer supplied, then use ADAM by default.
     use_cuda: boolean, optional
         Run the model on a GPU.
     sparse: boolean, optional
@@ -80,7 +82,7 @@ class ExplicitFactorizationModel(object):
         self._l2 = l2
         self._use_cuda = use_cuda
         self._sparse = sparse
-        self._optimizer = None
+        self._optimizer = optimizer
         self._random_state = random_state or np.random.RandomState()
 
         self._num_users = None
@@ -126,6 +128,8 @@ class ExplicitFactorizationModel(object):
                 weight_decay=self._l2,
                 lr=self._learning_rate
             )
+        else:
+            self._optimizer = self._optimizer(self._net.parameters())
 
         if self._loss == 'regression':
             loss_fnc = regression_loss
