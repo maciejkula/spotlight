@@ -24,6 +24,15 @@ Contents
    Sampling <sampling>
 
 
+Changelog
+=========
+
+.. toctree::
+   :maxdepth: 2
+
+   Changelog <changelog>
+
+
 Indices and tables
 ==================
 
