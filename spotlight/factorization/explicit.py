@@ -205,8 +205,10 @@ class ExplicitFactorizationModel(object):
             epoch_loss = 0.0
 
             for (minibatch_num,
-                 minibatch) in enumerate(interactions.minibatches(use_cuda=self._use_cuda,
-                                                                  batch_size=self._batch_size)):
+                 minibatch) in enumerate(interactions
+                                         .minibatches(batch_size=self._batch_size)):
+
+                minibatch = minibatch.torch(self._use_cuda).variable()
 
                 predictions = self._net(minibatch.user_ids,
                                         minibatch.item_ids,
