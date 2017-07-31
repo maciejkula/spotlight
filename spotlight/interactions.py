@@ -250,14 +250,9 @@ class Interactions(object):
 
         self._sort(shuffle_indices)
 
-    def minibatches(self, tensors=True, use_cuda=False, batch_size=128):
+    def minibatches(self, batch_size=128):
 
-        if tensors:
-            _tensor = _tensor_or_none
-        else:
-            _tensor = lambda x, _: x
-
-        batch_generator = zip(*(minibatch(*make_tuple(_tensor(attr, use_cuda)),
+        batch_generator = zip(*(minibatch(*make_tuple(attr),
                                           batch_size=batch_size)
                                 if attr is not None
                                 else iter_none()
@@ -268,8 +263,8 @@ class Interactions(object):
                                              self.weights,
                                              self.context_features)))
 
-        user_features = _tensor(self.user_features, use_cuda)
-        item_features = _tensor(self.item_features, use_cuda)
+        user_features = self.user_features
+        item_features = self.item_features
 
         for (uids_batch, iids_batch, ratings_batch, timestamps_batch,
              weights_batch, cf_batch) in batch_generator:
@@ -283,15 +278,12 @@ class Interactions(object):
                 user_features=_slice_or_none(user_features, uids_batch),
                 item_features=item_features,
                 context_features=cf_batch,
-                variables=tensors
             )
 
     def contexts(self):
 
         if self.num_context_features():
-            for batch in self.minibatches(tensors=False,
-                                          use_cuda=False,
-                                          batch_size=1):
+            for batch in self.minibatches(batch_size=1):
                 yield batch
         else:
             # Sort by user id
@@ -325,7 +317,6 @@ class Interactions(object):
                     user_features=_slice_or_none(user_features, uids_batch),
                     item_features=item_features,
                     context_features=cf_batch,
-                    variables=False
                 )
 
     def num_user_features(self):
@@ -468,30 +459,54 @@ class InteractionsMinibatch(object):
                  weights=None,
                  user_features=None,
                  item_features=None,
-                 context_features=None,
-                 variables=True):
+                 context_features=None):
 
-        if variables:
-            self._var_fnc = _variable_or_none
-        else:
-            self._var_fnc = lambda x: x
+        self.user_ids = user_ids
+        self.item_ids = item_ids
+        self.ratings = ratings
+        self.timestamps = timestamps
+        self.weights = weights
 
-        self.user_ids = self._var_fnc(user_ids)
-        self.item_ids = self._var_fnc(item_ids)
-        self.ratings = self._var_fnc(ratings)
-        self.timestamps = self._var_fnc(timestamps)
-        self.weights = self._var_fnc(weights)
-
-        self.user_features = self._var_fnc(user_features)
+        self.user_features = user_features
         self.item_features = item_features
-        self.context_features = self._var_fnc(context_features)
+        self.context_features = context_features
 
     def get_item_features(self, item_ids):
 
         if isinstance(item_ids, Variable):
             item_ids = item_ids.data
 
-        return self._var_fnc(_slice_or_none(self.item_features, item_ids))
+        return _slice_or_none(self.item_features, item_ids)
+
+    def torch(self, use_cuda=False):
+
+        fnc = lambda x: _tensor_or_none(x, use_cuda)
+
+        return InteractionsMinibatch(
+            user_ids=fnc(self.user_ids),
+            item_ids=fnc(self.item_ids),
+            ratings=fnc(self.ratings),
+            timestamps=fnc(self.timestamps),
+            weights=fnc(self.weights),
+            user_features=fnc(self.user_features),
+            item_features=fnc(self.item_features),
+            context_features=fnc(self.context_features)
+        )
+
+    def variable(self):
+
+        fnc = lambda x: _variable_or_none(x)
+
+        return InteractionsMinibatch(
+            user_ids=fnc(self.user_ids),
+            item_ids=fnc(self.item_ids),
+            ratings=fnc(self.ratings),
+            timestamps=fnc(self.timestamps),
+            weights=fnc(self.weights),
+            user_features=fnc(self.user_features),
+            item_features=fnc(self.item_features),
+            context_features=fnc(self.context_features)
+        )
 
     def __len__(self):
 
