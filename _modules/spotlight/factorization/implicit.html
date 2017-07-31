@@ -237,8 +237,10 @@
 <span class="sd">        L2 loss penalty.</span>
 <span class="sd">    learning_rate: float, optional</span>
 <span class="sd">        Initial learning rate.</span>
-<span class="sd">    optimizer: instance of a PyTorch optimizer, optional</span>
-<span class="sd">        Overrides l2 and learning rate if supplied.</span>
+<span class="sd">    optimizer_func: function, optional</span>
+<span class="sd">        Function that takes in module parameters as the first argument and</span>
+<span class="sd">        returns an instance of a Pytorch optimizer. Overrides l2 and learning</span>
+<span class="sd">        rate if supplied. If no optimizer supplied, then use ADAM by default.</span>
 <span class="sd">    use_cuda: boolean, optional</span>
 <span class="sd">        Run the model on a GPU.</span>
 <span class="sd">    sparse: boolean, optional</span>
@@ -254,7 +256,7 @@
                  <span class="n">batch_size</span><span class="o">=</span><span class="mi">256</span><span class="p">,</span>
                  <span class="n">l2</span><span class="o">=</span><span class="mf">0.0</span><span class="p">,</span>
                  <span class="n">learning_rate</span><span class="o">=</span><span class="mf">1e-2</span><span class="p">,</span>
-                 <span class="n">optimizer</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                 <span class="n">optimizer_func</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
                  <span class="n">use_cuda</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
                  <span class="n">sparse</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
                  <span class="n">random_state</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
@@ -272,12 +274,13 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">_l2</span> <span class="o">=</span> <span class="n">l2</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_use_cuda</span> <span class="o">=</span> <span class="n">use_cuda</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_sparse</span> <span class="o">=</span> <span class="n">sparse</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_optimizer</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_optimizer_func</span> <span class="o">=</span> <span class="n">optimizer_func</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_random_state</span> <span class="o">=</span> <span class="n">random_state</span> <span class="ow">or</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">RandomState</span><span class="p">()</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">_num_users</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_num_items</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_net</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_optimizer</span> <span class="o">=</span> <span class="kc">None</span>
 
         <span class="n">set_seed</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_random_state</span><span class="o">.</span><span class="n">randint</span><span class="p">(</span><span class="o">-</span><span class="mi">10</span><span class="o">**</span><span class="mi">8</span><span class="p">,</span> <span class="mi">10</span><span class="o">**</span><span class="mi">8</span><span class="p">),</span>
                  <span class="n">cuda</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_use_cuda</span><span class="p">)</span>
@@ -318,6 +321,8 @@
                 <span class="n">weight_decay</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_l2</span><span class="p">,</span>
                 <span class="n">lr</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_learning_rate</span>
             <span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_optimizer</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_optimizer_func</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_net</span><span class="o">.</span><span class="n">parameters</span><span class="p">())</span>
 
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_loss</span> <span class="o">==</span> <span class="s1">&#39;pointwise&#39;</span><span class="p">:</span>
             <span class="n">loss_fnc</span> <span class="o">=</span> <span class="n">pointwise_loss</span>
