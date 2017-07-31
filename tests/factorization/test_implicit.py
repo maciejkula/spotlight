@@ -1,4 +1,5 @@
 import numpy as np
+import torch
 
 from spotlight.cross_validation import random_train_test_split
 from spotlight.datasets import movielens
@@ -45,6 +46,32 @@ def test_bpr():
     mrr = mrr_score(model, test, train=train).mean()
 
     assert mrr > 0.07
+
+
+def test_bpr_custom_optimizer():
+
+    interactions = movielens.get_movielens_dataset('100K')
+
+    train, test = random_train_test_split(interactions,
+                                          random_state=RANDOM_STATE)
+
+    def adagrad_optimizer(model_params,
+                          lr=1e-2,
+                          weight_decay=1e-6):
+
+        return torch.optim.Adagrad(model_params,
+                                   lr=lr,
+                                   weight_decay=weight_decay)
+
+    model = ImplicitFactorizationModel(loss='bpr',
+                                       n_iter=10,
+                                       batch_size=1024,
+                                       optimizer_func=adagrad_optimizer)
+    model.fit(train)
+
+    mrr = mrr_score(model, test, train=train).mean()
+
+    assert mrr > 0.06
 
 
 def test_hinge():

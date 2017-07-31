@@ -47,8 +47,10 @@ class ImplicitSequenceModel(object):
         L2 loss penalty.
     learning_rate: float, optional
         Initial learning rate.
-    optimizer: instance of a PyTorch optimizer, optional
-        Overrides l2 and learning rate if supplied.
+    optimizer_func: function, optional
+        Function that takes in module parameters as the first argument and
+        returns an instance of a Pytorch optimizer. Overrides l2 and learning
+        rate if supplied. If no optimizer supplied, then use ADAM by default.
     use_cuda: boolean, optional
         Run the model on a GPU.
     sparse: boolean, optional
@@ -85,7 +87,7 @@ class ImplicitSequenceModel(object):
                  batch_size=256,
                  l2=0.0,
                  learning_rate=1e-2,
-                 optimizer=None,
+                 optimizer_func=None,
                  use_cuda=False,
                  sparse=False,
                  random_state=None):
@@ -109,11 +111,12 @@ class ImplicitSequenceModel(object):
         self._l2 = l2
         self._use_cuda = use_cuda
         self._sparse = sparse
-        self._optimizer = None
+        self._optimizer_func = optimizer_func
         self._random_state = random_state or np.random.RandomState()
 
         self._num_items = None
         self._net = None
+        self._optimizer = None
 
         set_seed(self._random_state.randint(-10**8, 10**8),
                  cuda=self._use_cuda)
@@ -160,6 +163,8 @@ class ImplicitSequenceModel(object):
                 weight_decay=self._l2,
                 lr=self._learning_rate
             )
+        else:
+            self._optimizer = self._optimizer_func(self._net.parameters())
 
         if self._loss == 'pointwise':
             loss_fnc = pointwise_loss
