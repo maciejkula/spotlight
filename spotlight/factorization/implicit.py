@@ -99,6 +99,7 @@ class ImplicitFactorizationModel(object):
         self._num_items = None
         self._net = None
         self._optimizer = None
+        self._loss_func = None
 
         set_seed(self._random_state.randint(-10**8, 10**8),
                  cuda=self._use_cuda)
@@ -106,6 +107,62 @@ class ImplicitFactorizationModel(object):
     def __repr__(self):
 
         return _repr_model(self)
+
+    @property
+    def _initialized(self):
+        return self._net is not None
+
+    def _initialize(self, interactions):
+
+        (self._num_users,
+         self._num_items) = (interactions.num_users,
+                             interactions.num_items)
+
+        self._net = gpu(
+            BilinearNet(self._num_users,
+                        self._num_items,
+                        self._embedding_dim,
+                        sparse=self._sparse),
+            self._use_cuda
+        )
+
+        if self._optimizer_func is None:
+            self._optimizer = optim.Adam(
+                self._net.parameters(),
+                weight_decay=self._l2,
+                lr=self._learning_rate
+            )
+        else:
+            self._optimizer = self._optimizer_func(self._net.parameters())
+
+        if self._loss == 'pointwise':
+            self._loss_func = pointwise_loss
+        elif self._loss == 'bpr':
+            self._loss_func = bpr_loss
+        elif self._loss == 'hinge':
+            self._loss_func = hinge_loss
+        else:
+            self._loss_func = adaptive_hinge_loss
+
+    def _check_input(self, user_ids, item_ids):
+
+        if isinstance(user_ids, int):
+            user_id_max = user_ids
+        else:
+            user_id_max = user_ids.max()
+
+        if user_id_max >= self._num_users:
+            raise ValueError('Maximum user id greater '
+                             'than number of users in model.')
+
+        if isinstance(item_ids, int):
+            item_id_max = item_ids
+        else:
+            item_id_max = item_ids.max()
+
+        if item_id_max >= self._num_items:
+            raise ValueError('Maximum item id greater '
+                             'than number of items in model.')
 
     def fit(self, interactions, verbose=False):
         """
@@ -121,35 +178,10 @@ class ImplicitFactorizationModel(object):
         user_ids = interactions.user_ids.astype(np.int64)
         item_ids = interactions.item_ids.astype(np.int64)
 
-        (self._num_users,
-         self._num_items) = (interactions.num_users,
-                             interactions.num_items)
+        if not self._initialized:
+            self._initialize(interactions)
 
-        self._net = gpu(
-            BilinearNet(self._num_users,
-                        self._num_items,
-                        self._embedding_dim,
-                        sparse=self._sparse),
-            self._use_cuda
-        )
-
-        if self._optimizer is None:
-            self._optimizer = optim.Adam(
-                self._net.parameters(),
-                weight_decay=self._l2,
-                lr=self._learning_rate
-            )
-        else:
-            self._optimizer = self._optimizer_func(self._net.parameters())
-
-        if self._loss == 'pointwise':
-            loss_fnc = pointwise_loss
-        elif self._loss == 'bpr':
-            loss_fnc = bpr_loss
-        elif self._loss == 'hinge':
-            loss_fnc = hinge_loss
-        else:
-            loss_fnc = adaptive_hinge_loss
+        self._check_input(user_ids, item_ids)
 
         for epoch_num in range(self._n_iter):
 
@@ -182,7 +214,7 @@ class ImplicitFactorizationModel(object):
 
                 self._optimizer.zero_grad()
 
-                loss = loss_fnc(positive_prediction, negative_prediction)
+                loss = self._loss_func(positive_prediction, negative_prediction)
                 epoch_loss += loss.data[0]
 
                 loss.backward()
@@ -236,6 +268,8 @@ class ImplicitFactorizationModel(object):
 
         if isinstance(user_ids, int):
             user_ids = np.repeat(user_ids, len(item_ids))
+
+        self._check_input(user_ids, item_ids)
 
         user_ids = torch.from_numpy(user_ids.reshape(-1, 1).astype(np.int64))
         item_ids = torch.from_numpy(item_ids.reshape(-1, 1).astype(np.int64))

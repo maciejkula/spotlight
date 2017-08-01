@@ -117,6 +117,7 @@ class ImplicitSequenceModel(object):
         self._num_items = None
         self._net = None
         self._optimizer = None
+        self._loss_func = None
 
         set_seed(self._random_state.randint(-10**8, 10**8),
                  cuda=self._use_cuda)
@@ -125,18 +126,11 @@ class ImplicitSequenceModel(object):
 
         return _repr_model(self)
 
-    def fit(self, interactions, verbose=False):
-        """
-        Fit the model.
+    @property
+    def _initialized(self):
+        return self._net is not None
 
-        Parameters
-        ----------
-
-        interactions: :class:`spotlight.interactions.SequenceInteractions`
-            The input sequence dataset.
-        """
-
-        sequences = interactions.sequences.astype(np.int64)
+    def _initialize(self, interactions):
 
         self._num_items = interactions.num_items
 
@@ -157,7 +151,7 @@ class ImplicitSequenceModel(object):
 
         self._net = gpu(self._net, self._use_cuda)
 
-        if self._optimizer is None:
+        if self._optimizer_func is None:
             self._optimizer = optim.Adam(
                 self._net.parameters(),
                 weight_decay=self._l2,
@@ -167,13 +161,42 @@ class ImplicitSequenceModel(object):
             self._optimizer = self._optimizer_func(self._net.parameters())
 
         if self._loss == 'pointwise':
-            loss_fnc = pointwise_loss
+            self._loss_func = pointwise_loss
         elif self._loss == 'bpr':
-            loss_fnc = bpr_loss
+            self._loss_func = bpr_loss
         elif self._loss == 'hinge':
-            loss_fnc = hinge_loss
+            self._loss_func = hinge_loss
         else:
-            loss_fnc = adaptive_hinge_loss
+            self._loss_func = adaptive_hinge_loss
+
+    def _check_input(self, item_ids):
+
+        if isinstance(item_ids, int):
+            item_id_max = item_ids
+        else:
+            item_id_max = item_ids.max()
+
+        if item_id_max >= self._num_items:
+            raise ValueError('Maximum item id greater '
+                             'than number of items in model.')
+
+    def fit(self, interactions, verbose=False):
+        """
+        Fit the model.
+
+        Parameters
+        ----------
+
+        interactions: :class:`spotlight.interactions.SequenceInteractions`
+            The input sequence dataset.
+        """
+
+        sequences = interactions.sequences.astype(np.int64)
+
+        if not self._initialized:
+            self._initialize(interactions)
+
+        self._check_input(sequences)
 
         for epoch_num in range(self._n_iter):
 
@@ -207,9 +230,9 @@ class ImplicitSequenceModel(object):
 
                 self._optimizer.zero_grad()
 
-                loss = loss_fnc(positive_prediction,
-                                negative_prediction,
-                                mask=(sequence_var != PADDING_IDX))
+                loss = self._loss_func(positive_prediction,
+                                       negative_prediction,
+                                       mask=(sequence_var != PADDING_IDX))
                 epoch_loss += loss.data[0]
 
                 loss.backward()
@@ -261,6 +284,9 @@ class ImplicitSequenceModel(object):
 
         if item_ids is None:
             item_ids = np.arange(self._num_items).reshape(-1, 1)
+
+        self._check_input(item_ids)
+        self._check_input(sequences)
 
         sequences = torch.from_numpy(sequences.astype(np.int64).reshape(1, -1))
         item_ids = torch.from_numpy(item_ids.astype(np.int64))
