@@ -11,6 +11,7 @@ import torch.optim as optim
 from torch.autograd import Variable
 
 from spotlight.helpers import _repr_model
+from spotlight.factorization._components import _predict_process_ids
 from spotlight.losses import (adaptive_hinge_loss,
                               bpr_loss,
                               hinge_loss,
@@ -144,7 +145,7 @@ class ImplicitFactorizationModel(object):
         else:
             self._loss_func = adaptive_hinge_loss
 
-    def _check_input(self, user_ids, item_ids):
+    def _check_input(self, user_ids, item_ids, allow_items_none=False):
 
         if isinstance(user_ids, int):
             user_id_max = user_ids
@@ -154,6 +155,9 @@ class ImplicitFactorizationModel(object):
         if user_id_max >= self._num_users:
             raise ValueError('Maximum user id greater '
                              'than number of users in model.')
+
+        if allow_items_none and item_ids is None:
+            return
 
         if isinstance(item_ids, int):
             item_id_max = item_ids
@@ -267,20 +271,13 @@ class ImplicitFactorizationModel(object):
             Predicted scores for all items in item_ids.
         """
 
-        if item_ids is None:
-            item_ids = np.arange(self._num_items)
+        self._check_input(user_ids, item_ids, allow_items_none=True)
+        self._net.train(False)
 
-        if isinstance(user_ids, int):
-            user_ids = np.repeat(user_ids, len(item_ids))
+        user_ids, item_ids = _predict_process_ids(user_ids, item_ids,
+                                                  self._num_items,
+                                                  self._use_cuda)
 
-        self._check_input(user_ids, item_ids)
-
-        user_ids = torch.from_numpy(user_ids.reshape(-1, 1).astype(np.int64))
-        item_ids = torch.from_numpy(item_ids.reshape(-1, 1).astype(np.int64))
-
-        user_var = Variable(gpu(user_ids, self._use_cuda))
-        item_var = Variable(gpu(item_ids, self._use_cuda))
-
-        out = self._net(user_var, item_var)
+        out = self._net(user_ids, item_ids)
 
         return cpu(out.data).numpy().flatten()

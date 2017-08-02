@@ -11,6 +11,7 @@ import torch.optim as optim
 from torch.autograd import Variable
 
 from spotlight.helpers import _repr_model
+from spotlight.factorization._components import _predict_process_ids
 from spotlight.factorization.representations import BilinearNet
 from spotlight.losses import (regression_loss,
                               poisson_loss)
@@ -132,7 +133,7 @@ class ExplicitFactorizationModel(object):
         else:
             raise ValueError('Unknown loss: {}'.format(self._loss))
 
-    def _check_input(self, user_ids, item_ids):
+    def _check_input(self, user_ids, item_ids, allow_items_none=False):
 
         if isinstance(user_ids, int):
             user_id_max = user_ids
@@ -142,6 +143,9 @@ class ExplicitFactorizationModel(object):
         if user_id_max >= self._num_users:
             raise ValueError('Maximum user id greater '
                              'than number of users in model.')
+
+        if allow_items_none and item_ids is None:
+            return
 
         if isinstance(item_ids, int):
             item_id_max = item_ids
@@ -221,7 +225,7 @@ class ExplicitFactorizationModel(object):
             if verbose:
                 print('Epoch {}: loss {}'.format(epoch_num, epoch_loss))
 
-    def predict(self, user_ids, item_ids):
+    def predict(self, user_ids, item_ids=None):
         """
         Make predictions: given a user id, compute the recommendation
         scores for items.
@@ -246,15 +250,14 @@ class ExplicitFactorizationModel(object):
             Predicted scores for all items in item_ids.
         """
 
-        self._check_input(user_ids, item_ids)
+        self._check_input(user_ids, item_ids, allow_items_none=True)
+        self._net.train(False)
 
-        user_ids = torch.from_numpy(user_ids.reshape(-1, 1).astype(np.int64))
-        item_ids = torch.from_numpy(item_ids.reshape(-1, 1).astype(np.int64))
+        user_ids, item_ids = _predict_process_ids(user_ids, item_ids,
+                                                  self._num_items,
+                                                  self._use_cuda)
 
-        user_var = Variable(gpu(user_ids, self._use_cuda))
-        item_var = Variable(gpu(item_ids, self._use_cuda))
-
-        out = self._net(user_var, item_var)
+        out = self._net(user_ids, item_ids)
 
         if self._loss == 'poisson':
             out = torch.exp(out)
