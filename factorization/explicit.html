@@ -239,6 +239,9 @@ rate if supplied. If no optimizer supplied, then use ADAM by default.</li>
 <dt id="spotlight.factorization.explicit.ExplicitFactorizationModel.fit">
 <code class="descname">fit</code><span class="sig-paren">(</span><em>interactions</em>, <em>verbose=False</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/spotlight/factorization/explicit.html#ExplicitFactorizationModel.fit"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#spotlight.factorization.explicit.ExplicitFactorizationModel.fit" title="Permalink to this definition">¶</a></dt>
 <dd><p>Fit the model.</p>
+<p>When called repeatedly, model fitting will resume from
+the point at which training stopped in the previous fit
+call.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />

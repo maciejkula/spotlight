@@ -195,7 +195,8 @@
 <div class="section" id="changed">
 <h3>Changed<a class="headerlink" href="#changed" title="Permalink to this headline">¶</a></h3>
 <ul class="simple">
-<li><code class="docutils literal"><span class="pre">optimizer</span></code> arguments is now <code class="docutils literal"><span class="pre">optimizer_func</span></code>. It accepts a function that takes a single argument (list of model parameters) and return a PyTorch optimizer.</li>
+<li><code class="docutils literal"><span class="pre">optimizer</span></code> arguments is now <code class="docutils literal"><span class="pre">optimizer_func</span></code>. It accepts a function that takes a single argument (list of model parameters) and return a PyTorch optimizer (thanks to Ethan Rosenthal).</li>
+<li><code class="docutils literal"><span class="pre">fit</span></code> calls will resume from previous model state when called repeatedly (Ethan Rosenthal).</li>
 </ul>
 </div>
 </div>
