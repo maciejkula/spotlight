@@ -170,7 +170,7 @@ class ImplicitFactorizationModel(object):
         else:
             self._loss_func = adaptive_hinge_loss
 
-    def _check_input(self, user_ids, item_ids):
+    def _check_input(self, user_ids, item_ids, allow_items_none=False):
 
         if isinstance(user_ids, int):
             user_id_max = user_ids
@@ -180,6 +180,9 @@ class ImplicitFactorizationModel(object):
         if user_id_max >= self._num_users:
             raise ValueError('Maximum user id greater '
                              'than number of users in model.')
+
+        if allow_items_none and item_ids is None:
+            return
 
         if isinstance(item_ids, int):
             item_id_max = item_ids
@@ -300,9 +303,8 @@ class ImplicitFactorizationModel(object):
             Predicted scores for all items in item_ids.
         """
 
+        self._check_input(user_ids, item_ids, allow_items_none=True)
         self._net.train(False)
-
-        self._check_input(user_ids, item_ids)
 
         user_ids, item_ids = _predict_process_ids(user_ids, item_ids,
                                                   self._num_items,
