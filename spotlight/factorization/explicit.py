@@ -156,6 +156,10 @@ class ExplicitFactorizationModel(object):
         """
         Fit the model.
 
+        When called repeatedly, model fitting will resume from
+        the point at which training stopped in the previous fit
+        call.
+
         Parameters
         ----------
 
