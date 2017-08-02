@@ -290,6 +290,7 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">_num_items</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_net</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_optimizer</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_loss_func</span> <span class="o">=</span> <span class="kc">None</span>
 
         <span class="n">set_seed</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_random_state</span><span class="o">.</span><span class="n">randint</span><span class="p">(</span><span class="o">-</span><span class="mi">10</span><span class="o">**</span><span class="mi">8</span><span class="p">,</span> <span class="mi">10</span><span class="o">**</span><span class="mi">8</span><span class="p">),</span>
                  <span class="n">cuda</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_use_cuda</span><span class="p">)</span>
@@ -297,6 +298,62 @@
     <span class="k">def</span> <span class="nf">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 
         <span class="k">return</span> <span class="n">_repr_model</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">_initialized</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_net</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
+
+    <span class="k">def</span> <span class="nf">_initialize</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">interactions</span><span class="p">):</span>
+
+        <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_num_users</span><span class="p">,</span>
+         <span class="bp">self</span><span class="o">.</span><span class="n">_num_items</span><span class="p">)</span> <span class="o">=</span> <span class="p">(</span><span class="n">interactions</span><span class="o">.</span><span class="n">num_users</span><span class="p">,</span>
+                             <span class="n">interactions</span><span class="o">.</span><span class="n">num_items</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_net</span> <span class="o">=</span> <span class="n">gpu</span><span class="p">(</span>
+            <span class="n">BilinearNet</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_num_users</span><span class="p">,</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">_num_items</span><span class="p">,</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">_embedding_dim</span><span class="p">,</span>
+                        <span class="n">sparse</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_sparse</span><span class="p">),</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_use_cuda</span>
+        <span class="p">)</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_optimizer_func</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_optimizer</span> <span class="o">=</span> <span class="n">optim</span><span class="o">.</span><span class="n">Adam</span><span class="p">(</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_net</span><span class="o">.</span><span class="n">parameters</span><span class="p">(),</span>
+                <span class="n">weight_decay</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_l2</span><span class="p">,</span>
+                <span class="n">lr</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_learning_rate</span>
+            <span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_optimizer</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_optimizer_func</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_net</span><span class="o">.</span><span class="n">parameters</span><span class="p">())</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_loss</span> <span class="o">==</span> <span class="s1">&#39;pointwise&#39;</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_loss_func</span> <span class="o">=</span> <span class="n">pointwise_loss</span>
+        <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">_loss</span> <span class="o">==</span> <span class="s1">&#39;bpr&#39;</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_loss_func</span> <span class="o">=</span> <span class="n">bpr_loss</span>
+        <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">_loss</span> <span class="o">==</span> <span class="s1">&#39;hinge&#39;</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_loss_func</span> <span class="o">=</span> <span class="n">hinge_loss</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_loss_func</span> <span class="o">=</span> <span class="n">adaptive_hinge_loss</span>
+
+    <span class="k">def</span> <span class="nf">_check_input</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">user_ids</span><span class="p">,</span> <span class="n">item_ids</span><span class="p">):</span>
+
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">user_ids</span><span class="p">,</span> <span class="nb">int</span><span class="p">):</span>
+            <span class="n">user_id_max</span> <span class="o">=</span> <span class="n">user_ids</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">user_id_max</span> <span class="o">=</span> <span class="n">user_ids</span><span class="o">.</span><span class="n">max</span><span class="p">()</span>
+
+        <span class="k">if</span> <span class="n">user_id_max</span> <span class="o">&gt;=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_num_users</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;Maximum user id greater &#39;</span>
+                             <span class="s1">&#39;than number of users in model.&#39;</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">item_ids</span><span class="p">,</span> <span class="nb">int</span><span class="p">):</span>
+            <span class="n">item_id_max</span> <span class="o">=</span> <span class="n">item_ids</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">item_id_max</span> <span class="o">=</span> <span class="n">item_ids</span><span class="o">.</span><span class="n">max</span><span class="p">()</span>
+
+        <span class="k">if</span> <span class="n">item_id_max</span> <span class="o">&gt;=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_num_items</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;Maximum item id greater &#39;</span>
+                             <span class="s1">&#39;than number of items in model.&#39;</span><span class="p">)</span>
 
 <div class="viewcode-block" id="ImplicitFactorizationModel.fit"><a class="viewcode-back" href="../../../factorization/implicit.html#spotlight.factorization.implicit.ImplicitFactorizationModel.fit">[docs]</a>    <span class="k">def</span> <span class="nf">fit</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">interactions</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
@@ -312,35 +369,10 @@
         <span class="n">user_ids</span> <span class="o">=</span> <span class="n">interactions</span><span class="o">.</span><span class="n">user_ids</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">int64</span><span class="p">)</span>
         <span class="n">item_ids</span> <span class="o">=</span> <span class="n">interactions</span><span class="o">.</span><span class="n">item_ids</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">int64</span><span class="p">)</span>
 
-        <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_num_users</span><span class="p">,</span>
-         <span class="bp">self</span><span class="o">.</span><span class="n">_num_items</span><span class="p">)</span> <span class="o">=</span> <span class="p">(</span><span class="n">interactions</span><span class="o">.</span><span class="n">num_users</span><span class="p">,</span>
-                             <span class="n">interactions</span><span class="o">.</span><span class="n">num_items</span><span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">_initialized</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_initialize</span><span class="p">(</span><span class="n">interactions</span><span class="p">)</span>
 
-        <span class="bp">self</span><span class="o">.</span><span class="n">_net</span> <span class="o">=</span> <span class="n">gpu</span><span class="p">(</span>
-            <span class="n">BilinearNet</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_num_users</span><span class="p">,</span>
-                        <span class="bp">self</span><span class="o">.</span><span class="n">_num_items</span><span class="p">,</span>
-                        <span class="bp">self</span><span class="o">.</span><span class="n">_embedding_dim</span><span class="p">,</span>
-                        <span class="n">sparse</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_sparse</span><span class="p">),</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">_use_cuda</span>
-        <span class="p">)</span>
-
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_optimizer</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">_optimizer</span> <span class="o">=</span> <span class="n">optim</span><span class="o">.</span><span class="n">Adam</span><span class="p">(</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">_net</span><span class="o">.</span><span class="n">parameters</span><span class="p">(),</span>
-                <span class="n">weight_decay</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_l2</span><span class="p">,</span>
-                <span class="n">lr</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_learning_rate</span>
-            <span class="p">)</span>
-        <span class="k">else</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">_optimizer</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_optimizer_func</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_net</span><span class="o">.</span><span class="n">parameters</span><span class="p">())</span>
-
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_loss</span> <span class="o">==</span> <span class="s1">&#39;pointwise&#39;</span><span class="p">:</span>
-            <span class="n">loss_fnc</span> <span class="o">=</span> <span class="n">pointwise_loss</span>
-        <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">_loss</span> <span class="o">==</span> <span class="s1">&#39;bpr&#39;</span><span class="p">:</span>
-            <span class="n">loss_fnc</span> <span class="o">=</span> <span class="n">bpr_loss</span>
-        <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">_loss</span> <span class="o">==</span> <span class="s1">&#39;hinge&#39;</span><span class="p">:</span>
-            <span class="n">loss_fnc</span> <span class="o">=</span> <span class="n">hinge_loss</span>
-        <span class="k">else</span><span class="p">:</span>
-            <span class="n">loss_fnc</span> <span class="o">=</span> <span class="n">adaptive_hinge_loss</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_check_input</span><span class="p">(</span><span class="n">user_ids</span><span class="p">,</span> <span class="n">item_ids</span><span class="p">)</span>
 
         <span class="k">for</span> <span class="n">epoch_num</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_n_iter</span><span class="p">):</span>
 
@@ -373,7 +405,7 @@
 
                 <span class="bp">self</span><span class="o">.</span><span class="n">_optimizer</span><span class="o">.</span><span class="n">zero_grad</span><span class="p">()</span>
 
-                <span class="n">loss</span> <span class="o">=</span> <span class="n">loss_fnc</span><span class="p">(</span><span class="n">positive_prediction</span><span class="p">,</span> <span class="n">negative_prediction</span><span class="p">)</span>
+                <span class="n">loss</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_loss_func</span><span class="p">(</span><span class="n">positive_prediction</span><span class="p">,</span> <span class="n">negative_prediction</span><span class="p">)</span>
                 <span class="n">epoch_loss</span> <span class="o">+=</span> <span class="n">loss</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
 
                 <span class="n">loss</span><span class="o">.</span><span class="n">backward</span><span class="p">()</span>
@@ -427,6 +459,8 @@
 
         <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">user_ids</span><span class="p">,</span> <span class="nb">int</span><span class="p">):</span>
             <span class="n">user_ids</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">repeat</span><span class="p">(</span><span class="n">user_ids</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">item_ids</span><span class="p">))</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_check_input</span><span class="p">(</span><span class="n">user_ids</span><span class="p">,</span> <span class="n">item_ids</span><span class="p">)</span>
 
         <span class="n">user_ids</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">from_numpy</span><span class="p">(</span><span class="n">user_ids</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">int64</span><span class="p">))</span>
         <span class="n">item_ids</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">from_numpy</span><span class="p">(</span><span class="n">item_ids</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">int64</span><span class="p">))</span>

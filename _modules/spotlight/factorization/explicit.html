@@ -280,6 +280,7 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">_num_items</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_net</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_optimizer</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_loss_func</span> <span class="o">=</span> <span class="kc">None</span>
 
         <span class="n">set_seed</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_random_state</span><span class="o">.</span><span class="n">randint</span><span class="p">(</span><span class="o">-</span><span class="mi">10</span><span class="o">**</span><span class="mi">8</span><span class="p">,</span> <span class="mi">10</span><span class="o">**</span><span class="mi">8</span><span class="p">),</span>
                  <span class="n">cuda</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_use_cuda</span><span class="p">)</span>
@@ -288,19 +289,11 @@
 
         <span class="k">return</span> <span class="n">_repr_model</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
 
-<div class="viewcode-block" id="ExplicitFactorizationModel.fit"><a class="viewcode-back" href="../../../factorization/explicit.html#spotlight.factorization.explicit.ExplicitFactorizationModel.fit">[docs]</a>    <span class="k">def</span> <span class="nf">fit</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">interactions</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Fit the model.</span>
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">_initialized</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_net</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
 
-<span class="sd">        Parameters</span>
-<span class="sd">        ----------</span>
-
-<span class="sd">        interactions: :class:`spotlight.interactions.Interactions`</span>
-<span class="sd">            The input dataset. Must have ratings.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
-
-        <span class="n">user_ids</span> <span class="o">=</span> <span class="n">interactions</span><span class="o">.</span><span class="n">user_ids</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">int64</span><span class="p">)</span>
-        <span class="n">item_ids</span> <span class="o">=</span> <span class="n">interactions</span><span class="o">.</span><span class="n">item_ids</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">int64</span><span class="p">)</span>
+    <span class="k">def</span> <span class="nf">_initialize</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">interactions</span><span class="p">):</span>
 
         <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_num_users</span><span class="p">,</span>
          <span class="bp">self</span><span class="o">.</span><span class="n">_num_items</span><span class="p">)</span> <span class="o">=</span> <span class="p">(</span><span class="n">interactions</span><span class="o">.</span><span class="n">num_users</span><span class="p">,</span>
@@ -324,11 +317,50 @@
             <span class="bp">self</span><span class="o">.</span><span class="n">_optimizer</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_optimizer_func</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_net</span><span class="o">.</span><span class="n">parameters</span><span class="p">())</span>
 
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_loss</span> <span class="o">==</span> <span class="s1">&#39;regression&#39;</span><span class="p">:</span>
-            <span class="n">loss_fnc</span> <span class="o">=</span> <span class="n">regression_loss</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_loss_func</span> <span class="o">=</span> <span class="n">regression_loss</span>
         <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">_loss</span> <span class="o">==</span> <span class="s1">&#39;poisson&#39;</span><span class="p">:</span>
-            <span class="n">loss_fnc</span> <span class="o">=</span> <span class="n">poisson_loss</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_loss_func</span> <span class="o">=</span> <span class="n">poisson_loss</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;Unknown loss: </span><span class="si">{}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_loss</span><span class="p">))</span>
+
+    <span class="k">def</span> <span class="nf">_check_input</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">user_ids</span><span class="p">,</span> <span class="n">item_ids</span><span class="p">):</span>
+
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">user_ids</span><span class="p">,</span> <span class="nb">int</span><span class="p">):</span>
+            <span class="n">user_id_max</span> <span class="o">=</span> <span class="n">user_ids</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">user_id_max</span> <span class="o">=</span> <span class="n">user_ids</span><span class="o">.</span><span class="n">max</span><span class="p">()</span>
+
+        <span class="k">if</span> <span class="n">user_id_max</span> <span class="o">&gt;=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_num_users</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;Maximum user id greater &#39;</span>
+                             <span class="s1">&#39;than number of users in model.&#39;</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">item_ids</span><span class="p">,</span> <span class="nb">int</span><span class="p">):</span>
+            <span class="n">item_id_max</span> <span class="o">=</span> <span class="n">item_ids</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">item_id_max</span> <span class="o">=</span> <span class="n">item_ids</span><span class="o">.</span><span class="n">max</span><span class="p">()</span>
+
+        <span class="k">if</span> <span class="n">item_id_max</span> <span class="o">&gt;=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_num_items</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;Maximum item id greater &#39;</span>
+                             <span class="s1">&#39;than number of items in model.&#39;</span><span class="p">)</span>
+
+<div class="viewcode-block" id="ExplicitFactorizationModel.fit"><a class="viewcode-back" href="../../../factorization/explicit.html#spotlight.factorization.explicit.ExplicitFactorizationModel.fit">[docs]</a>    <span class="k">def</span> <span class="nf">fit</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">interactions</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Fit the model.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+
+<span class="sd">        interactions: :class:`spotlight.interactions.Interactions`</span>
+<span class="sd">            The input dataset. Must have ratings.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="n">user_ids</span> <span class="o">=</span> <span class="n">interactions</span><span class="o">.</span><span class="n">user_ids</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">int64</span><span class="p">)</span>
+        <span class="n">item_ids</span> <span class="o">=</span> <span class="n">interactions</span><span class="o">.</span><span class="n">item_ids</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">int64</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">_initialized</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_initialize</span><span class="p">(</span><span class="n">interactions</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_check_input</span><span class="p">(</span><span class="n">user_ids</span><span class="p">,</span> <span class="n">item_ids</span><span class="p">)</span>
 
         <span class="k">for</span> <span class="n">epoch_num</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_n_iter</span><span class="p">):</span>
 
@@ -365,7 +397,7 @@
 
                 <span class="bp">self</span><span class="o">.</span><span class="n">_optimizer</span><span class="o">.</span><span class="n">zero_grad</span><span class="p">()</span>
 
-                <span class="n">loss</span> <span class="o">=</span> <span class="n">loss_fnc</span><span class="p">(</span><span class="n">ratings_var</span><span class="p">,</span> <span class="n">predictions</span><span class="p">)</span>
+                <span class="n">loss</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_loss_func</span><span class="p">(</span><span class="n">ratings_var</span><span class="p">,</span> <span class="n">predictions</span><span class="p">)</span>
                 <span class="n">epoch_loss</span> <span class="o">+=</span> <span class="n">loss</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
 
                 <span class="n">loss</span><span class="o">.</span><span class="n">backward</span><span class="p">()</span>
@@ -400,6 +432,8 @@
 <span class="sd">        predictions: np.array</span>
 <span class="sd">            Predicted scores for all items in item_ids.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_check_input</span><span class="p">(</span><span class="n">user_ids</span><span class="p">,</span> <span class="n">item_ids</span><span class="p">)</span>
 
         <span class="n">user_ids</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">from_numpy</span><span class="p">(</span><span class="n">user_ids</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">int64</span><span class="p">))</span>
         <span class="n">item_ids</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">from_numpy</span><span class="p">(</span><span class="n">item_ids</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">int64</span><span class="p">))</span>
