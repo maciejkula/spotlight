@@ -71,7 +71,7 @@ def test_bpr_custom_optimizer():
 
     mrr = mrr_score(model, test, train=train).mean()
 
-    assert mrr > 0.06
+    assert mrr > 0.05
 
 
 def test_hinge():

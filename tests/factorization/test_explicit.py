@@ -1,4 +1,5 @@
 import numpy as np
+import pytest
 
 from spotlight.cross_validation import random_train_test_split
 from spotlight.datasets import movielens
@@ -45,3 +46,23 @@ def test_poisson():
     rmse = rmse_score(model, test)
 
     assert rmse < 1.0
+
+
+def test_check_input():
+    # Train for single iter.
+    interactions = movielens.get_movielens_dataset('100K')
+
+    train, test = random_train_test_split(interactions,
+                                          random_state=RANDOM_STATE)
+
+    model = ExplicitFactorizationModel(loss='regression',
+                                       n_iter=1,
+                                       batch_size=1024,
+                                       learning_rate=1e-3,
+                                       l2=1e-6)
+    model.fit(train)
+
+    # Modify data to make imcompatible with original model.
+    train.user_ids[0] = train.user_ids.max() + 1
+    with pytest.raises(ValueError):
+        model.fit(train)

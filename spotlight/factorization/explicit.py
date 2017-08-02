@@ -89,6 +89,7 @@ class ExplicitFactorizationModel(object):
         self._num_items = None
         self._net = None
         self._optimizer = None
+        self._loss_func = None
 
         set_seed(self._random_state.randint(-10**8, 10**8),
                  cuda=self._use_cuda)
@@ -97,19 +98,11 @@ class ExplicitFactorizationModel(object):
 
         return _repr_model(self)
 
-    def fit(self, interactions, verbose=False):
-        """
-        Fit the model.
+    @property
+    def _initialized(self):
+        return self._net is not None
 
-        Parameters
-        ----------
-
-        interactions: :class:`spotlight.interactions.Interactions`
-            The input dataset. Must have ratings.
-        """
-
-        user_ids = interactions.user_ids.astype(np.int64)
-        item_ids = interactions.item_ids.astype(np.int64)
+    def _initialize(self, interactions):
 
         (self._num_users,
          self._num_items) = (interactions.num_users,
@@ -133,11 +126,50 @@ class ExplicitFactorizationModel(object):
             self._optimizer = self._optimizer_func(self._net.parameters())
 
         if self._loss == 'regression':
-            loss_fnc = regression_loss
+            self._loss_func = regression_loss
         elif self._loss == 'poisson':
-            loss_fnc = poisson_loss
+            self._loss_func = poisson_loss
         else:
             raise ValueError('Unknown loss: {}'.format(self._loss))
+
+    def _check_input(self, user_ids, item_ids):
+
+        if isinstance(user_ids, int):
+            user_id_max = user_ids
+        else:
+            user_id_max = user_ids.max()
+
+        if user_id_max >= self._num_users:
+            raise ValueError('Maximum user id greater '
+                             'than number of users in model.')
+
+        if isinstance(item_ids, int):
+            item_id_max = item_ids
+        else:
+            item_id_max = item_ids.max()
+
+        if item_id_max >= self._num_items:
+            raise ValueError('Maximum item id greater '
+                             'than number of items in model.')
+
+    def fit(self, interactions, verbose=False):
+        """
+        Fit the model.
+
+        Parameters
+        ----------
+
+        interactions: :class:`spotlight.interactions.Interactions`
+            The input dataset. Must have ratings.
+        """
+
+        user_ids = interactions.user_ids.astype(np.int64)
+        item_ids = interactions.item_ids.astype(np.int64)
+
+        if not self._initialized:
+            self._initialize(interactions)
+
+        self._check_input(user_ids, item_ids)
 
         for epoch_num in range(self._n_iter):
 
@@ -174,7 +206,7 @@ class ExplicitFactorizationModel(object):
 
                 self._optimizer.zero_grad()
 
-                loss = loss_fnc(ratings_var, predictions)
+                loss = self._loss_func(ratings_var, predictions)
                 epoch_loss += loss.data[0]
 
                 loss.backward()
@@ -209,6 +241,8 @@ class ExplicitFactorizationModel(object):
         predictions: np.array
             Predicted scores for all items in item_ids.
         """
+
+        self._check_input(user_ids, item_ids)
 
         user_ids = torch.from_numpy(user_ids.reshape(-1, 1).astype(np.int64))
         item_ids = torch.from_numpy(item_ids.reshape(-1, 1).astype(np.int64))
