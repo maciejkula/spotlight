@@ -121,6 +121,7 @@
 <li class="toctree-l1"><a class="reference internal" href="../../../changelog.html">Changelog</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="../../../changelog.html#v0-1-2-unreleased">v0.1.2 (unreleased)</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="../../../changelog.html#changed">Changed</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../changelog.html#fixed">Fixed</a></li>
 </ul>
 </li>
 </ul>
@@ -202,6 +203,7 @@
 <span class="kn">from</span> <span class="nn">torch.autograd</span> <span class="k">import</span> <span class="n">Variable</span>
 
 <span class="kn">from</span> <span class="nn">spotlight.helpers</span> <span class="k">import</span> <span class="n">_repr_model</span>
+<span class="kn">from</span> <span class="nn">spotlight.factorization._components</span> <span class="k">import</span> <span class="n">_predict_process_ids</span>
 <span class="kn">from</span> <span class="nn">spotlight.losses</span> <span class="k">import</span> <span class="p">(</span><span class="n">adaptive_hinge_loss</span><span class="p">,</span>
                               <span class="n">bpr_loss</span><span class="p">,</span>
                               <span class="n">hinge_loss</span><span class="p">,</span>
@@ -335,7 +337,7 @@
         <span class="k">else</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_loss_func</span> <span class="o">=</span> <span class="n">adaptive_hinge_loss</span>
 
-    <span class="k">def</span> <span class="nf">_check_input</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">user_ids</span><span class="p">,</span> <span class="n">item_ids</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">_check_input</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">user_ids</span><span class="p">,</span> <span class="n">item_ids</span><span class="p">,</span> <span class="n">allow_items_none</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
 
         <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">user_ids</span><span class="p">,</span> <span class="nb">int</span><span class="p">):</span>
             <span class="n">user_id_max</span> <span class="o">=</span> <span class="n">user_ids</span>
@@ -345,6 +347,9 @@
         <span class="k">if</span> <span class="n">user_id_max</span> <span class="o">&gt;=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_num_users</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;Maximum user id greater &#39;</span>
                              <span class="s1">&#39;than number of users in model.&#39;</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">allow_items_none</span> <span class="ow">and</span> <span class="n">item_ids</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">return</span>
 
         <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">item_ids</span><span class="p">,</span> <span class="nb">int</span><span class="p">):</span>
             <span class="n">item_id_max</span> <span class="o">=</span> <span class="n">item_ids</span>
@@ -458,21 +463,14 @@
 <span class="sd">            Predicted scores for all items in item_ids.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
 
-        <span class="k">if</span> <span class="n">item_ids</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="n">item_ids</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_num_items</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_check_input</span><span class="p">(</span><span class="n">user_ids</span><span class="p">,</span> <span class="n">item_ids</span><span class="p">,</span> <span class="n">allow_items_none</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_net</span><span class="o">.</span><span class="n">train</span><span class="p">(</span><span class="kc">False</span><span class="p">)</span>
 
-        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">user_ids</span><span class="p">,</span> <span class="nb">int</span><span class="p">):</span>
-            <span class="n">user_ids</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">repeat</span><span class="p">(</span><span class="n">user_ids</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">item_ids</span><span class="p">))</span>
+        <span class="n">user_ids</span><span class="p">,</span> <span class="n">item_ids</span> <span class="o">=</span> <span class="n">_predict_process_ids</span><span class="p">(</span><span class="n">user_ids</span><span class="p">,</span> <span class="n">item_ids</span><span class="p">,</span>
+                                                  <span class="bp">self</span><span class="o">.</span><span class="n">_num_items</span><span class="p">,</span>
+                                                  <span class="bp">self</span><span class="o">.</span><span class="n">_use_cuda</span><span class="p">)</span>
 
-        <span class="bp">self</span><span class="o">.</span><span class="n">_check_input</span><span class="p">(</span><span class="n">user_ids</span><span class="p">,</span> <span class="n">item_ids</span><span class="p">)</span>
-
-        <span class="n">user_ids</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">from_numpy</span><span class="p">(</span><span class="n">user_ids</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">int64</span><span class="p">))</span>
-        <span class="n">item_ids</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">from_numpy</span><span class="p">(</span><span class="n">item_ids</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">int64</span><span class="p">))</span>
-
-        <span class="n">user_var</span> <span class="o">=</span> <span class="n">Variable</span><span class="p">(</span><span class="n">gpu</span><span class="p">(</span><span class="n">user_ids</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_use_cuda</span><span class="p">))</span>
-        <span class="n">item_var</span> <span class="o">=</span> <span class="n">Variable</span><span class="p">(</span><span class="n">gpu</span><span class="p">(</span><span class="n">item_ids</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_use_cuda</span><span class="p">))</span>
-
-        <span class="n">out</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_net</span><span class="p">(</span><span class="n">user_var</span><span class="p">,</span> <span class="n">item_var</span><span class="p">)</span>
+        <span class="n">out</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_net</span><span class="p">(</span><span class="n">user_ids</span><span class="p">,</span> <span class="n">item_ids</span><span class="p">)</span>
 
         <span class="k">return</span> <span class="n">cpu</span><span class="p">(</span><span class="n">out</span><span class="o">.</span><span class="n">data</span><span class="p">)</span><span class="o">.</span><span class="n">numpy</span><span class="p">()</span><span class="o">.</span><span class="n">flatten</span><span class="p">()</span></div></div>
 </pre></div>

@@ -121,6 +121,7 @@
 <li class="toctree-l1 current"><a class="current reference internal" href="#">Changelog</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="#v0-1-2-unreleased">v0.1.2 (unreleased)</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="#changed">Changed</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#fixed">Fixed</a></li>
 </ul>
 </li>
 </ul>
@@ -197,6 +198,12 @@
 <ul class="simple">
 <li><code class="docutils literal"><span class="pre">optimizer</span></code> arguments is now <code class="docutils literal"><span class="pre">optimizer_func</span></code>. It accepts a function that takes a single argument (list of model parameters) and return a PyTorch optimizer (thanks to Ethan Rosenthal).</li>
 <li><code class="docutils literal"><span class="pre">fit</span></code> calls will resume from previous model state when called repeatedly (Ethan Rosenthal).</li>
+</ul>
+</div>
+<div class="section" id="fixed">
+<h3>Fixed<a class="headerlink" href="#fixed" title="Permalink to this headline">¶</a></h3>
+<ul class="simple">
+<li>Factorization predict APIs now work as advertised in the documentation.</li>
 </ul>
 </div>
 </div>
