@@ -1,3 +1,5 @@
+import os
+
 import numpy as np
 import pytest
 
@@ -8,6 +10,7 @@ from spotlight.factorization.explicit import ExplicitFactorizationModel
 
 
 RANDOM_STATE = np.random.RandomState(42)
+CUDA = bool(os.environ.get('SPOTLIGHT_CUDA', False))
 
 
 def test_regression():
@@ -21,7 +24,8 @@ def test_regression():
                                        n_iter=10,
                                        batch_size=1024,
                                        learning_rate=1e-3,
-                                       l2=1e-5)
+                                       l2=1e-5,
+                                       use_cuda=CUDA)
     model.fit(train)
 
     rmse = rmse_score(model, test)
@@ -40,7 +44,8 @@ def test_poisson():
                                        n_iter=10,
                                        batch_size=1024,
                                        learning_rate=1e-3,
-                                       l2=1e-6)
+                                       l2=1e-6,
+                                       use_cuda=CUDA)
     model.fit(train)
 
     rmse = rmse_score(model, test)
@@ -59,7 +64,8 @@ def test_check_input():
                                        n_iter=1,
                                        batch_size=1024,
                                        learning_rate=1e-3,
-                                       l2=1e-6)
+                                       l2=1e-6,
+                                       use_cuda=CUDA)
     model.fit(train)
 
     # Modify data to make imcompatible with original model.
