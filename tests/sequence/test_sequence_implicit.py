@@ -1,3 +1,5 @@
+import os
+
 import numpy as np
 
 import pytest
@@ -15,6 +17,7 @@ EMBEDDING_DIM = 32
 BATCH_SIZE = 128
 LOSS = 'bpr'
 VERBOSE = False
+CUDA = bool(os.environ.get('SPOTLIGHT_CUDA', False))
 
 
 def _get_synthetic_data(num_users=100,
@@ -74,7 +77,8 @@ def test_implicit_pooling_synthetic(randomness, expected_mrr):
                                   learning_rate=1e-1,
                                   l2=1e-9,
                                   n_iter=NUM_EPOCHS,
-                                  random_state=random_state)
+                                  random_state=random_state,
+                                  use_cuda=CUDA)
     model.fit(train, verbose=VERBOSE)
 
     mrr = _evaluate(model, test)
@@ -99,7 +103,8 @@ def test_implicit_lstm_synthetic(randomness, expected_mrr):
                                   learning_rate=1e-2,
                                   l2=1e-7,
                                   n_iter=NUM_EPOCHS * 5,
-                                  random_state=random_state)
+                                  random_state=random_state,
+                                  use_cuda=CUDA)
 
     model.fit(train, verbose=VERBOSE)
 
@@ -127,7 +132,8 @@ def test_implicit_cnn_synthetic(randomness, expected_mrr):
                                   learning_rate=1e-2,
                                   l2=0.0,
                                   n_iter=NUM_EPOCHS * 5,
-                                  random_state=random_state)
+                                  random_state=random_state,
+                                  use_cuda=CUDA)
 
     model.fit(train, verbose=VERBOSE)
 
@@ -157,7 +163,8 @@ def test_implicit_cnn_dilation_synthetic(num_layers, dilation, expected_mrr):
                                   learning_rate=1e-2,
                                   l2=0.0,
                                   n_iter=NUM_EPOCHS * 5 * num_layers,
-                                  random_state=random_state)
+                                  random_state=random_state,
+                                  use_cuda=CUDA)
 
     model.fit(train, verbose=VERBOSE)
 
@@ -184,7 +191,8 @@ def test_implicit_pooling_losses(loss, expected_mrr):
                                   learning_rate=1e-1,
                                   l2=1e-9,
                                   n_iter=NUM_EPOCHS,
-                                  random_state=random_state)
+                                  random_state=random_state,
+                                  use_cuda=CUDA)
     model.fit(train, verbose=VERBOSE)
 
     mrr = _evaluate(model, test)

@@ -1,3 +1,5 @@
+import os
+
 import numpy as np
 import torch
 
@@ -10,6 +12,7 @@ from spotlight.factorization.implicit import ImplicitFactorizationModel
 
 
 RANDOM_STATE = np.random.RandomState(42)
+CUDA = bool(os.environ.get('SPOTLIGHT_CUDA', False))
 
 
 def _min_max_scale(arr):
@@ -31,7 +34,8 @@ def test_pointwise():
                                        n_iter=10,
                                        batch_size=1024,
                                        learning_rate=1e-2,
-                                       l2=1e-6)
+                                       l2=1e-6,
+                                       use_cuda=CUDA)
     model.fit(train)
 
     mrr = mrr_score(model, test, train=train).mean()
@@ -50,7 +54,8 @@ def test_bpr():
                                        n_iter=10,
                                        batch_size=1024,
                                        learning_rate=1e-2,
-                                       l2=1e-6)
+                                       l2=1e-6,
+                                       use_cuda=CUDA)
     model.fit(train)
 
     mrr = mrr_score(model, test, train=train).mean()
@@ -76,7 +81,8 @@ def test_bpr_custom_optimizer():
     model = ImplicitFactorizationModel(loss='bpr',
                                        n_iter=10,
                                        batch_size=1024,
-                                       optimizer_func=adagrad_optimizer)
+                                       optimizer_func=adagrad_optimizer,
+                                       use_cuda=CUDA)
     model.fit(train)
 
     mrr = mrr_score(model, test, train=train).mean()
@@ -126,7 +132,8 @@ def test_hinge():
                                        n_iter=10,
                                        batch_size=1024,
                                        learning_rate=1e-2,
-                                       l2=1e-6)
+                                       l2=1e-6,
+                                       use_cuda=CUDA)
     model.fit(train)
 
     mrr = mrr_score(model, test, train=train).mean()
@@ -145,7 +152,8 @@ def test_adaptive_hinge():
                                        n_iter=10,
                                        batch_size=1024,
                                        learning_rate=1e-2,
-                                       l2=1e-6)
+                                       l2=1e-6,
+                                       use_cuda=CUDA)
     model.fit(train)
 
     mrr = mrr_score(model, test, train=train).mean()
