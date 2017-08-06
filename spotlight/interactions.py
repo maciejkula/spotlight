@@ -133,9 +133,9 @@ class Interactions(object):
     Attributes
     ----------
 
-    user_ids: array of np.int32
+    user_ids: array of np.int64
         array of user ids of the user-item pairs
-    item_ids: array of np.int32
+    item_ids: array of np.int64
         array of item ids of the user-item pairs
     ratings: array of np.float32, optional
         array of ratings
@@ -167,7 +167,6 @@ class Interactions(object):
         self.ratings = _float_or_none(ratings)
         self.timestamps = timestamps
         self.weights = _float_or_none(weights)
-
         self.user_features = _float_or_none(user_features)
         self.item_features = _float_or_none(item_features)
         self.context_features = _float_or_none(context_features)
@@ -237,7 +236,7 @@ class Interactions(object):
         self.item_ids = self.item_ids[indices]
         self.ratings = _slice_or_none(self.ratings, indices)
         self.timestamps = _slice_or_none(self.timestamps, indices)
-        self.weights = _slice_or_none(self.timestamps, indices)
+        self.weights = _slice_or_none(self.weights, indices)
         self.context_features = _slice_or_none(self.context_features, indices)
 
     def shuffle(self, random_state=None):

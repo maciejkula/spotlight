@@ -15,7 +15,7 @@ import torch.nn.functional as F
 from spotlight.torch_utils import assert_no_grad
 
 
-def pointwise_loss(positive_predictions, negative_predictions, mask=None):
+def pointwise_loss(positive_predictions, negative_predictions, weights=None, mask=None):
     """
     Logistic loss function.
 
@@ -26,6 +26,8 @@ def pointwise_loss(positive_predictions, negative_predictions, mask=None):
         Tensor containing predictions for known positive items.
     negative_predictions: tensor
         Tensor containing predictions for sampled negative items.
+    weights: tensor, optional
+        Tensor containing weights.
     mask: tensor, optional
         A binary tensor used to zero the loss from some entries
         of the loss tensor.
@@ -37,7 +39,7 @@ def pointwise_loss(positive_predictions, negative_predictions, mask=None):
         The mean value of the loss function.
     """
 
-    positives_loss = (1.0 - F.sigmoid(positive_predictions))
+    positives_loss = (1.0 - F.sigmoid(positive_predictions)) * weights
     negatives_loss = F.sigmoid(negative_predictions)
 
     loss = (positives_loss + negatives_loss)
@@ -50,7 +52,7 @@ def pointwise_loss(positive_predictions, negative_predictions, mask=None):
     return loss.mean()
 
 
-def bpr_loss(positive_predictions, negative_predictions, mask=None):
+def bpr_loss(positive_predictions, negative_predictions, weights=None, mask=None):
     """
     Bayesian Personalised Ranking [1]_ pairwise loss function.
 
@@ -61,6 +63,8 @@ def bpr_loss(positive_predictions, negative_predictions, mask=None):
         Tensor containing predictions for known positive items.
     negative_predictions: tensor
         Tensor containing predictions for sampled negative items.
+    weights: tensor, optional
+        Tensor containing weights.
     mask: tensor, optional
         A binary tensor used to zero the loss from some entries
         of the loss tensor.
@@ -79,8 +83,8 @@ def bpr_loss(positive_predictions, negative_predictions, mask=None):
        uncertainty in artificial intelligence. AUAI Press, 2009.
     """
 
-    loss = (1.0 - F.sigmoid(positive_predictions -
-                            negative_predictions))
+    loss = (1.0 - F.sigmoid((positive_predictions -
+                             negative_predictions) * weights))
 
     if mask is not None:
         mask = mask.float()
@@ -90,7 +94,7 @@ def bpr_loss(positive_predictions, negative_predictions, mask=None):
     return loss.mean()
 
 
-def hinge_loss(positive_predictions, negative_predictions, mask=None):
+def hinge_loss(positive_predictions, negative_predictions, weights=None, mask=None):
     """
     Hinge pairwise loss function.
 
@@ -101,6 +105,8 @@ def hinge_loss(positive_predictions, negative_predictions, mask=None):
         Tensor containing predictions for known positive items.
     negative_predictions: tensor
         Tensor containing predictions for sampled negative items.
+    weights: tensor, optional
+        Tensor containing weights.
     mask: tensor, optional
         A binary tensor used to zero the loss from some entries
         of the loss tensor.
@@ -112,8 +118,8 @@ def hinge_loss(positive_predictions, negative_predictions, mask=None):
         The mean value of the loss function.
     """
 
-    loss = torch.clamp(negative_predictions -
-                       positive_predictions +
+    loss = torch.clamp((negative_predictions -
+                        positive_predictions) * weights +
                        1.0, 0.0)
 
     if mask is not None:
@@ -124,7 +130,7 @@ def hinge_loss(positive_predictions, negative_predictions, mask=None):
     return loss.mean()
 
 
-def adaptive_hinge_loss(positive_predictions, negative_predictions, mask=None):
+def adaptive_hinge_loss(positive_predictions, negative_predictions, weights=None, mask=None):
     """
     Adaptive hinge pairwise loss function. Takes a set of predictions
     for implicitly negative items, and selects those that are highest,
@@ -143,6 +149,8 @@ def adaptive_hinge_loss(positive_predictions, negative_predictions, mask=None):
         Iterable of tensors containing predictions for sampled negative items.
         More tensors increase the likelihood of finding ranking-violating
         pairs, but risk overfitting.
+    weights: tensor, optional
+        Tensor containing weights.
     mask: tensor, optional
         A binary tensor used to zero the loss from some entries
         of the loss tensor.
@@ -164,7 +172,7 @@ def adaptive_hinge_loss(positive_predictions, negative_predictions, mask=None):
     stacked_negative_predictions = torch.stack(negative_predictions, dim=0)
     highest_negative_predictions, _ = torch.max(stacked_negative_predictions, 0)
 
-    return hinge_loss(positive_predictions, highest_negative_predictions.squeeze(), mask=mask)
+    return hinge_loss(positive_predictions, highest_negative_predictions.squeeze(), weights=weights, mask=mask)
 
 
 def regression_loss(observed_ratings, predicted_ratings):
