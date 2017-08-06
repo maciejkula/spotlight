@@ -63,11 +63,11 @@ class BilinearNet(nn.Module):
         user_embedding = self.user_embeddings(user_ids)
         item_embedding = self.item_embeddings(item_ids)
 
-        user_embedding = user_embedding.view(-1, self.embedding_dim)
-        item_embedding = item_embedding.view(-1, self.embedding_dim)
+        user_embedding = user_embedding.squeeze()
+        item_embedding = item_embedding.squeeze()
 
-        user_bias = self.user_biases(user_ids).view(-1, 1)
-        item_bias = self.item_biases(item_ids).view(-1, 1)
+        user_bias = self.user_biases(user_ids).squeeze()
+        item_bias = self.item_biases(item_ids).squeeze()
 
         dot = (user_embedding * item_embedding).sum(1)
 

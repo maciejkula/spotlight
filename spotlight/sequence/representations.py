@@ -125,12 +125,12 @@ class PoolNet(nn.Module):
         """
 
         target_embedding = (self.item_embeddings(targets)
-                            .permute(0, 2, 1))
-        target_bias = self.item_biases(targets).squeeze(1)
+                            .permute(0, 2, 1)
+                            .squeeze())
+        target_bias = self.item_biases(targets).squeeze()
 
         dot = ((user_representations * target_embedding)
-               .sum(1)
-               .squeeze(1))
+               .sum(1))
 
         return target_bias + dot
 
@@ -229,12 +229,13 @@ class LSTMNet(nn.Module):
         """
 
         target_embedding = (self.item_embeddings(targets)
-                            .permute(0, 2, 1))
-        target_bias = self.item_biases(targets).squeeze(1)
+                            .permute(0, 2, 1)
+                            .squeeze())
+        target_bias = self.item_biases(targets).squeeze()
 
         dot = ((user_representations * target_embedding)
                .sum(1)
-               .squeeze(1))
+               .squeeze())
 
         return target_bias + dot
 
@@ -415,11 +416,12 @@ class CNNNet(nn.Module):
         """
 
         target_embedding = (self.item_embeddings(targets)
-                            .permute(0, 2, 1))
-        target_bias = self.item_biases(targets).squeeze(1)
+                            .permute(0, 2, 1)
+                            .squeeze())
+        target_bias = self.item_biases(targets).squeeze()
 
         dot = ((user_representations * target_embedding)
                .sum(1)
-               .squeeze(1))
+               .squeeze())
 
         return target_bias + dot
