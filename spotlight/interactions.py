@@ -250,9 +250,14 @@ class Interactions(object):
 
         self._sort(shuffle_indices)
 
-    def minibatches(self, batch_size=128):
+    def minibatches(self, use_cuda=False, batch_size=128):
 
-        batch_generator = zip(*(minibatch(*make_tuple(attr),
+        if use_cuda:
+            fnc = lambda x: _tensor_or_none(x, use_cuda)
+        else:
+            fnc = lambda x: x
+
+        batch_generator = zip(*(minibatch(*fnc(make_tuple(attr)),
                                           batch_size=batch_size)
                                 if attr is not None
                                 else iter_none()
@@ -263,8 +268,8 @@ class Interactions(object):
                                              self.weights,
                                              self.context_features)))
 
-        user_features = self.user_features
-        item_features = self.item_features
+        user_features = fnc(self.user_features)
+        item_features = fnc(self.item_features)
 
         for (uids_batch, iids_batch, ratings_batch, timestamps_batch,
              weights_batch, cf_batch) in batch_generator:
@@ -480,7 +485,7 @@ class InteractionsMinibatch(object):
 
     def torch(self, use_cuda=False):
 
-        fnc = lambda x: _tensor_or_none(x, use_cuda)
+        fnc = lambda x: _tensor_or_none(x, use_cuda) if not torch.is_tensor(x) else x
 
         return InteractionsMinibatch(
             user_ids=fnc(self.user_ids),
