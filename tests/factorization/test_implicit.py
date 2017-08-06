@@ -1,13 +1,23 @@
 import os
 
 import numpy as np
+
 import torch
+
+from torch.autograd import Variable
 
 import pytest
 
 from spotlight.cross_validation import random_train_test_split
 from spotlight.datasets import movielens, synthetic
 from spotlight.evaluation import mrr_score
+from spotlight.losses import (
+    adaptive_hinge_loss,
+    bpr_loss,
+    hinge_loss,
+    pointwise_loss
+)
+
 from spotlight.factorization.implicit import ImplicitFactorizationModel
 
 
@@ -23,22 +33,27 @@ def _min_max_scale(arr):
     return (arr - arr_min) / (arr_max - arr_min)
 
 
-@pytest.mark.parametrize('weights, loss, expected', [
-    (np.ones((100000,)),'pointwise' , 0.05),
-    (np.zeros((100000,)),'pointwise' , 0.003),
-    (np.ones((100000,)),'bpr' , 0.05),
-    (np.zeros((100000,)),'bpr' , 0.003),
-    (np.ones((100000,)),'hinge' , 0.05),
-    (np.zeros((100000,)),'hinge' , 0.003),
-    (np.ones((100000,)),'adaptive_hinge' , 0.05),
-    (np.zeros((100000,)),'adaptive_hinge' , 0.003),
+@pytest.mark.parametrize('weight_factor, loss, expected', [
+    (1, 'pointwise', 0.05),
+    (0, 'pointwise', 0.05),
+    (None, 'pointwise', 0.05),
+    (1, 'bpr', 0.07),
+    (0, 'bpr', 0.07),
+    (None, 'bpr', 0.07),
+    (1, 'hinge', 0.07),
+    (0, 'hinge', 0.07),
+    (None, 'hinge', 0.07),
+    (1, 'adaptive_hinge', 0.07),
+    (0, 'adaptive_hinge', 0.07),
+    (None, 'adaptive_hinge', 0.07)
 ])
-def test_weights(weights, loss, expected):
+def test_weights(weight_factor, loss, expected):
 
     interactions = movielens.get_movielens_dataset('100K')
 
-    # Generate weights
-    interactions.weights = weights
+    # Add weights
+    if weight_factor is not None:
+        interactions.weights = weight_factor * np.ones((100000,))
 
     train, test = random_train_test_split(interactions,
                                           random_state=RANDOM_STATE)
@@ -53,47 +68,32 @@ def test_weights(weights, loss, expected):
 
     mrr = mrr_score(model, test, train=train).mean()
 
-    assert mrr > expected
+    if weight_factor == 0:
+        assert mrr < expected
+    else:
+        assert mrr > expected
 
 
-def test_pointwise():
+def test_pointwise_loss():
 
-    interactions = movielens.get_movielens_dataset('100K')
+    # Test loss function with zero weights
+    positive_predictions = Variable(torch.from_numpy((np.ones(100))))
+    negative_predictions = Variable(torch.from_numpy((np.ones(100))))
+    weights = Variable(torch.from_numpy(np.zeros(100)))
 
-    train, test = random_train_test_split(interactions,
-                                          random_state=RANDOM_STATE)
-
-    model = ImplicitFactorizationModel(loss='pointwise',
-                                       n_iter=10,
-                                       batch_size=1024,
-                                       learning_rate=1e-2,
-                                       l2=1e-6,
-                                       use_cuda=CUDA)
-    model.fit(train)
-
-    mrr = mrr_score(model, test, train=train).mean()
-
-    assert mrr > 0.05
+    out = pointwise_loss(positive_predictions, negative_predictions, weights)
+    assert out.data.numpy().sum() == 0
 
 
-def test_bpr():
+def test_bpr_loss():
 
-    interactions = movielens.get_movielens_dataset('100K')
+    # Test loss function with zero weights
+    positive_predictions = Variable(torch.from_numpy((np.ones(100))))
+    negative_predictions = Variable(torch.from_numpy((np.ones(100))))
+    weights = Variable(torch.from_numpy(np.zeros(100)))
 
-    train, test = random_train_test_split(interactions,
-                                          random_state=RANDOM_STATE)
-
-    model = ImplicitFactorizationModel(loss='bpr',
-                                       n_iter=10,
-                                       batch_size=1024,
-                                       learning_rate=1e-2,
-                                       l2=1e-6,
-                                       use_cuda=CUDA)
-    model.fit(train)
-
-    mrr = mrr_score(model, test, train=train).mean()
-
-    assert mrr > 0.07
+    out = bpr_loss(positive_predictions, negative_predictions, weights)
+    assert out.data.numpy().sum() == 0
 
 
 def test_bpr_custom_optimizer():
@@ -154,44 +154,26 @@ def test_bpr_hybrid(use_timestamps, expected_mrr):
     assert mrr > expected_mrr
 
 
-def test_hinge():
+def test_hinge_loss():
 
-    interactions = movielens.get_movielens_dataset('100K')
+    # Test loss function with zero weights
+    positive_predictions = Variable(torch.from_numpy((np.ones(100))))
+    negative_predictions = Variable(torch.from_numpy((np.ones(100))))
+    weights = Variable(torch.from_numpy(np.zeros(100)))
 
-    train, test = random_train_test_split(interactions,
-                                          random_state=RANDOM_STATE)
-
-    model = ImplicitFactorizationModel(loss='hinge',
-                                       n_iter=10,
-                                       batch_size=1024,
-                                       learning_rate=1e-2,
-                                       l2=1e-6,
-                                       use_cuda=CUDA)
-    model.fit(train)
-
-    mrr = mrr_score(model, test, train=train).mean()
-
-    assert mrr > 0.07
+    out = hinge_loss(positive_predictions, negative_predictions, weights)
+    assert out.data.numpy().sum() == 0
 
 
-def test_adaptive_hinge():
+def test_adaptive_hinge_loss():
 
-    interactions = movielens.get_movielens_dataset('100K')
+    # Test loss function with zero weights
+    positive_predictions = Variable(torch.from_numpy(np.random.random((1, 100))))
+    negative_predictions = Variable(torch.from_numpy(np.random.random((1, 100))))
+    weights = Variable(torch.from_numpy(np.zeros(100)))
 
-    train, test = random_train_test_split(interactions,
-                                          random_state=RANDOM_STATE)
-
-    model = ImplicitFactorizationModel(loss='adaptive_hinge',
-                                       n_iter=10,
-                                       batch_size=1024,
-                                       learning_rate=1e-2,
-                                       l2=1e-6,
-                                       use_cuda=CUDA)
-    model.fit(train)
-
-    mrr = mrr_score(model, test, train=train).mean()
-
-    assert mrr > 0.07
+    out = adaptive_hinge_loss(positive_predictions, negative_predictions, weights)
+    assert out.data.numpy().sum() == 0
 
 
 @pytest.mark.parametrize('use_features, expected_mrr', [

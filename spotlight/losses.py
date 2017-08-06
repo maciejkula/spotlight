@@ -39,10 +39,13 @@ def pointwise_loss(positive_predictions, negative_predictions, weights=None, mas
         The mean value of the loss function.
     """
 
-    positives_loss = (1.0 - F.sigmoid(positive_predictions)) * weights
+    positives_loss = (1.0 - F.sigmoid(positive_predictions))
     negatives_loss = F.sigmoid(negative_predictions)
 
     loss = (positives_loss + negatives_loss)
+
+    if weights is not None:
+        loss = loss * weights
 
     if mask is not None:
         mask = mask.float()
@@ -84,7 +87,10 @@ def bpr_loss(positive_predictions, negative_predictions, weights=None, mask=None
     """
 
     loss = (1.0 - F.sigmoid((positive_predictions -
-                             negative_predictions) * weights))
+                             negative_predictions)))
+
+    if weights is not None:
+        loss = loss * weights
 
     if mask is not None:
         mask = mask.float()
@@ -118,9 +124,11 @@ def hinge_loss(positive_predictions, negative_predictions, weights=None, mask=No
         The mean value of the loss function.
     """
 
-    loss = torch.clamp((negative_predictions -
-                        positive_predictions) * weights +
-                       1.0, 0.0)
+    loss = torch.clamp(
+        (negative_predictions - positive_predictions) + 1.0, 0.0)
+
+    if weights is not None:
+        loss = loss * weights
 
     if mask is not None:
         mask = mask.float()
@@ -134,7 +142,7 @@ def adaptive_hinge_loss(positive_predictions, negative_predictions, weights=None
     """
     Adaptive hinge pairwise loss function. Takes a set of predictions
     for implicitly negative items, and selects those that are highest,
-    thus sampling those negatives that are closes to violating the
+    thus sampling those negatives that are closest to violating the
     ranking implicit in the pattern of user interactions.
 
     Approximates the idea of weighted approximate-rank pairwise loss
@@ -172,10 +180,15 @@ def adaptive_hinge_loss(positive_predictions, negative_predictions, weights=None
     stacked_negative_predictions = torch.stack(negative_predictions, dim=0)
     highest_negative_predictions, _ = torch.max(stacked_negative_predictions, 0)
 
-    return hinge_loss(positive_predictions, highest_negative_predictions.squeeze(), weights=weights, mask=mask)
+    return hinge_loss(
+        positive_predictions,
+        highest_negative_predictions.squeeze(),
+        weights=weights,
+        mask=mask
+    )
 
 
-def regression_loss(observed_ratings, predicted_ratings):
+def regression_loss(observed_ratings, predicted_ratings, weights=None):
     """
     Regression loss.
 
@@ -186,6 +199,8 @@ def regression_loss(observed_ratings, predicted_ratings):
         Tensor containing observed ratings.
     negative_predictions: tensor
         Tensor containing rating predictions.
+    weights: tensor, optional
+        Tensor containing weights.
 
     Returns
     -------
@@ -196,10 +211,15 @@ def regression_loss(observed_ratings, predicted_ratings):
 
     assert_no_grad(observed_ratings)
 
-    return ((observed_ratings - predicted_ratings) ** 2).mean()
+    loss = (observed_ratings - predicted_ratings) ** 2
+
+    if weights is not None:
+        loss = loss * weights
+
+    return loss.mean()
 
 
-def poisson_loss(observed_ratings, predicted_ratings):
+def poisson_loss(observed_ratings, predicted_ratings, weights=None):
     """
     Poisson loss.
 
@@ -210,6 +230,8 @@ def poisson_loss(observed_ratings, predicted_ratings):
         Tensor containing observed ratings.
     negative_predictions: tensor
         Tensor containing rating predictions.
+    weights: tensor
+        Tensor containing weights
 
     Returns
     -------
@@ -220,4 +242,9 @@ def poisson_loss(observed_ratings, predicted_ratings):
 
     assert_no_grad(observed_ratings)
 
-    return (predicted_ratings - observed_ratings * torch.log(predicted_ratings)).mean()
+    loss = (predicted_ratings - observed_ratings) * torch.log(predicted_ratings)
+
+    if weights is not None:
+        loss = loss * weights
+
+    return loss.mean()

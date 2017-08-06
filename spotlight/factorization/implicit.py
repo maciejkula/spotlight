@@ -17,6 +17,7 @@ from spotlight.losses import (adaptive_hinge_loss,
                               bpr_loss,
                               hinge_loss,
                               pointwise_loss)
+
 from spotlight.factorization.representations import (BilinearNet,
                                                      FeatureNet,
                                                      HybridContainer)
@@ -248,7 +249,8 @@ class ImplicitFactorizationModel(object):
                 loss = self._loss_func(
                     positive_prediction,
                     negative_prediction,
-                    weights=minibatch.weights)
+                    weights=minibatch.weights
+                )
 
                 epoch_loss += loss.data[0]
 

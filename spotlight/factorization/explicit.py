@@ -9,13 +9,17 @@ import torch
 import torch.optim as optim
 
 from spotlight.helpers import _repr_model
+
 from spotlight.factorization._components import (_predict_process_features,
                                                  _predict_process_ids)
 from spotlight.factorization.representations import (BilinearNet,
                                                      FeatureNet,
                                                      HybridContainer)
-from spotlight.losses import (regression_loss,
-                              poisson_loss)
+from spotlight.losses import (
+    poisson_loss,
+    regression_loss
+)
+
 from spotlight.torch_utils import cpu, gpu, set_seed
 
 
@@ -226,7 +230,7 @@ class ExplicitFactorizationModel(object):
 
                 self._optimizer.zero_grad()
 
-                loss = self._loss_func(minibatch.ratings, predictions)
+                loss = self._loss_func(minibatch.ratings, predictions, minibatch.weights)
                 epoch_loss += loss.data[0]
 
                 loss.backward()
