@@ -111,19 +111,15 @@ class BilinearNet(nn.Module):
 
     def user_representation(self, user_ids):
 
-        user_embedding = self.user_embeddings(user_ids)
-        user_embedding = user_embedding.view(-1, self.embedding_dim)
-
-        user_bias = self.user_biases(user_ids).view(-1, 1)
+        user_embedding = self.user_embeddings(user_ids).squeeze()
+        user_bias = self.user_biases(user_ids).squeeze()
 
         return user_embedding, user_bias
 
     def item_representation(self, item_ids):
 
-        item_embedding = self.item_embeddings(item_ids)
-        item_embedding = item_embedding.view(-1, self.embedding_dim)
-
-        item_bias = self.item_biases(item_ids).view(-1, 1)
+        item_embedding = self.item_embeddings(item_ids).squeeze()
+        item_bias = self.item_biases(item_ids).squeeze()
 
         return item_embedding, item_bias
 
