@@ -18,7 +18,7 @@ conda install -y -q python=$PYTHON_VERSION
 
 # Install dependencies
 conda install -y -q numpy scipy requests h5py scikit-learn pytest flake8
-conda install -y -q pytorch torchvision -c soumith
+conda install -y -q pytorch=0.2.0 torchvision -c soumith
 
 # Pushing docs
 conda install -y -q sphinx sphinx_rtd_theme
