@@ -23,4 +23,4 @@ def _predict_process_ids(user_ids, item_ids, num_items, use_cuda):
     user_var = Variable(gpu(user_ids, use_cuda))
     item_var = Variable(gpu(item_ids, use_cuda))
 
-    return user_var, item_var
+    return user_var.squeeze(), item_var.squeeze()
