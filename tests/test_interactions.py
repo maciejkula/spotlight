@@ -202,7 +202,7 @@ def test_contexts_collaborative():
 
     for context in interactions.contexts():
         # There should only be one user in any context
-        assert len(set(context.user_ids.data)) == 1
+        assert len(set(context.user_ids)) == 1
 
 
 def test_contexts_hybrid():
@@ -221,4 +221,4 @@ def test_contexts_hybrid():
 
     for context in interactions.contexts():
         # There should only be one user in any context
-        assert len(set(context.user_ids.data)) == 1
+        assert len(set(context.user_ids)) == 1
