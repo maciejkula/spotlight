@@ -1,8 +1,4 @@
-import numpy as np
-
-import torch
 import torch.nn as nn
-from torch.autograd import Variable
 
 
 PRIMES = [
@@ -87,7 +83,7 @@ class BloomEmbedding(nn.Module):
     """
 
     def __init__(self, num_embeddings, embedding_dim,
-                 compression_ratio=0.6, num_hash_functions=3):
+                 compression_ratio=0.6, num_hash_functions=2):
 
         super(BloomEmbedding, self).__init__()
 
@@ -102,26 +98,27 @@ class BloomEmbedding(nn.Module):
             raise ValueError('Can use at most {} hash functions ({} requested)'
                              .format(len(PRIMES), num_hash_functions))
 
-        self._masks = np.array(PRIMES[:self.num_hash_functions],
-                               dtype=np.int64)
+        self._masks = PRIMES[:self.num_hash_functions]
 
         self.embeddings = ScaledEmbedding(self.compressed_num_embeddings,
                                           self.embedding_dim)
 
-        self._mask_tensor = Variable(torch.from_numpy(self._masks)
-                                     .unsqueeze(0),
-                                     requires_grad=False)
+    def __repr__(self):
+
+        return ('<BloomEmbedding (compression_ratio: {}): {}>'
+                .format(self.compression_ratio,
+                        repr(self.embeddings)))
 
     def forward(self, indices):
 
-        batch_size = indices.size()[0]
+        # The iterative solution is necessitated by making
+        # the implementation compatible with sequence-based models,
+        # where the embedding indices are already two-dimensional.
+        embedding = self.embeddings(indices * self._masks[0] % self.compressed_num_embeddings)
 
-        compressed_indices = (indices
-                              .unsqueeze(1)
-                              .expand(batch_size, self.num_hash_functions))
-        masks = self._mask_tensor.expand(batch_size, self.num_hash_functions)
-        compressed_indices = compressed_indices.detach()
-        compressed_indices = Variable((compressed_indices.data * masks.data) %
-                                      self.compressed_num_embeddings)
+        for mask in self._masks[1:]:
+            embedding += self.embeddings(indices * mask % self.compressed_num_embeddings)
 
-        return self.embeddings(compressed_indices).mean(1)
+        embedding /= self.num_hash_functions
+
+        return embedding
