@@ -2,6 +2,7 @@ import hashlib
 import json
 import os
 import shutil
+import time
 
 import numpy as np
 
@@ -40,10 +41,11 @@ class Results:
 
         return hashlib.md5(json.dumps(x, sort_keys=True).encode('utf-8')).hexdigest()
 
-    def save(self, hyperparams, test_mrr, validation_mrr):
+    def save(self, hyperparams, test_mrr, validation_mrr, elapsed):
 
         result = {'test_mrr': test_mrr,
                   'validation_mrr': validation_mrr,
+                  'elapsed': elapsed,
                   'hash': self._hash(hyperparams)}
         result.update(hyperparams)
 
@@ -140,12 +142,14 @@ def evaluate_model(hyperparameters, train, test, validation, random_state):
                                        use_cuda=CUDA,
                                        random_state=random_state)
 
+    start_time = time.time()
     model.fit(train, verbose=True)
+    elapsed = time.time() - start_time
 
     test_mrr = mrr_score(model, test)
     val_mrr = mrr_score(model, validation)
 
-    return test_mrr, val_mrr
+    return test_mrr, val_mrr, elapsed
 
 
 def run(train, test, validation, random_state):
@@ -168,17 +172,17 @@ def run(train, test, validation, random_state):
 
             print('Evaluating {}'.format(hyperparameters))
 
-            (test_mrr, val_mrr) = evaluate_model(hyperparameters,
-                                                 train,
-                                                 test,
-                                                 validation,
-                                                 random_state)
+            (test_mrr, val_mrr, elapsed) = evaluate_model(hyperparameters,
+                                                          train,
+                                                          test,
+                                                          validation,
+                                                          random_state)
 
             print('Test MRR {} val MRR {}'.format(
                 test_mrr.mean(), val_mrr.mean()
             ))
 
-            results.save(hyperparameters, test_mrr.mean(), val_mrr.mean())
+            results.save(hyperparameters, test_mrr.mean(), val_mrr.mean(), elapsed)
 
     return results
 
