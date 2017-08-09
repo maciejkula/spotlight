@@ -17,8 +17,8 @@ def fit(train, test, validation, random_state):
     model.fit(validation, verbose=True)
 
     print('Validating')
-    test_mrr = mrr_score(model, test)
-    val_mrr = mrr_score(model, validation)
+    test_mrr = mrr_score(model, test).mean()
+    val_mrr = mrr_score(model, validation).mean()
 
     print('Test MRR {}, validation MRR {}'.format(
         test_mrr, val_mrr))
@@ -27,7 +27,8 @@ def fit(train, test, validation, random_state):
 if __name__ == '__main__':
 
     random_state = np.random.RandomState(100)
-    dataset = get_amazon()
+    dataset = get_amazon(min_user_interactions=100)
+    print(dataset)
 
     dataset.item_features = None
 
