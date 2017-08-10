@@ -23,7 +23,7 @@ NUM_SAMPLES = 100
 
 LEARNING_RATES = [1e-3, 1e-2, 5 * 1e-2, 1e-1]
 LOSSES = ['bpr', 'hinge', 'adaptive_hinge', 'pointwise']
-BATCH_SIZE = [8, 16, 32, 256]
+BATCH_SIZE = [256, 512, 1024, 2048]
 EMBEDDING_DIM = [8, 16, 32, 64, 128, 256]
 N_ITER = list(range(5, 20))
 L2 = [1e-6, 1e-5, 1e-4, 1e-3, 1e-2, 0.0]
@@ -138,7 +138,7 @@ def evaluate_model(hyperparameters, train, test, validation, random_state):
                                        batch_size=h['batch_size'],
                                        learning_rate=h['learning_rate'],
                                        l2=h['l2'],
-                                       network=network,
+                                       module=network,
                                        use_cuda=CUDA,
                                        random_state=random_state)
 
@@ -191,7 +191,7 @@ if __name__ == '__main__':
 
     random_state = np.random.RandomState(100)
 
-    dataset = get_movielens_dataset('100K')
+    dataset = get_movielens_dataset('1M')
 
     train, rest = random_train_test_split(dataset,
                                           random_state=random_state)
