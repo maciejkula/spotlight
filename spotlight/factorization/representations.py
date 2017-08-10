@@ -37,7 +37,7 @@ class BilinearNet(nn.Module):
     """
 
     def __init__(self, num_users, num_items, embedding_dim=32,
-                 user_embedding_layer=None, item_embedding_layer=None, sparse=False,):
+                 user_embedding_layer=None, item_embedding_layer=None, sparse=False):
 
         super(BilinearNet, self).__init__()
 

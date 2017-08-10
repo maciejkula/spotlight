@@ -43,6 +43,9 @@ class PoolNet(nn.Module):
         Number of items to be represented.
     embedding_dim: int, optional
         Embedding dimension of the embedding layer.
+    item_embedding_layer: an embedding layer, optional
+        If supplied, will be used as the item embedding layer
+        of the network.
 
     References
     ----------
@@ -53,14 +56,20 @@ class PoolNet(nn.Module):
 
     """
 
-    def __init__(self, num_items, embedding_dim=32, sparse=False):
+    def __init__(self, num_items, embedding_dim=32,
+                 item_embedding_layer=None, sparse=False):
+
         super(PoolNet, self).__init__()
 
         self.embedding_dim = embedding_dim
 
-        self.item_embeddings = ScaledEmbedding(num_items, embedding_dim,
-                                               sparse=sparse,
-                                               padding_idx=PADDING_IDX)
+        if item_embedding_layer is not None:
+            self.item_embeddings = item_embedding_layer
+        else:
+            self.item_embeddings = ScaledEmbedding(num_items, embedding_dim,
+                                                   padding_idx=PADDING_IDX,
+                                                   sparse=sparse)
+
         self.item_biases = ZeroEmbedding(num_items, 1, sparse=sparse,
                                          padding_idx=PADDING_IDX)
 
@@ -153,6 +162,9 @@ class LSTMNet(nn.Module):
     embedding_dim: int, optional
         Embedding dimension of the embedding layer, and the number of hidden
         units in the LSTM layer.
+    item_embedding_layer: an embedding layer, optional
+        If supplied, will be used as the item embedding layer
+        of the network.
 
     References
     ----------
@@ -161,14 +173,20 @@ class LSTMNet(nn.Module):
        recurrent neural networks." arXiv preprint arXiv:1511.06939 (2015).
     """
 
-    def __init__(self, num_items, embedding_dim=32, sparse=False):
+    def __init__(self, num_items, embedding_dim=32,
+                 item_embedding_layer=None, sparse=False):
+
         super(LSTMNet, self).__init__()
 
         self.embedding_dim = embedding_dim
 
-        self.item_embeddings = ScaledEmbedding(num_items, embedding_dim,
-                                               sparse=sparse,
-                                               padding_idx=PADDING_IDX)
+        if item_embedding_layer is not None:
+            self.item_embeddings = item_embedding_layer
+        else:
+            self.item_embeddings = ScaledEmbedding(num_items, embedding_dim,
+                                                   padding_idx=PADDING_IDX,
+                                                   sparse=sparse)
+
         self.item_biases = ZeroEmbedding(num_items, 1, sparse=sparse,
                                          padding_idx=PADDING_IDX)
 
@@ -287,6 +305,9 @@ class CNNNet(nn.Module):
         after each convolutional layer.
     residual_connections: boolean, optional
         Whether to use reisdual connections between convolutional layers.
+    item_embedding_layer: an embedding layer, optional
+        If supplied, will be used as the item embedding layer
+        of the network.
 
     References
     ----------
@@ -305,7 +326,8 @@ class CNNNet(nn.Module):
                  nonlinearity='tanh',
                  residual_connections=True,
                  sparse=False,
-                 benchmark=True):
+                 benchmark=True,
+                 item_embedding_layer=None):
 
         super(CNNNet, self).__init__()
 
@@ -322,9 +344,13 @@ class CNNNet(nn.Module):
             raise ValueError('Nonlinearity must be one of (tanh, relu)')
         self.residual_connections = residual_connections
 
-        self.item_embeddings = ScaledEmbedding(num_items, embedding_dim,
-                                               sparse=sparse,
-                                               padding_idx=PADDING_IDX)
+        if item_embedding_layer is not None:
+            self.item_embeddings = item_embedding_layer
+        else:
+            self.item_embeddings = ScaledEmbedding(num_items, embedding_dim,
+                                                   padding_idx=PADDING_IDX,
+                                                   sparse=sparse)
+
         self.item_biases = ZeroEmbedding(num_items, 1, sparse=sparse,
                                          padding_idx=PADDING_IDX)
 

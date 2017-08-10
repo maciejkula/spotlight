@@ -83,7 +83,8 @@ class BloomEmbedding(nn.Module):
     """
 
     def __init__(self, num_embeddings, embedding_dim,
-                 compression_ratio=0.6, num_hash_functions=2):
+                 compression_ratio=0.6, num_hash_functions=2,
+                 padding_idx=None):
 
         super(BloomEmbedding, self).__init__()
 
@@ -101,7 +102,8 @@ class BloomEmbedding(nn.Module):
         self._masks = PRIMES[:self.num_hash_functions]
 
         self.embeddings = ScaledEmbedding(self.compressed_num_embeddings,
-                                          self.embedding_dim)
+                                          self.embedding_dim,
+                                          padding_idx=padding_idx)
 
     def __repr__(self):
 

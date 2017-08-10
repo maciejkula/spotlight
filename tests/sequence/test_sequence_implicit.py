@@ -7,8 +7,9 @@ import pytest
 from spotlight.cross_validation import user_based_train_test_split
 from spotlight.datasets import synthetic
 from spotlight.evaluation import sequence_mrr_score
+from spotlight.layers import BloomEmbedding
 from spotlight.sequence.implicit import ImplicitSequenceModel
-from spotlight.sequence.representations import CNNNet
+from spotlight.sequence.representations import CNNNet, LSTMNet, PoolNet
 
 
 RANDOM_SEED = 42
@@ -193,6 +194,118 @@ def test_implicit_pooling_losses(loss, expected_mrr):
                                   n_iter=NUM_EPOCHS,
                                   random_state=random_state,
                                   use_cuda=CUDA)
+    model.fit(train, verbose=VERBOSE)
+
+    mrr = _evaluate(model, test)
+
+    assert mrr.mean() > expected_mrr
+
+
+@pytest.mark.parametrize('compression_ratio, expected_mrr', [
+    (0.2, 0.14),
+    (0.5, 0.30),
+    (1.0, 0.53),
+])
+def test_bloom_cnn(compression_ratio, expected_mrr):
+
+    random_state = np.random.RandomState(RANDOM_SEED)
+    train, test = _get_synthetic_data(randomness=1e-03,
+                                      num_interactions=20000,
+                                      random_state=random_state)
+
+    embedding = BloomEmbedding(train.num_items,
+                               32,
+                               compression_ratio=compression_ratio,
+                               num_hash_functions=2)
+
+    representation = CNNNet(train.num_items,
+                            embedding_dim=EMBEDDING_DIM,
+                            kernel_width=3,
+                            item_embedding_layer=embedding)
+
+    model = ImplicitSequenceModel(loss=LOSS,
+                                  representation=representation,
+                                  batch_size=BATCH_SIZE,
+                                  learning_rate=1e-2,
+                                  l2=0.0,
+                                  n_iter=NUM_EPOCHS,
+                                  random_state=random_state,
+                                  use_cuda=CUDA)
+
+    model.fit(train, verbose=VERBOSE)
+
+    mrr = _evaluate(model, test)
+
+    assert mrr.mean() > expected_mrr
+
+
+@pytest.mark.parametrize('compression_ratio, expected_mrr', [
+    (0.2, 0.18),
+    (0.5, 0.40),
+    (1.0, 0.60),
+])
+def test_bloom_lstm(compression_ratio, expected_mrr):
+
+    random_state = np.random.RandomState(RANDOM_SEED)
+    train, test = _get_synthetic_data(randomness=1e-03,
+                                      num_interactions=20000,
+                                      random_state=random_state)
+
+    embedding = BloomEmbedding(train.num_items,
+                               32,
+                               compression_ratio=compression_ratio,
+                               num_hash_functions=2)
+
+    representation = LSTMNet(train.num_items,
+                             embedding_dim=EMBEDDING_DIM,
+                             item_embedding_layer=embedding)
+
+    model = ImplicitSequenceModel(loss=LOSS,
+                                  representation=representation,
+                                  batch_size=BATCH_SIZE,
+                                  learning_rate=1e-2,
+                                  l2=1e-7,
+                                  n_iter=NUM_EPOCHS * 5,
+                                  random_state=random_state,
+                                  use_cuda=CUDA)
+
+    model.fit(train, verbose=VERBOSE)
+
+    mrr = _evaluate(model, test)
+
+    assert mrr.mean() > expected_mrr
+
+
+@pytest.mark.parametrize('compression_ratio, expected_mrr', [
+    (0.2, 0.06),
+    (0.5, 0.07),
+    (1.0, 0.13),
+])
+def test_bloom_pooling(compression_ratio, expected_mrr):
+
+    random_state = np.random.RandomState(RANDOM_SEED)
+    train, test = _get_synthetic_data(randomness=1e-03,
+                                      num_interactions=20000,
+                                      random_state=random_state)
+
+    embedding = BloomEmbedding(train.num_items,
+                               32,
+                               compression_ratio=compression_ratio,
+                               num_hash_functions=2)
+
+    representation = PoolNet(train.num_items,
+                             embedding_dim=EMBEDDING_DIM,
+                             item_embedding_layer=embedding)
+
+    model = ImplicitSequenceModel(loss=LOSS,
+                                  representation=representation,
+                                  batch_size=BATCH_SIZE,
+                                  learning_rate=1e-2,
+                                  l2=1e-7,
+                                  n_iter=NUM_EPOCHS * 5,
+                                  random_state=random_state,
+                                  use_cuda=CUDA)
+
     model.fit(train, verbose=VERBOSE)
 
     mrr = _evaluate(model, test)
