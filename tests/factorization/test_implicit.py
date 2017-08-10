@@ -125,7 +125,7 @@ def test_adaptive_hinge():
 
 @pytest.mark.parametrize('compression_ratio, expected_mrr', [
     (0.5, 0.045),
-    (1.0, 0.06),
+    (1.0, 0.05),
     (1.5, 0.07),
     (2.0, 0.07),
 ])
