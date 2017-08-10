@@ -1,6 +1,6 @@
 import numpy as np
 
-from spotlight.datasets import amazon, movielens, synthetic
+from spotlight.datasets import movielens, synthetic
 
 
 def test_dataset_downloading():
@@ -19,8 +19,3 @@ def test_generate_content_based():
     assert len(interactions) == 100
     assert np.all(interactions.user_ids < 10)
     assert np.all(interactions.item_ids < 15)
-
-
-def test_amazon_dataset():
-
-    amazon.get_amazon()
