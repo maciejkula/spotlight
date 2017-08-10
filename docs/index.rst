@@ -19,6 +19,7 @@ Contents
    Cross validation <cross_validation>
    Sequence models <sequence/sequence>
    Factorization models <factorization/factorization>
+   Layers <layers>
    Loss functions <losses>
    Evaluation <evaluation>
    Sampling <sampling>

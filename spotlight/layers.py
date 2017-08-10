@@ -1,3 +1,7 @@
+"""
+Embedding layers useful for recommender models.
+"""
+
 import torch.nn as nn
 
 
@@ -12,16 +16,36 @@ PRIMES = [
 
 
 class ScaledEmbedding(nn.Embedding):
+    """
+    Embedding layer that initialises its values
+    to using a normal variable scaled by the inverse
+    of the emedding dimension.
+    """
 
     def reset_parameters(self):
+        """
+        Initialize parameters.
+        """
+
         self.weight.data.normal_(0, 1.0 / self.embedding_dim)
         if self.padding_idx is not None:
             self.weight.data[self.padding_idx].fill_(0)
 
 
 class ZeroEmbedding(nn.Embedding):
+    """
+    Embedding layer that initialises its values
+    to using a normal variable scaled by the inverse
+    of the emedding dimension.
+
+    Used for biases.
+    """
 
     def reset_parameters(self):
+        """
+        Initialize parameters.
+        """
+
         self.weight.data.zero_()
         if self.padding_idx is not None:
             self.weight.data[self.padding_idx].fill_(0)
@@ -41,7 +65,7 @@ class BloomEmbedding(nn.Module):
         Latent dimension of the embedding.
     compression_ratio: float, optional
         The underlying number of rows in the embedding layer
-        After compression. Numbers below 1.0 will use more
+        after compression. Numbers below 1.0 will use more
         and more compression, reducing the number of parameters
         in the layer.
     num_hash_functions: int, optional
@@ -112,6 +136,11 @@ class BloomEmbedding(nn.Module):
                         repr(self.embeddings)))
 
     def forward(self, indices):
+        """
+        Retrieve embeddings corresponding to indices.
+
+        See documentation on PyTorch ``nn.Embedding`` for details.
+        """
 
         # The iterative solution is necessitated by making
         # the implementation compatible with sequence-based models,
