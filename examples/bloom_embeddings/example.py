@@ -146,8 +146,8 @@ def evaluate_model(hyperparameters, train, test, validation, random_state):
     model.fit(train, verbose=True)
     elapsed = time.time() - start_time
 
-    test_mrr = mrr_score(model, test)
-    val_mrr = mrr_score(model, validation)
+    test_mrr = mrr_score(model, test, train=train.tocsr())
+    val_mrr = mrr_score(model, validation, train=train.tocsr() + test.tocsr())
 
     return test_mrr, val_mrr, elapsed
 
@@ -191,7 +191,7 @@ if __name__ == '__main__':
 
     random_state = np.random.RandomState(100)
 
-    dataset = get_movielens_dataset('1M')
+    dataset = get_movielens_dataset('100K')
 
     train, rest = random_train_test_split(dataset,
                                           random_state=random_state)
