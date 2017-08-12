@@ -31,7 +31,7 @@ def summarise_results(results):
 
     plt.plot(compression_ratio, mrr, label='Factorization')
     plt.legend(loc='lower right')
-    plt.savefig('plot.svg')
+    plt.savefig('plot.png')
 
 
 if __name__ == '__main__':
