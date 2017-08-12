@@ -106,7 +106,7 @@ def test_bloom(compression_ratio, expected_rmse):
                                        batch_size=1024,
                                        learning_rate=1e-2,
                                        l2=1e-5,
-                                       module=network,
+                                       representation=network,
                                        use_cuda=CUDA)
 
     model.fit(train)

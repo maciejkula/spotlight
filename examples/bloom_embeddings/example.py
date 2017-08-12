@@ -9,11 +9,11 @@ import numpy as np
 from sklearn.model_selection import ParameterSampler
 
 from spotlight.datasets.movielens import get_movielens_dataset
-from spotlight.cross_validation import random_train_test_split
-from spotlight.factorization.implicit import ImplicitFactorizationModel
-from spotlight.factorization.representations import BilinearNet
-from spotlight.layers import BloomEmbedding
-from spotlight.evaluation import mrr_score
+from spotlight.cross_validation import user_based_train_test_split
+from spotlight.sequence.implicit import ImplicitSequenceModel
+from spotlight.sequence.representations import LSTMNet
+from spotlight.layers import BloomEmbedding, ScaledEmbedding
+from spotlight.evaluation import sequence_mrr_score
 
 
 CUDA = (os.environ.get('CUDA') is not None or
@@ -21,9 +21,9 @@ CUDA = (os.environ.get('CUDA') is not None or
 
 NUM_SAMPLES = 100
 
-LEARNING_RATES = [1e-3, 1e-2, 5 * 1e-2, 1e-1]
+LEARNING_RATES = [1e-4, 5 * 1e-4, 1e-3, 1e-2, 5 * 1e-2, 1e-1]
 LOSSES = ['bpr', 'hinge', 'adaptive_hinge', 'pointwise']
-BATCH_SIZE = [256, 512, 1024, 2048]
+BATCH_SIZE = [8, 16, 32, 256]
 EMBEDDING_DIM = [8, 16, 32, 64, 128, 256]
 N_ITER = list(range(5, 20))
 L2 = [1e-6, 1e-5, 1e-4, 1e-3, 1e-2, 0.0]
@@ -104,7 +104,7 @@ def sample_hyperparameters(random_state, num):
         'learning_rate': LEARNING_RATES,
         'loss': LOSSES,
         'embedding_dim': EMBEDDING_DIM,
-        'num_hash_functions': [1, 2, 3, 4, 5, 6]
+        'num_hash_functions': [2, 3, 4, 5, 6]
     }
 
     sampler = ParameterSampler(space,
@@ -120,34 +120,30 @@ def evaluate_model(hyperparameters, train, test, validation, random_state):
     h = hyperparameters
 
     if h['compression_ratio'] < 1.0:
-        user_embeddings = BloomEmbedding(train.num_users, h['embedding_dim'],
-                                         compression_ratio=h['compression_ratio'],
-                                         num_hash_functions=h['num_hash_functions'])
         item_embeddings = BloomEmbedding(train.num_items, h['embedding_dim'],
                                          compression_ratio=h['compression_ratio'],
                                          num_hash_functions=h['num_hash_functions'])
-        network = BilinearNet(train.num_users,
-                              train.num_items,
-                              user_embedding_layer=user_embeddings,
-                              item_embedding_layer=item_embeddings)
+        network = LSTMNet(train.num_items, h['embedding_dim'],
+                          item_embedding_layer=item_embeddings)
     else:
-        network = None
+        network = 'lstm'
 
-    model = ImplicitFactorizationModel(loss=h['loss'],
-                                       n_iter=h['n_iter'],
-                                       batch_size=h['batch_size'],
-                                       learning_rate=h['learning_rate'],
-                                       l2=h['l2'],
-                                       module=network,
-                                       use_cuda=CUDA,
-                                       random_state=random_state)
+    model = ImplicitSequenceModel(loss=h['loss'],
+                                  n_iter=h['n_iter'],
+                                  batch_size=h['batch_size'],
+                                  learning_rate=h['learning_rate'],
+                                  l2=h['l2'],
+                                  representation=network,
+                                  use_cuda=CUDA,
+                                  random_state=random_state)
 
     start_time = time.time()
     model.fit(train, verbose=True)
     elapsed = time.time() - start_time
+    print(model)
 
-    test_mrr = mrr_score(model, test, train=train.tocsr())
-    val_mrr = mrr_score(model, validation, train=train.tocsr() + test.tocsr())
+    test_mrr = sequence_mrr_score(model, test)
+    val_mrr = sequence_mrr_score(model, validation)
 
     return test_mrr, val_mrr, elapsed
 
@@ -189,14 +185,27 @@ def run(train, test, validation, random_state):
 
 if __name__ == '__main__':
 
+    max_sequence_length = 200
+    min_sequence_length = 20
+    step_size = 200
+
     random_state = np.random.RandomState(100)
 
     dataset = get_movielens_dataset('100K')
 
-    train, rest = random_train_test_split(dataset,
-                                          random_state=random_state)
-    test, validation = random_train_test_split(rest,
-                                               test_percentage=0.5,
-                                               random_state=random_state)
+    train, rest = user_based_train_test_split(dataset,
+                                              random_state=random_state)
+    test, validation = user_based_train_test_split(rest,
+                                                   test_percentage=0.5,
+                                                   random_state=random_state)
+    train = train.to_sequence(max_sequence_length=max_sequence_length,
+                              min_sequence_length=min_sequence_length,
+                              step_size=step_size)
+    test = test.to_sequence(max_sequence_length=max_sequence_length,
+                            min_sequence_length=min_sequence_length,
+                            step_size=step_size)
+    validation = validation.to_sequence(max_sequence_length=max_sequence_length,
+                                        min_sequence_length=min_sequence_length,
+                                        step_size=step_size)
 
     run(train, test, validation, random_state)

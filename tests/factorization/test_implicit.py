@@ -152,7 +152,7 @@ def test_bpr_bloom(compression_ratio, expected_mrr):
                                        batch_size=1024,
                                        learning_rate=1e-2,
                                        l2=1e-6,
-                                       module=network,
+                                       representation=network,
                                        use_cuda=CUDA)
 
     model.fit(train)
