@@ -12,7 +12,7 @@ from spotlight.datasets.movielens import get_movielens_dataset
 from spotlight.cross_validation import user_based_train_test_split
 from spotlight.sequence.implicit import ImplicitSequenceModel
 from spotlight.sequence.representations import LSTMNet
-from spotlight.layers import BloomEmbedding, ScaledEmbedding
+from spotlight.layers import BloomEmbedding
 from spotlight.evaluation import sequence_mrr_score
 
 
