@@ -37,4 +37,10 @@ In this example, I run an experiment on the Movielens 1M dataset. I use sequence
 |
 
 
+.. image:: time.png
+   :align: center
+
+|
+
+
 The hash function used is simple multiplicative hashing with adifferent prime for every hash function, modulo the size of the compressed embedding layer.

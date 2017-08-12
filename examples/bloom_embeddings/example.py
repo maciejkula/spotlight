@@ -191,7 +191,7 @@ if __name__ == '__main__':
 
     random_state = np.random.RandomState(100)
 
-    dataset = get_movielens_dataset('100K')
+    dataset = get_movielens_dataset('1M')
 
     train, rest = user_based_train_test_split(dataset,
                                               random_state=random_state)

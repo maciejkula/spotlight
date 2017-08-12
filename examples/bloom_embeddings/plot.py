@@ -12,10 +12,6 @@ def summarise_results(results):
 
     sns.set_style("darkgrid")
 
-    plt.ylabel("MRR ratio to baseline")
-    plt.xlabel("Compression ratio")
-    plt.title("Compression ratio vs MRR ratio")
-
     data = pd.DataFrame([x for x in results])
 
     best = (data.sort_values('test_mrr', ascending=False)
@@ -25,13 +21,27 @@ def summarise_results(results):
 
     baseline_mrr = (best[best['compression_ratio'] == 1.0]
                     ['validation_mrr'].values[0])
+    baseline_time = (best[best['compression_ratio'] == 1.0]
+                     ['elapsed'].values[0])
 
     compression_ratio = best['compression_ratio'].values
     mrr = best['validation_mrr'].values / baseline_mrr
+    elapsed = best['elapsed'].values / baseline_time
 
-    plt.plot(compression_ratio, mrr, label='Factorization')
-    plt.legend(loc='lower right')
+    plt.ylabel("MRR ratio to baseline")
+    plt.xlabel("Compression ratio")
+    plt.title("Compression ratio vs MRR ratio")
+
+    plt.plot(compression_ratio, mrr)
     plt.savefig('plot.png')
+    plt.close()
+
+    plt.ylabel("Time ratio to baseline")
+    plt.xlabel("Compression ratio")
+    plt.title("Compression ratio vs time ratio")
+
+    plt.plot(compression_ratio, elapsed)
+    plt.savefig('time.png')
 
 
 if __name__ == '__main__':

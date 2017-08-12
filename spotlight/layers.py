@@ -100,7 +100,7 @@ class BloomEmbedding(nn.Module):
     References
     ----------
 
-    .. [1] Serrà, Joan, and Alexandros Karatzoglou.
+    .. [1] Serra, Joan, and Alexandros Karatzoglou.
        "Getting deep recommenders fit: Bloom embeddings
        for sparse binary input/output networks."
        arXiv preprint arXiv:1706.03993 (2017).
