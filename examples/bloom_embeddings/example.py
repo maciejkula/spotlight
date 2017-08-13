@@ -1,3 +1,4 @@
+import argparse
 import hashlib
 import json
 import os
@@ -9,6 +10,7 @@ import numpy as np
 from sklearn.model_selection import ParameterSampler
 
 from spotlight.datasets.movielens import get_movielens_dataset
+from spotlight.datasets.amazon import get_amazon_dataset
 from spotlight.cross_validation import user_based_train_test_split
 from spotlight.sequence.implicit import ImplicitSequenceModel
 from spotlight.sequence.representations import LSTMNet
@@ -22,8 +24,8 @@ CUDA = (os.environ.get('CUDA') is not None or
 NUM_SAMPLES = 100
 
 LEARNING_RATES = [1e-4, 5 * 1e-4, 1e-3, 1e-2, 5 * 1e-2, 1e-1]
-LOSSES = ['bpr', 'hinge', 'adaptive_hinge', 'pointwise']
-BATCH_SIZE = [8, 16, 32, 256]
+LOSSES = ['bpr', 'adaptive_hinge']
+BATCH_SIZE = [16, 32, 256]
 EMBEDDING_DIM = [8, 16, 32, 64, 128, 256]
 N_ITER = list(range(5, 20))
 L2 = [1e-6, 1e-5, 1e-4, 1e-3, 1e-2, 0.0]
@@ -43,14 +45,25 @@ class Results:
 
     def save(self, hyperparams, test_mrr, validation_mrr, elapsed):
 
-        result = {'test_mrr': test_mrr,
-                  'validation_mrr': validation_mrr,
-                  'elapsed': elapsed,
-                  'hash': self._hash(hyperparams)}
-        result.update(hyperparams)
+        result = hyperparams.copy()
+
+        result.update({'test_mrr': test_mrr,
+                       'validation_mrr': validation_mrr,
+                       'elapsed': elapsed,
+                       'hash': self._hash(hyperparams)})
 
         with open(self._filename, 'a+') as out:
             out.write(json.dumps(result) + '\n')
+
+    def best_baseline(self):
+
+        results = sorted([x for x in self if x['compression_ratio'] == 1.0],
+                         key=lambda x: -x['test_mrr'])
+
+        if results:
+            return results[0]
+        else:
+            return None
 
     def best(self):
 
@@ -104,7 +117,6 @@ def sample_hyperparameters(random_state, num):
         'learning_rate': LEARNING_RATES,
         'loss': LOSSES,
         'embedding_dim': EMBEDDING_DIM,
-        'num_hash_functions': [2, 3, 4, 5, 6]
     }
 
     sampler = ParameterSampler(space,
@@ -122,7 +134,7 @@ def evaluate_model(hyperparameters, train, test, validation, random_state):
     if h['compression_ratio'] < 1.0:
         item_embeddings = BloomEmbedding(train.num_items, h['embedding_dim'],
                                          compression_ratio=h['compression_ratio'],
-                                         num_hash_functions=h['num_hash_functions'])
+                                         num_hash_functions=4)
         network = LSTMNet(train.num_items, h['embedding_dim'],
                           item_embedding_layer=item_embeddings)
     else:
@@ -148,42 +160,67 @@ def evaluate_model(hyperparameters, train, test, validation, random_state):
     return test_mrr, val_mrr, elapsed
 
 
-def run(train, test, validation, random_state):
+def run(dataset, train, test, validation, random_state):
 
-    results = Results('results.txt')
-    compression_ratios = (0.2, 0.5, 0.7, 1.0)
+    results = Results('{}_results.txt'.format(dataset))
+    compression_ratios = (np.arange(1, 10) / 10).tolist()
 
     best_result = results.best()
 
     if best_result is not None:
         print('Best result: {}'.format(results.best()))
 
+    # Find a good baseline
     for hyperparameters in sample_hyperparameters(random_state, NUM_SAMPLES):
-        for compression_ratio in compression_ratios:
 
-            hyperparameters['compression_ratio'] = compression_ratio
+        print('Fitting {}'.format(hyperparameters))
 
-            if hyperparameters in results:
-                continue
+        hyperparameters['compression_ratio'] = 1.0
+        (test_mrr, val_mrr, elapsed) = evaluate_model(hyperparameters,
+                                                      train,
+                                                      test,
+                                                      validation,
+                                                      random_state)
+        print('Test MRR {} val MRR {}'.format(
+            test_mrr.mean(), val_mrr.mean()
+        ))
 
-            print('Evaluating {}'.format(hyperparameters))
+        results.save(hyperparameters, test_mrr.mean(), val_mrr.mean(), elapsed)
 
-            (test_mrr, val_mrr, elapsed) = evaluate_model(hyperparameters,
-                                                          train,
-                                                          test,
-                                                          validation,
-                                                          random_state)
+    best_baseline = results.best_baseline()
+    print('Best baseline: {}'.format(best_baseline))
 
-            print('Test MRR {} val MRR {}'.format(
-                test_mrr.mean(), val_mrr.mean()
-            ))
+    # Compute compression results
+    for compression_ratio in compression_ratios:
 
-            results.save(hyperparameters, test_mrr.mean(), val_mrr.mean(), elapsed)
+        hyperparameters = best_baseline
+        hyperparameters['compression_ratio'] = compression_ratio
+
+        if hyperparameters in results:
+            continue
+
+        print('Evaluating {}'.format(hyperparameters))
+
+        (test_mrr, val_mrr, elapsed) = evaluate_model(hyperparameters,
+                                                      train,
+                                                      test,
+                                                      validation,
+                                                      random_state)
+        print('Test MRR {} val MRR {}'.format(
+            test_mrr.mean(), val_mrr.mean()
+        ))
+
+        results.save(hyperparameters, test_mrr.mean(), val_mrr.mean(), elapsed)
 
     return results
 
 
 if __name__ == '__main__':
+
+    parser = argparse.ArgumentParser()
+    parser.add_argument('dataset', type=str)
+
+    args = parser.parse_args()
 
     max_sequence_length = 200
     min_sequence_length = 20
@@ -191,7 +228,10 @@ if __name__ == '__main__':
 
     random_state = np.random.RandomState(100)
 
-    dataset = get_movielens_dataset('1M')
+    if args.dataset == 'movielens':
+        dataset = get_movielens_dataset('1M')
+    else:
+        dataset = get_amazon_dataset()
 
     train, rest = user_based_train_test_split(dataset,
                                               random_state=random_state)
@@ -208,4 +248,4 @@ if __name__ == '__main__':
                                         min_sequence_length=min_sequence_length,
                                         step_size=step_size)
 
-    run(train, test, validation, random_state)
+    run(args.dataset, train, test, validation, random_state)

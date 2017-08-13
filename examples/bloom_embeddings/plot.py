@@ -1,3 +1,4 @@
+import numpy as np
 import pandas as pd
 
 import matplotlib
@@ -13,9 +14,13 @@ def summarise_results(results):
     sns.set_style("darkgrid")
 
     data = pd.DataFrame([x for x in results])
+    data = data[data['embedding_dim'] <= 64]
 
     best = (data.sort_values('test_mrr', ascending=False)
             .groupby('compression_ratio', as_index=False).first())
+
+    # Normalize per iteration
+    best['elapsed'] = best['elapsed'] / best['n_iter']
 
     print(best)
 
@@ -32,7 +37,9 @@ def summarise_results(results):
     plt.xlabel("Compression ratio")
     plt.title("Compression ratio vs MRR ratio")
 
-    plt.plot(compression_ratio, mrr)
+    plt.plot(compression_ratio, mrr,
+             label='Movielens')
+    plt.legend(loc='lower right')
     plt.savefig('plot.png')
     plt.close()
 
