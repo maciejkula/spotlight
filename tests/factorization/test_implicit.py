@@ -4,19 +4,12 @@ import numpy as np
 
 import torch
 
-from torch.autograd import Variable
-
 import pytest
 
 from spotlight.cross_validation import random_train_test_split
 from spotlight.datasets import movielens, synthetic
 from spotlight.evaluation import mrr_score
-from spotlight.losses import (
-    adaptive_hinge_loss,
-    bpr_loss,
-    hinge_loss,
-    pointwise_loss
-)
+
 
 from spotlight.factorization.implicit import ImplicitFactorizationModel
 
@@ -53,7 +46,7 @@ def test_weights(weight_factor, loss, expected):
 
     # Add weights
     if weight_factor is not None:
-        interactions.weights = weight_factor * np.ones((100000,))
+        interactions.weights = np.repeat(weight_factor, len(interactions))
 
     train, test = random_train_test_split(interactions,
                                           random_state=RANDOM_STATE)
@@ -72,28 +65,6 @@ def test_weights(weight_factor, loss, expected):
         assert mrr < expected
     else:
         assert mrr > expected
-
-
-def test_pointwise_loss():
-
-    # Test loss function with zero weights
-    positive_predictions = Variable(torch.from_numpy((np.ones(100))))
-    negative_predictions = Variable(torch.from_numpy((np.ones(100))))
-    weights = Variable(torch.from_numpy(np.zeros(100)))
-
-    out = pointwise_loss(positive_predictions, negative_predictions, weights)
-    assert out.data.numpy().sum() == 0
-
-
-def test_bpr_loss():
-
-    # Test loss function with zero weights
-    positive_predictions = Variable(torch.from_numpy((np.ones(100))))
-    negative_predictions = Variable(torch.from_numpy((np.ones(100))))
-    weights = Variable(torch.from_numpy(np.zeros(100)))
-
-    out = bpr_loss(positive_predictions, negative_predictions, weights)
-    assert out.data.numpy().sum() == 0
 
 
 def test_bpr_custom_optimizer():
@@ -152,28 +123,6 @@ def test_bpr_hybrid(use_timestamps, expected_mrr):
     print('MRR {}'.format(mrr))
 
     assert mrr > expected_mrr
-
-
-def test_hinge_loss():
-
-    # Test loss function with zero weights
-    positive_predictions = Variable(torch.from_numpy((np.ones(100))))
-    negative_predictions = Variable(torch.from_numpy((np.ones(100))))
-    weights = Variable(torch.from_numpy(np.zeros(100)))
-
-    out = hinge_loss(positive_predictions, negative_predictions, weights)
-    assert out.data.numpy().sum() == 0
-
-
-def test_adaptive_hinge_loss():
-
-    # Test loss function with zero weights
-    positive_predictions = Variable(torch.from_numpy(np.random.random((1, 100))))
-    negative_predictions = Variable(torch.from_numpy(np.random.random((1, 100))))
-    weights = Variable(torch.from_numpy(np.zeros(100)))
-
-    out = adaptive_hinge_loss(positive_predictions, negative_predictions, weights)
-    assert out.data.numpy().sum() == 0
 
 
 @pytest.mark.parametrize('use_features, expected_mrr', [

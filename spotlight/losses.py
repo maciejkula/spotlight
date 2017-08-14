@@ -242,7 +242,7 @@ def poisson_loss(observed_ratings, predicted_ratings, weights=None):
 
     assert_no_grad(observed_ratings)
 
-    loss = (predicted_ratings - observed_ratings) * torch.log(predicted_ratings)
+    loss = predicted_ratings - observed_ratings * torch.log(predicted_ratings)
 
     if weights is not None:
         loss = loss * weights
