@@ -22,6 +22,7 @@ Contents
    Loss functions <losses>
    Evaluation <evaluation>
    Sampling <sampling>
+   Model Serialization <serialization>
 
 
 Changelog
