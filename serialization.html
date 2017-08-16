@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>Search &mdash; Spotlight v0.1.1 documentation</title>
+  <title>Model serialization &mdash; Spotlight v0.1.1 documentation</title>
   
 
   
@@ -36,8 +36,10 @@
   
         <link rel="index" title="Index"
               href="genindex.html"/>
-        <link rel="search" title="Search" href="#"/>
-    <link rel="top" title="Spotlight v0.1.1 documentation" href="index.html"/> 
+        <link rel="search" title="Search" href="search.html"/>
+    <link rel="top" title="Spotlight v0.1.1 documentation" href="index.html"/>
+        <link rel="next" title="Changelog" href="changelog.html"/>
+        <link rel="prev" title="Sampling" href="sampling.html"/> 
 
   
   <script src="_static/js/modernizr.min.js"></script>
@@ -76,7 +78,7 @@
 
           
 <div role="search">
-  <form id="rtd-search-form" class="wy-form" action="#" method="get">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
     <input type="text" name="q" placeholder="Search docs" />
     <input type="hidden" name="check_keywords" value="yes" />
     <input type="hidden" name="area" value="default" />
@@ -93,7 +95,7 @@
               
             
             
-              <ul>
+              <ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="interactions.html">Interactions</a></li>
 <li class="toctree-l1"><a class="reference internal" href="datasets/datasets.html">Datasets</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="datasets/synthetic.html">Synthetic</a></li>
@@ -115,8 +117,8 @@
 <li class="toctree-l1"><a class="reference internal" href="losses.html">Loss functions</a></li>
 <li class="toctree-l1"><a class="reference internal" href="evaluation.html">Evaluation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="sampling.html">Sampling</a></li>
-<li class="toctree-l1"><a class="reference internal" href="serialization.html">Model Serialization</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="serialization.html#saving-and-loading-the-model">Saving and loading the model</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Model Serialization</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#saving-and-loading-the-model">Saving and loading the model</a></li>
 </ul>
 </li>
 </ul>
@@ -173,10 +175,14 @@
     
       <li><a href="index.html">Docs</a> &raquo;</li>
         
-      <li>Search</li>
+      <li>Model serialization</li>
     
     
       <li class="wy-breadcrumbs-aside">
+        
+            
+            <a href="_sources/serialization.rst.txt" rel="nofollow"> View page source</a>
+          
         
       </li>
     
@@ -188,19 +194,21 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
             
-  <noscript>
-  <div id="fallback" class="admonition warning">
-    <p class="last">
-      Please activate JavaScript to enable the search
-      functionality.
-    </p>
-  </div>
-  </noscript>
+  <div class="section" id="model-serialization">
+<h1>Model serialization<a class="headerlink" href="#model-serialization" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="saving-and-loading-the-model">
+<h2>Saving and loading the model<a class="headerlink" href="#saving-and-loading-the-model" title="Permalink to this headline">¶</a></h2>
+<p>To save a <code class="docutils literal"><span class="pre">spotlight</span></code> model, you can simply use <code class="docutils literal"><span class="pre">torch</span></code> serialization utilities:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">torch</span><span class="o">.</span><span class="n">save</span><span class="p">(</span><span class="n">spotlight_model</span><span class="p">,</span> <span class="n">PATH</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>and then:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">spotlight_model</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">PATH</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</div>
 
-  
-  <div id="search-results">
-  
-  </div>
 
            </div>
            <div class="articleComments">
@@ -208,6 +216,15 @@
            </div>
           </div>
           <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="changelog.html" class="btn btn-neutral float-right" title="Changelog" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="sampling.html" class="btn btn-neutral" title="Sampling" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
   
 
   <hr/>
@@ -246,7 +263,6 @@
       <script type="text/javascript" src="_static/jquery.js"></script>
       <script type="text/javascript" src="_static/underscore.js"></script>
       <script type="text/javascript" src="_static/doctools.js"></script>
-      <script type="text/javascript" src="_static/searchtools.js"></script>
 
   
 
@@ -262,14 +278,7 @@
           SphinxRtdTheme.StickyNav.enable();
       });
   </script>
-  
-  <script type="text/javascript">
-    jQuery(function() { Search.loadIndex("searchindex.js"); });
-  </script>
-  
-  <script type="text/javascript" id="searchindexloader"></script>
    
-
 
 </body>
 </html>
