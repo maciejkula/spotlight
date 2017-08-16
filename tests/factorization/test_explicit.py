@@ -13,44 +13,39 @@ RANDOM_STATE = np.random.RandomState(42)
 CUDA = bool(os.environ.get('SPOTLIGHT_CUDA', False))
 
 
-def test_regression():
+@pytest.mark.parametrize('weight_factor, loss, expected', [
+    (1, 'regression', 1.0),
+    (0, 'regression', 1.0),
+    (1, 'poisson', 1.0),
+    (0, 'poisson', 1.0)
+])
+def test_model_fitting(weight_factor, loss, expected):
 
     interactions = movielens.get_movielens_dataset('100K')
+
+    # Add weights
+    interactions.weights = np.repeat(weight_factor, len(interactions))
 
     train, test = random_train_test_split(interactions,
                                           random_state=RANDOM_STATE)
 
-    model = ExplicitFactorizationModel(loss='regression',
-                                       n_iter=10,
-                                       batch_size=1024,
-                                       learning_rate=1e-3,
-                                       l2=1e-5,
-                                       use_cuda=CUDA)
-    model.fit(train)
-
-    rmse = rmse_score(model, test)
-
-    assert rmse < 1.0
-
-
-def test_poisson():
-
-    interactions = movielens.get_movielens_dataset('100K')
-
-    train, test = random_train_test_split(interactions,
-                                          random_state=RANDOM_STATE)
-
-    model = ExplicitFactorizationModel(loss='poisson',
+    model = ExplicitFactorizationModel(loss=loss,
                                        n_iter=10,
                                        batch_size=1024,
                                        learning_rate=1e-3,
                                        l2=1e-6,
                                        use_cuda=CUDA)
+
     model.fit(train)
 
     rmse = rmse_score(model, test)
 
-    assert rmse < 1.0
+    if weight_factor == 0:
+        # Check the RMSE is bad with zero weights...
+        assert rmse > expected
+    else:
+        # But good with normal weights.
+        assert rmse < expected
 
 
 def test_check_input():
