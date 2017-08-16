@@ -21,7 +21,7 @@ from spotlight.evaluation import sequence_mrr_score
 CUDA = (os.environ.get('CUDA') is not None or
         shutil.which('nvidia-smi') is not None)
 
-NUM_SAMPLES = 100
+NUM_SAMPLES = 50
 
 LEARNING_RATES = [1e-4, 5 * 1e-4, 1e-3, 1e-2, 5 * 1e-2, 1e-1]
 LOSSES = ['bpr', 'adaptive_hinge']

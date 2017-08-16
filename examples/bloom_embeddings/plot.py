@@ -53,5 +53,5 @@ def summarise_results(results):
 
 if __name__ == '__main__':
 
-    results = Results('results.txt')
+    results = Results('movielens_results.txt')
     summarise_results(results)
