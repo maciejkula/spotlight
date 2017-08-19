@@ -114,7 +114,7 @@ class BloomEmbedding(nn.Module):
     """
 
     def __init__(self, num_embeddings, embedding_dim,
-                 compression_ratio=0.6,
+                 compression_ratio=0.2,
                  num_hash_functions=2,
                  padding_idx=None):
 
@@ -161,6 +161,10 @@ class BloomEmbedding(nn.Module):
 
             self._masks_tensor = masks
             self._indices_cache = masks * 0
+
+            if indices.is_cuda:
+                self._masks_tensor = self._masks_tensor.cuda()
+                self._indices_cache = self._indices_cache.cuda()
 
         return self._masks_tensor, self._indices_cache
 
