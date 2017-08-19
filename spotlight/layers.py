@@ -2,7 +2,11 @@
 Embedding layers useful for recommender models.
 """
 
+import numpy as np
+import torch
 import torch.nn as nn
+
+from torch.autograd import Variable
 
 
 PRIMES = [
@@ -63,6 +67,9 @@ class BloomEmbedding(nn.Module):
         Number of entities to be represented.
     embedding_dim: int
         Latent dimension of the embedding.
+    bag: boolean, optional
+        Whether to use the EmbeddingBag layer.
+        Faster, but not available for sequence problems.
     compression_ratio: float, optional
         The underlying number of rows in the embedding layer
         after compression. Numbers below 1.0 will use more
@@ -107,7 +114,8 @@ class BloomEmbedding(nn.Module):
     """
 
     def __init__(self, num_embeddings, embedding_dim,
-                 compression_ratio=0.6, num_hash_functions=2,
+                 compression_ratio=0.6,
+                 num_hash_functions=2,
                  padding_idx=None):
 
         super(BloomEmbedding, self).__init__()
@@ -129,11 +137,32 @@ class BloomEmbedding(nn.Module):
                                           self.embedding_dim,
                                           padding_idx=padding_idx)
 
+        # Caches for output tensors
+        self._masks_tensor = None
+        self._indices_cache = None
+        self._sequence_cache = None
+
     def __repr__(self):
 
         return ('<BloomEmbedding (compression_ratio: {}): {}>'
                 .format(self.compression_ratio,
                         repr(self.embeddings)))
+
+    def _initialize_caches(self, indices):
+
+        masks_size = indices.size() + (len(self._masks),)
+
+        if (self._masks_tensor is None or
+                self._masks_tensor.size() != masks_size):
+
+            masks = (torch
+                     .from_numpy(np.array(self._masks, dtype=np.int64))
+                     .expand(masks_size))
+
+            self._masks_tensor = masks
+            self._indices_cache = masks * 0
+
+        return self._masks_tensor, self._indices_cache
 
     def forward(self, indices):
         """
@@ -142,14 +171,25 @@ class BloomEmbedding(nn.Module):
         See documentation on PyTorch ``nn.Embedding`` for details.
         """
 
-        # The iterative solution is necessitated by making
-        # the implementation compatible with sequence-based models,
-        # where the embedding indices are already two-dimensional.
-        embedding = self.embeddings(indices * self._masks[0] % self.compressed_num_embeddings)
+        (masks,
+         masked_indices) = self._initialize_caches(indices)
 
-        for mask in self._masks[1:]:
-            embedding += self.embeddings(indices * mask % self.compressed_num_embeddings)
+        torch.mul(
+            indices.data.unsqueeze(indices.dim()).expand_as(masks),
+            masks,
+            out=masked_indices)
 
-        embedding /= self.num_hash_functions
+        masked_indices.remainder_(self.compressed_num_embeddings)
+        masked_indices = Variable(masked_indices)
+
+        if masked_indices.dim() == 2:
+            embedding = self.embeddings(masked_indices).mean(1)
+        else:
+            embedding = self.embeddings(masked_indices[:, :, 0])
+
+            for idx in range(1, len(self._masks)):
+                embedding += self.embeddings(masked_indices[:, :, idx])
+
+            embedding /= len(self._masks)
 
         return embedding
