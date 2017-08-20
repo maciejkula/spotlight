@@ -9,18 +9,15 @@ import seaborn as sns
 from example import Results
 
 
-def summarise_results(results):
-
-    sns.set_style("darkgrid")
+def process_results(results):
 
     data = pd.DataFrame([x for x in results])
-    data = data[data['embedding_dim'] <= 64]
 
     best = (data.sort_values('test_mrr', ascending=False)
             .groupby('compression_ratio', as_index=False).first())
 
     # Normalize per iteration
-    best['elapsed'] = best['elapsed'] / best['n_iter']
+    best['elapsed'] = best['elapsed'] #/ best['n_iter']
 
     print(best)
 
@@ -33,15 +30,40 @@ def summarise_results(results):
     mrr = best['validation_mrr'].values / baseline_mrr
     elapsed = best['elapsed'].values / baseline_time
 
+    return compression_ratio, mrr, elapsed
+
+
+def plot_results(movielens, amazon):
+
+    sns.set_style("darkgrid")
+
+    for name, result in (('Movielens',
+                          movielens), ('Amazon', amazon)):
+
+        (compression_ratio,
+         mrr,
+         elapsed) = process_results(result)
+
+        plt.plot(compression_ratio, mrr,
+                 label=name)
+
     plt.ylabel("MRR ratio to baseline")
     plt.xlabel("Compression ratio")
     plt.title("Compression ratio vs MRR ratio")
 
-    plt.plot(compression_ratio, mrr,
-             label='Movielens')
     plt.legend(loc='lower right')
     plt.savefig('plot.png')
     plt.close()
+
+    for name, result in (('Movielens',
+                          movielens), ('Amazon', amazon)):
+
+        (compression_ratio,
+         mrr,
+         elapsed) = process_results(result)
+
+        plt.plot(compression_ratio, elapsed,
+                 label=name)
 
     plt.ylabel("Time ratio to baseline")
     plt.xlabel("Compression ratio")
@@ -54,4 +76,5 @@ def summarise_results(results):
 if __name__ == '__main__':
 
     results = Results('movielens_results.txt')
-    summarise_results(results)
+    plot_results(Results('movielens_results.txt'),
+                 Results('amazon_results.txt'))

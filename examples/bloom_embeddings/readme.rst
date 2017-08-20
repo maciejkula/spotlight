@@ -20,14 +20,28 @@ The implementation in Spotlight follows the RecSys 2017 "Getting deep recommende
 Spotlight implementation
 ------------------------
 
-While the approach in the paper uses binary input vectors, the Spotlight implementation uses embedding layers indexed by hashed indices; vectors retrieved by each hash function are averaged together to yield the final embedding. Mathematically, the two formulations should be identical.
+While the approach in the paper uses binary input vectors, the Spotlight implementation uses embedding layers indexed by hashed indices; vectors retrieved by each hash function are averaged together to yield the final embedding. Mathematically, the two formulations should be identical. However, we can expect different fitting speed gains. In the original formulation (using high-dimensional dense matrix-vector multiplications) the cost of high dimensionality is borne twice: firstly, in having to update all the parameters on every gradient step, and, secondly, in having to perform the full multiplication. This is wasteful because the vast majority of the entries in the matrix are zeros. The Spoltight implementation uses embedding layers, which do not incur the cost of needless matrix multiplication, and so we will not see that part of the performance gain. (It would be interesting to compare the two approaches to user and item representation. However, this is beyond the scope of this post.)
 
 For hashing, I use a simple multiplicative hash with a different prime for every hash function, modulo the size of the compressed embedding layer. The very simple hashing scheme keeps the implementation straightforward, and passes reasonable basic tests of hashing uniformity (the unit test is `here <https://github.com/maciejkula/spotlight/blob/master/tests/test_layers.py>`_; if you have a better idea how to implement basic hashing, let me know!).
 
-Experiments
------------
+Experiments: fitting speed
+--------------------------
 
-To validate the idea (and its implementation), we can run it on a couple of datasets and gauge the effect of embedding on model accuracy.
+Improvements in fitting speed materialise only when the embedding dimension is high. The plot below shows the relative improvement in fitting time of a bloom embedding layer, assuming compression ratio of 0.2 and 2 hash functions. To get the timings, I run a factorization and a sequence model on the Movielens 100K dataset, artificially inflating the number of users and items.
+
+.. image:: speed.png
+   :align: center
+
+|
+
+The performance gains increase as the embedding dimension grows large; for small dimensionalities, bloom embeddings are slower, presumably due to hashing and averaging overhead. They are also larger for factorization models: sequence models only have one embedding layer (items). Additionally, they have to fall back to a suboptimal implementation of embedding averaging, due to PyTorch implementation constraints.
+
+Performance gains diminish as the number of hash functions increases, and as the compression ratio goes to 1.0.
+
+Experiments: accuracy
+---------------------
+
+To validate the idea (and its implementation), we can run it on a real datasets and gauge the effect of embedding on model accuracy and speed.
 
 In this example, I run an experiment on the Movielens 1M dataset. I use sequences of items as inputs, obtain a user representation using an LSTM, and try to predict the next item in the user sequence. I use bloom embedding layers for item representations, at different levels of compression, and compare them to the accuracy obtained using normal embeddings. For each compression level, I carry out a hyperparameter search and pick the hyperparameters that perform best on the test set.
 
@@ -41,6 +55,3 @@ In this example, I run an experiment on the Movielens 1M dataset. I use sequence
    :align: center
 
 |
-
-
-The hash function used is simple multiplicative hashing with adifferent prime for every hash function, modulo the size of the compressed embedding layer.

@@ -25,8 +25,8 @@ NUM_SAMPLES = 50
 
 LEARNING_RATES = [1e-4, 5 * 1e-4, 1e-3, 1e-2, 5 * 1e-2, 1e-1]
 LOSSES = ['bpr', 'adaptive_hinge']
-BATCH_SIZE = [16, 32, 256]
-EMBEDDING_DIM = [8, 16, 32, 64, 128, 256]
+BATCH_SIZE = [16, 32, 128, 256]
+EMBEDDING_DIM = [32, 64, 128, 256]
 N_ITER = list(range(5, 20))
 L2 = [1e-6, 1e-5, 1e-4, 1e-3, 1e-2, 0.0]
 
@@ -57,7 +57,9 @@ class Results:
 
     def best_baseline(self):
 
-        results = sorted([x for x in self if x['compression_ratio'] == 1.0],
+        results = sorted([x for x in self
+                          if x['compression_ratio'] == 1.0
+                          and x['embedding_dim'] >= 32],
                          key=lambda x: -x['test_mrr'])
 
         if results:
@@ -134,7 +136,7 @@ def evaluate_model(hyperparameters, train, test, validation, random_state):
     if h['compression_ratio'] < 1.0:
         item_embeddings = BloomEmbedding(train.num_items, h['embedding_dim'],
                                          compression_ratio=h['compression_ratio'],
-                                         num_hash_functions=4)
+                                         num_hash_functions=2)
         network = LSTMNet(train.num_items, h['embedding_dim'],
                           item_embedding_layer=item_embeddings)
     else:
@@ -181,8 +183,8 @@ def run(dataset, train, test, validation, random_state):
                                                       test,
                                                       validation,
                                                       random_state)
-        print('Test MRR {} val MRR {}'.format(
-            test_mrr.mean(), val_mrr.mean()
+        print('Test MRR {} val MRR {} elapsed {}'.format(
+            test_mrr.mean(), val_mrr.mean(), elapsed
         ))
 
         results.save(hyperparameters, test_mrr.mean(), val_mrr.mean(), elapsed)
@@ -206,8 +208,8 @@ def run(dataset, train, test, validation, random_state):
                                                       test,
                                                       validation,
                                                       random_state)
-        print('Test MRR {} val MRR {}'.format(
-            test_mrr.mean(), val_mrr.mean()
+        print('Test MRR {} val MRR {} elapsed {}'.format(
+            test_mrr.mean(), val_mrr.mean(), elapsed
         ))
 
         results.save(hyperparameters, test_mrr.mean(), val_mrr.mean(), elapsed)
@@ -222,18 +224,28 @@ if __name__ == '__main__':
 
     args = parser.parse_args()
 
-    max_sequence_length = 200
-    min_sequence_length = 20
-    step_size = 200
-
     random_state = np.random.RandomState(100)
 
     if args.dataset == 'movielens':
         dataset = get_movielens_dataset('1M')
+        max_sequence_length = 200
+        min_sequence_length = 20
+        step_size = 200
+        test_percentage = 0.2
     else:
-        dataset = get_amazon_dataset()
+        dataset = get_amazon_dataset(min_user_interactions=20,
+                                     min_item_interactions=5)
+        max_sequence_length = int(np.percentile(dataset.tocsr()
+                                                .getnnz(axis=1),
+                                                95))
+        min_sequence_length = 20
+        step_size = max_sequence_length
+        test_percentage = 0.05
+
+    print(dataset)
 
     train, rest = user_based_train_test_split(dataset,
+                                              test_percentage=0.05,
                                               random_state=random_state)
     test, validation = user_based_train_test_split(rest,
                                                    test_percentage=0.5,

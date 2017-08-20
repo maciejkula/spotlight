@@ -124,10 +124,10 @@ def test_adaptive_hinge():
 
 
 @pytest.mark.parametrize('compression_ratio, expected_mrr', [
-    (0.5, 0.04),
-    (1.0, 0.05),
-    (1.5, 0.06),
-    (2.0, 0.06),
+    (0.5, 0.03),
+    (1.0, 0.04),
+    (1.5, 0.045),
+    (2.0, 0.045),
 ])
 def test_bpr_bloom(compression_ratio, expected_mrr):
 
