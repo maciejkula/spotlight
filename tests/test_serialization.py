@@ -77,7 +77,7 @@ def test_implicit_serialization(data):
     model.fit(train)
 
     mrr_original = mrr_score(model, test, train=train).mean()
-    mrr_recovered = mrr_score(model, test, train=train).mean()
+    mrr_recovered = mrr_score(_reload(model), test, train=train).mean()
 
     assert mrr_original == mrr_recovered
 
@@ -103,6 +103,6 @@ def test_implicit_sequence_serialization(data):
     model.fit(train)
 
     mrr_original = sequence_mrr_score(model, test).mean()
-    mrr_recovered = sequence_mrr_score(model, test).mean()
+    mrr_recovered = sequence_mrr_score(_reload(model), test).mean()
 
     assert mrr_original == mrr_recovered
