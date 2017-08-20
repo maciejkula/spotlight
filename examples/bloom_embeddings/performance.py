@@ -15,12 +15,10 @@ from spotlight.sequence.representations import PoolNet
 from spotlight.datasets.movielens import get_movielens_dataset
 
 
-COMPRESSION_RATIO = 0.4
-HASH_FUNCTIONS = 3
 CUDA = torch.cuda.is_available()
 
 
-def time_fitting(model, data, repetitions=3):
+def time_fitting(model, data, repetitions=2):
 
     start_time = time.time()
 
@@ -47,9 +45,9 @@ def factorization_model(num_embeddings, bloom):
                           item_embedding_layer=item_embeddings)
 
     model = ImplicitFactorizationModel(loss='bpr',
-                                       n_iter=1,
+                                       n_iter=10,
                                        embedding_dim=32,
-                                       batch_size=1024,
+                                       batch_size=2048,
                                        learning_rate=1e-2,
                                        l2=1e-6,
                                        representation=network,
@@ -69,7 +67,7 @@ def sequence_model(num_embeddings, bloom):
                       item_embedding_layer=item_embeddings)
 
     model = ImplicitSequenceModel(loss='bpr',
-                                  n_iter=2,
+                                  n_iter=10,
                                   batch_size=32,
                                   learning_rate=1e-2,
                                   l2=1e-6,

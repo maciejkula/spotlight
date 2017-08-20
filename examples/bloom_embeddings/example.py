@@ -136,7 +136,7 @@ def evaluate_model(hyperparameters, train, test, validation, random_state):
     if h['compression_ratio'] < 1.0:
         item_embeddings = BloomEmbedding(train.num_items, h['embedding_dim'],
                                          compression_ratio=h['compression_ratio'],
-                                         num_hash_functions=2)
+                                         num_hash_functions=4)
         network = LSTMNet(train.num_items, h['embedding_dim'],
                           item_embedding_layer=item_embeddings)
     else:
@@ -173,21 +173,21 @@ def run(dataset, train, test, validation, random_state):
         print('Best result: {}'.format(results.best()))
 
     # Find a good baseline
-    # for hyperparameters in sample_hyperparameters(random_state, NUM_SAMPLES):
+    for hyperparameters in sample_hyperparameters(random_state, NUM_SAMPLES):
 
-    #     print('Fitting {}'.format(hyperparameters))
+        print('Fitting {}'.format(hyperparameters))
 
-    #     hyperparameters['compression_ratio'] = 1.0
-    #     (test_mrr, val_mrr, elapsed) = evaluate_model(hyperparameters,
-    #                                                   train,
-    #                                                   test,
-    #                                                   validation,
-    #                                                   random_state)
-    #     print('Test MRR {} val MRR {} elapsed {}'.format(
-    #         test_mrr.mean(), val_mrr.mean(), elapsed
-    #     ))
+        hyperparameters['compression_ratio'] = 1.0
+        (test_mrr, val_mrr, elapsed) = evaluate_model(hyperparameters,
+                                                      train,
+                                                      test,
+                                                      validation,
+                                                      random_state)
+        print('Test MRR {} val MRR {} elapsed {}'.format(
+            test_mrr.mean(), val_mrr.mean(), elapsed
+        ))
 
-    #     results.save(hyperparameters, test_mrr.mean(), val_mrr.mean(), elapsed)
+        results.save(hyperparameters, test_mrr.mean(), val_mrr.mean(), elapsed)
 
     best_baseline = results.best_baseline()
     print('Best baseline: {}'.format(best_baseline))
@@ -200,8 +200,8 @@ def run(dataset, train, test, validation, random_state):
         hyperparameters['compression_ratio'] = compression_ratio
         hyperparameters['compression_ratio'] = 1.0
 
-        # if hyperparameters in results:
-        # continue
+        if hyperparameters in results:
+            continue
 
         print('Evaluating {}'.format(hyperparameters))
 
@@ -214,7 +214,7 @@ def run(dataset, train, test, validation, random_state):
             test_mrr.mean(), val_mrr.mean(), elapsed
         ))
 
-        # results.save(hyperparameters, test_mrr.mean(), val_mrr.mean(), elapsed)
+        results.save(hyperparameters, test_mrr.mean(), val_mrr.mean(), elapsed)
 
     return results
 

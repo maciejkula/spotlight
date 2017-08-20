@@ -114,7 +114,7 @@ class BloomEmbedding(nn.Module):
 
     def __init__(self, num_embeddings, embedding_dim,
                  compression_ratio=0.2,
-                 num_hash_functions=2,
+                 num_hash_functions=4,
                  padding_idx=0):
 
         super(BloomEmbedding, self).__init__()
