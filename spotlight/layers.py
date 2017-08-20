@@ -117,7 +117,7 @@ class BloomEmbedding(nn.Module):
     def __init__(self, num_embeddings, embedding_dim,
                  compression_ratio=0.2,
                  num_hash_functions=2,
-                 padding_idx=None):
+                 padding_idx=0):
 
         super(BloomEmbedding, self).__init__()
 
@@ -127,6 +127,7 @@ class BloomEmbedding(nn.Module):
         self.compressed_num_embeddings = int(compression_ratio *
                                              num_embeddings)
         self.num_hash_functions = num_hash_functions
+        self.padding_idx = padding_idx
 
         if num_hash_functions > len(PRIMES):
             raise ValueError('Can use at most {} hash functions ({} requested)'
@@ -138,7 +139,9 @@ class BloomEmbedding(nn.Module):
                                           self.embedding_dim,
                                           padding_idx=padding_idx)
 
-        # Caches
+        # Hash cache. We pre-hash all the indices, and then just
+        # map the indices to their pre-hashed values as we go
+        # through the minibatches.
         self._hashes = None
 
     def __repr__(self):
@@ -147,43 +150,29 @@ class BloomEmbedding(nn.Module):
                 .format(self.compression_ratio,
                         repr(self.embeddings)))
 
-    def _get_hashed_inices(self, original_indices):
+    def _get_hashed_indices(self, original_indices):
+
+        def _hash(x, seed):
+
+            # TODO: integrate with padding index
+            result = murmurhash3_32(indices, seed=seed)
+            result[self.padding_idx] = 0
+
+            return result % self.compressed_num_embeddings
 
         if self._hashes is None:
             indices = np.arange(self.num_embeddings, dtype=np.int32)
-            hashes = np.stack([murmurhash3_32(indices, seed=seed)
-                               for seed in self._masks]).astype(np.int64)
+            hashes = np.stack([_hash(indices, seed)
+                               for seed in self._masks],
+                              axis=1).astype(np.int64)
+            assert hashes[self.padding_idx].sum() == 0
 
             self._hashes = torch.from_numpy(hashes)
 
             if original_indices.is_cuda:
                 self._hashes = self._hashes.cuda()
 
-        return torch.index_select(self._hashes, original_indices)
-
-    def _initialize_caches(self, indices):
-
-        if indices.dim() < 2:
-            dim = indices.size(0)
-        else:
-            batch_size, seq_size = indices.size()
-            dim = batch_size * seq_size
-
-        if (self._masks_tensor is None or
-                self._masks_tensor.size(0) != dim):
-
-            masks = (torch
-                     .from_numpy(np.array(self._masks, dtype=np.int64))
-                     .expand(dim, len(self._masks)))
-
-            self._masks_tensor = masks
-            self._indices_cache = masks * 0
-
-            if indices.is_cuda:
-                self._masks_tensor = self._masks_tensor.cuda()
-                self._indices_cache = self._indices_cache.cuda()
-
-        return self._masks_tensor, self._indices_cache
+        return torch.index_select(self._hashes, 0, original_indices.squeeze())
 
     def forward(self, indices):
         """
@@ -191,9 +180,6 @@ class BloomEmbedding(nn.Module):
 
         See documentation on PyTorch ``nn.Embedding`` for details.
         """
-
-        (masks,
-         masked_indices) = self._initialize_caches(indices)
 
         if indices.dim() == 2:
             batch_size, seq_size = indices.size()
@@ -204,12 +190,9 @@ class BloomEmbedding(nn.Module):
             indices = indices.contiguous()
         indices = indices.data.view(batch_size * seq_size, 1)
 
-        torch.mul(
-            indices.expand_as(masks),
-            masks,
-            out=masked_indices)
+        indices = self._get_hashed_indices(indices)
 
-        masked_indices.remainder_(self.compressed_num_embeddings)
+        masked_indices = indices.remainder(self.compressed_num_embeddings)
         masked_indices = Variable(masked_indices)
 
         embedding = self.embeddings(masked_indices)

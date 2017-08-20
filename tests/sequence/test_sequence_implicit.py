@@ -254,7 +254,7 @@ def test_bloom_lstm(compression_ratio, expected_mrr):
     embedding = BloomEmbedding(train.num_items,
                                32,
                                compression_ratio=compression_ratio,
-                               num_hash_functions=1)
+                               num_hash_functions=4)
 
     representation = LSTMNet(train.num_items,
                              embedding_dim=EMBEDDING_DIM,
