@@ -3,6 +3,7 @@ Embedding layers useful for recommender models.
 """
 
 import numpy as np
+from sklearn.utils import murmurhash3_32
 import torch
 import torch.nn as nn
 
@@ -137,10 +138,8 @@ class BloomEmbedding(nn.Module):
                                           self.embedding_dim,
                                           padding_idx=padding_idx)
 
-        # Caches for output tensors
-        self._masks_tensor = None
-        self._indices_cache = None
-        self._sequence_cache = None
+        # Caches
+        self._hashes = None
 
     def __repr__(self):
 
@@ -148,16 +147,34 @@ class BloomEmbedding(nn.Module):
                 .format(self.compression_ratio,
                         repr(self.embeddings)))
 
+    def _get_hashed_inices(self, original_indices):
+
+        if self._hashes is None:
+            indices = np.arange(self.num_embeddings, dtype=np.int32)
+            hashes = np.stack([murmurhash3_32(indices, seed=seed)
+                               for seed in self._masks]).astype(np.int64)
+
+            self._hashes = torch.from_numpy(hashes)
+
+            if original_indices.is_cuda:
+                self._hashes = self._hashes.cuda()
+
+        return torch.index_select(self._hashes, original_indices)
+
     def _initialize_caches(self, indices):
 
-        masks_size = indices.size() + (len(self._masks),)
+        if indices.dim() < 2:
+            dim = indices.size(0)
+        else:
+            batch_size, seq_size = indices.size()
+            dim = batch_size * seq_size
 
         if (self._masks_tensor is None or
-                self._masks_tensor.size() != masks_size):
+                self._masks_tensor.size(0) != dim):
 
             masks = (torch
                      .from_numpy(np.array(self._masks, dtype=np.int64))
-                     .expand(masks_size))
+                     .expand(dim, len(self._masks)))
 
             self._masks_tensor = masks
             self._indices_cache = masks * 0
@@ -178,22 +195,25 @@ class BloomEmbedding(nn.Module):
         (masks,
          masked_indices) = self._initialize_caches(indices)
 
+        if indices.dim() == 2:
+            batch_size, seq_size = indices.size()
+        else:
+            batch_size, seq_size = indices.size(0), 1
+
+        if not indices.is_contiguous():
+            indices = indices.contiguous()
+        indices = indices.data.view(batch_size * seq_size, 1)
+
         torch.mul(
-            indices.data.unsqueeze(indices.dim()).expand_as(masks),
+            indices.expand_as(masks),
             masks,
             out=masked_indices)
 
         masked_indices.remainder_(self.compressed_num_embeddings)
         masked_indices = Variable(masked_indices)
 
-        if masked_indices.dim() == 2:
-            embedding = self.embeddings(masked_indices).mean(1)
-        else:
-            embedding = self.embeddings(masked_indices[:, :, 0])
-
-            for idx in range(1, len(self._masks)):
-                embedding += self.embeddings(masked_indices[:, :, idx])
-
-            embedding /= len(self._masks)
+        embedding = self.embeddings(masked_indices)
+        embedding = embedding.sum(1)
+        embedding = embedding.view(batch_size, seq_size, -1)
 
         return embedding

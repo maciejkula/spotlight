@@ -173,21 +173,21 @@ def run(dataset, train, test, validation, random_state):
         print('Best result: {}'.format(results.best()))
 
     # Find a good baseline
-    for hyperparameters in sample_hyperparameters(random_state, NUM_SAMPLES):
+    # for hyperparameters in sample_hyperparameters(random_state, NUM_SAMPLES):
 
-        print('Fitting {}'.format(hyperparameters))
+    #     print('Fitting {}'.format(hyperparameters))
 
-        hyperparameters['compression_ratio'] = 1.0
-        (test_mrr, val_mrr, elapsed) = evaluate_model(hyperparameters,
-                                                      train,
-                                                      test,
-                                                      validation,
-                                                      random_state)
-        print('Test MRR {} val MRR {} elapsed {}'.format(
-            test_mrr.mean(), val_mrr.mean(), elapsed
-        ))
+    #     hyperparameters['compression_ratio'] = 1.0
+    #     (test_mrr, val_mrr, elapsed) = evaluate_model(hyperparameters,
+    #                                                   train,
+    #                                                   test,
+    #                                                   validation,
+    #                                                   random_state)
+    #     print('Test MRR {} val MRR {} elapsed {}'.format(
+    #         test_mrr.mean(), val_mrr.mean(), elapsed
+    #     ))
 
-        results.save(hyperparameters, test_mrr.mean(), val_mrr.mean(), elapsed)
+    #     results.save(hyperparameters, test_mrr.mean(), val_mrr.mean(), elapsed)
 
     best_baseline = results.best_baseline()
     print('Best baseline: {}'.format(best_baseline))
@@ -196,10 +196,12 @@ def run(dataset, train, test, validation, random_state):
     for compression_ratio in compression_ratios:
 
         hyperparameters = best_baseline
+        hyperparameters['n_iter'] = 1
         hyperparameters['compression_ratio'] = compression_ratio
+        hyperparameters['compression_ratio'] = 1.0
 
-        if hyperparameters in results:
-            continue
+        # if hyperparameters in results:
+        # continue
 
         print('Evaluating {}'.format(hyperparameters))
 
@@ -212,7 +214,7 @@ def run(dataset, train, test, validation, random_state):
             test_mrr.mean(), val_mrr.mean(), elapsed
         ))
 
-        results.save(hyperparameters, test_mrr.mean(), val_mrr.mean(), elapsed)
+        # results.save(hyperparameters, test_mrr.mean(), val_mrr.mean(), elapsed)
 
     return results
 

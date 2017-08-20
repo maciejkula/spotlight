@@ -17,7 +17,7 @@ NUM_EPOCHS = 5
 EMBEDDING_DIM = 32
 BATCH_SIZE = 128
 LOSS = 'bpr'
-VERBOSE = False
+VERBOSE = True
 CUDA = bool(os.environ.get('SPOTLIGHT_CUDA', False))
 
 
@@ -254,7 +254,7 @@ def test_bloom_lstm(compression_ratio, expected_mrr):
     embedding = BloomEmbedding(train.num_items,
                                32,
                                compression_ratio=compression_ratio,
-                               num_hash_functions=2)
+                               num_hash_functions=1)
 
     representation = LSTMNet(train.num_items,
                              embedding_dim=EMBEDDING_DIM,

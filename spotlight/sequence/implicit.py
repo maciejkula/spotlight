@@ -240,6 +240,7 @@ class ImplicitSequenceModel(object):
                 epoch_loss += loss.data[0]
 
                 loss.backward()
+                # assert False
                 self._optimizer.step()
 
             epoch_loss /= minibatch_num + 1
