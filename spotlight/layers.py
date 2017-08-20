@@ -37,45 +37,6 @@ class ScaledEmbedding(nn.Embedding):
             self.weight.data[self.padding_idx].fill_(0)
 
 
-class ScaledEmbeddingBag(nn.EmbeddingBag):
-    """
-    Embedding layer that initialises its values
-    to using a normal variable scaled by the inverse
-    of the emedding dimension.
-    """
-
-    def reset_parameters(self):
-        """
-        Initialize parameters.
-        """
-
-        self.weight.data.normal_(0, 1.0 / self.embedding_dim)
-
-    # Backporting fix for 2D inputs from
-    # https://github.com/pytorch/pytorch/pull/2429/files
-    def forward(self, input_, offsets=None):
-        if input_.dim() == 2:
-            if offsets is not None:
-                raise ValueError("if input_ is 2D, then offsets has to be None"
-                                 ", as input_ is treated is a mini-batch of"
-                                 " fixed length sequences. However, found "
-                                 "offsets of type {}".format(type(offsets)))
-            else:
-                offsets = Variable(torch.arange(0, input_.numel(), input_.size(1),
-                                   out=input_.data.new().long()))
-                input_ = input_.view(-1)
-        elif input_.dim() != 1:
-            raise ValueError("input_ has to be 1D or 2D Tensor,"
-                             " but got Tensor of dimension {}".format(input_.dim()))
-        if offsets is None:
-            raise ValueError("offsets has to be a 1D Tensor but got None")
-
-        return self._backend.EmbeddingBag(
-            self.max_norm, self.norm_type,
-            self.scale_grad_by_freq, mode=self.mode
-        )(self.weight, input_, offsets)
-
-
 class ZeroEmbedding(nn.Embedding):
     """
     Embedding layer that initialises its values
@@ -172,9 +133,9 @@ class BloomEmbedding(nn.Module):
 
         self._masks = SEEDS[:self.num_hash_functions]
 
-        self.embeddings = ScaledEmbeddingBag(self.compressed_num_embeddings,
-                                             self.embedding_dim,
-                                             mode='sum')
+        self.embeddings = ScaledEmbedding(self.compressed_num_embeddings,
+                                          self.embedding_dim,
+                                          padding_idx=self.padding_idx)
 
         # Hash cache. We pre-hash all the indices, and then just
         # map the indices to their pre-hashed values as we go
@@ -212,7 +173,7 @@ class BloomEmbedding(nn.Module):
         hashed_indices = torch.index_select(self._hashes,
                                             0,
                                             original_indices.squeeze())
-        hashed_indices.remainder_(self.compressed_num_embeddings)
+        hashed_indices = hashed_indices.remainder(self.compressed_num_embeddings)
 
         return hashed_indices
 
@@ -230,12 +191,13 @@ class BloomEmbedding(nn.Module):
 
         if not indices.is_contiguous():
             indices = indices.contiguous()
+
         indices = indices.data.view(batch_size * seq_size, 1)
 
         hashed_indices = Variable(self._get_hashed_indices(indices))
 
         embedding = self.embeddings(hashed_indices)
-        # embedding = embedding.sum(1)
+        embedding = embedding.sum(1)
         embedding = embedding.view(batch_size, seq_size, -1)
 
         return embedding
