@@ -17,7 +17,7 @@ def process_results(results):
             .groupby('compression_ratio', as_index=False).first())
 
     # Normalize per iteration
-    best['elapsed'] = best['elapsed'] #/ best['n_iter']
+    best['elapsed'] = best['elapsed'] / best['n_iter']
 
     print(best)
 

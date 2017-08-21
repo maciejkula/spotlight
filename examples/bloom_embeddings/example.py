@@ -175,9 +175,13 @@ def run(dataset, train, test, validation, random_state):
     # Find a good baseline
     for hyperparameters in sample_hyperparameters(random_state, NUM_SAMPLES):
 
-        print('Fitting {}'.format(hyperparameters))
-
         hyperparameters['compression_ratio'] = 1.0
+
+        if hyperparameters in results:
+            print('Done, skipping...')
+            continue
+
+        print('Fitting {}'.format(hyperparameters))
         (test_mrr, val_mrr, elapsed) = evaluate_model(hyperparameters,
                                                       train,
                                                       test,
@@ -196,9 +200,7 @@ def run(dataset, train, test, validation, random_state):
     for compression_ratio in compression_ratios:
 
         hyperparameters = best_baseline
-        hyperparameters['n_iter'] = 1
         hyperparameters['compression_ratio'] = compression_ratio
-        hyperparameters['compression_ratio'] = 1.0
 
         if hyperparameters in results:
             continue
