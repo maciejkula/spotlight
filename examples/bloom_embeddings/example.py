@@ -14,7 +14,7 @@ from spotlight.datasets.amazon import get_amazon_dataset
 from spotlight.cross_validation import user_based_train_test_split
 from spotlight.sequence.implicit import ImplicitSequenceModel
 from spotlight.sequence.representations import LSTMNet
-from spotlight.layers import BloomEmbedding
+from spotlight.layers import BloomEmbedding, ScaledEmbedding
 from spotlight.evaluation import sequence_mrr_score
 
 
@@ -136,16 +136,20 @@ def evaluate_model(hyperparameters, train, test, validation, random_state):
     if h['compression_ratio'] < 1.0:
         item_embeddings = BloomEmbedding(train.num_items, h['embedding_dim'],
                                          compression_ratio=h['compression_ratio'],
-                                         num_hash_functions=4)
-        network = LSTMNet(train.num_items, h['embedding_dim'],
-                          item_embedding_layer=item_embeddings)
+                                         num_hash_functions=4,
+                                         padding_idx=0)
     else:
-        network = 'lstm'
+        item_embeddings = ScaledEmbedding(train.num_items, h['embedding_dim'],
+                                          padding_idx=0)
+
+    network = LSTMNet(train.num_items, h['embedding_dim'],
+                      item_embedding_layer=item_embeddings)
 
     model = ImplicitSequenceModel(loss=h['loss'],
                                   n_iter=h['n_iter'],
                                   batch_size=h['batch_size'],
                                   learning_rate=h['learning_rate'],
+                                  embedding_dim=h['embedding_dim'],
                                   l2=h['l2'],
                                   representation=network,
                                   use_cuda=CUDA,
@@ -154,6 +158,7 @@ def evaluate_model(hyperparameters, train, test, validation, random_state):
     start_time = time.time()
     model.fit(train, verbose=True)
     elapsed = time.time() - start_time
+    print('Elapsed {}'.format(elapsed))
     print(model)
 
     test_mrr = sequence_mrr_score(model, test)
