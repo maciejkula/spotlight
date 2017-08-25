@@ -56,6 +56,21 @@ class ZeroEmbedding(nn.Embedding):
             self.weight.data[self.padding_idx].fill_(0)
 
 
+class ScaledEmbeddingBag(nn.EmbeddingBag):
+    """
+    Embedding layer that initialises its values
+    to using a normal variable scaled by the inverse
+    of the emedding dimension.
+    """
+
+    def reset_parameters(self):
+        """
+        Initialize parameters.
+        """
+
+        self.weight.data.normal_(0, 1.0 / self.embedding_dim)
+
+
 class BloomEmbedding(nn.Module):
     """
     An embedding layer that compresses the number of embedding
@@ -75,6 +90,10 @@ class BloomEmbedding(nn.Module):
         in the layer.
     num_hash_functions: int, optional
         Number of hash functions used to compute the bloom filter indices.
+    bag: bool, optional
+        Whether to use the ``EmbeddingBag`` layer for the underlying embedding.
+        This should be faster in principle, but currently seems to perform
+        very poorly.
 
     Notes
     -----
@@ -115,6 +134,7 @@ class BloomEmbedding(nn.Module):
     def __init__(self, num_embeddings, embedding_dim,
                  compression_ratio=0.2,
                  num_hash_functions=4,
+                 bag=False,
                  padding_idx=0):
 
         super(BloomEmbedding, self).__init__()
@@ -126,6 +146,7 @@ class BloomEmbedding(nn.Module):
                                              num_embeddings)
         self.num_hash_functions = num_hash_functions
         self.padding_idx = padding_idx
+        self._bag = bag
 
         if num_hash_functions > len(SEEDS):
             raise ValueError('Can use at most {} hash functions ({} requested)'
@@ -133,14 +154,20 @@ class BloomEmbedding(nn.Module):
 
         self._masks = SEEDS[:self.num_hash_functions]
 
-        self.embeddings = ScaledEmbedding(self.compressed_num_embeddings,
-                                          self.embedding_dim,
-                                          padding_idx=self.padding_idx)
+        if self._bag:
+            self.embeddings = ScaledEmbeddingBag(self.compressed_num_embeddings,
+                                                 self.embedding_dim,
+                                                 mode='sum')
+        else:
+            self.embeddings = ScaledEmbedding(self.compressed_num_embeddings,
+                                              self.embedding_dim,
+                                              padding_idx=self.padding_idx)
 
         # Hash cache. We pre-hash all the indices, and then just
         # map the indices to their pre-hashed values as we go
         # through the minibatches.
         self._hashes = None
+        self._offsets = None
 
     def __repr__(self):
 
@@ -173,7 +200,6 @@ class BloomEmbedding(nn.Module):
         hashed_indices = torch.index_select(self._hashes,
                                             0,
                                             original_indices.squeeze())
-        hashed_indices = hashed_indices.remainder(self.compressed_num_embeddings)
 
         return hashed_indices
 
@@ -194,10 +220,25 @@ class BloomEmbedding(nn.Module):
 
         indices = indices.data.view(batch_size * seq_size, 1)
 
-        hashed_indices = Variable(self._get_hashed_indices(indices))
+        if self._bag:
+            if (self._offsets is None or
+                    self._offsets.size(0) != (batch_size * seq_size)):
 
-        embedding = self.embeddings(hashed_indices)
-        embedding = embedding.sum(1)
-        embedding = embedding.view(batch_size, seq_size, -1)
+                self._offsets = Variable(torch.arange(0,
+                                                      indices.numel(),
+                                                      indices.size(1)).long())
+
+                if indices.is_cuda:
+                    self._offsets = self._offsets.cuda()
+
+            hashed_indices = Variable(self._get_hashed_indices(indices))
+            embedding = self.embeddings(hashed_indices.view(-1), self._offsets)
+            embedding = embedding.view(batch_size, seq_size, -1)
+        else:
+            hashed_indices = Variable(self._get_hashed_indices(indices))
+
+            embedding = self.embeddings(hashed_indices)
+            embedding = embedding.mean(1)
+            embedding = embedding.view(batch_size, seq_size, -1)
 
         return embedding
