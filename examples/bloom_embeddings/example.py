@@ -11,23 +11,26 @@ from sklearn.model_selection import ParameterSampler
 
 from spotlight.datasets.movielens import get_movielens_dataset
 from spotlight.datasets.amazon import get_amazon_dataset
-from spotlight.cross_validation import user_based_train_test_split
+from spotlight.cross_validation import (random_train_test_split,
+                                        user_based_train_test_split)
 from spotlight.sequence.implicit import ImplicitSequenceModel
+from spotlight.factorization.implicit import ImplicitFactorizationModel
 from spotlight.sequence.representations import LSTMNet
+from spotlight.factorization.representations import BilinearNet
 from spotlight.layers import BloomEmbedding, ScaledEmbedding
-from spotlight.evaluation import sequence_mrr_score
+from spotlight.evaluation import mrr_score, sequence_mrr_score
 
 
 CUDA = (os.environ.get('CUDA') is not None or
         shutil.which('nvidia-smi') is not None)
 
-NUM_SAMPLES = 50
+NUM_SAMPLES = 10
 
 LEARNING_RATES = [1e-4, 5 * 1e-4, 1e-3, 1e-2, 5 * 1e-2, 1e-1]
-LOSSES = ['bpr', 'adaptive_hinge']
-BATCH_SIZE = [16, 32, 128, 256]
-EMBEDDING_DIM = [32, 64, 128, 256]
-N_ITER = list(range(5, 20))
+LOSSES = ['bpr']
+BATCH_SIZE = [128, 256, 512]
+EMBEDDING_DIM = [32, 64]
+N_ITER = list(range(5, 10))
 L2 = [1e-6, 1e-5, 1e-4, 1e-3, 1e-2, 0.0]
 
 
@@ -129,7 +132,43 @@ def sample_hyperparameters(random_state, num):
         yield params
 
 
-def evaluate_model(hyperparameters, train, test, validation, random_state):
+def build_factorization_model(hyperparameters, train, random_state):
+    h = hyperparameters
+
+    if h['compression_ratio'] < 1.0:
+        item_embeddings = BloomEmbedding(train.num_items, h['embedding_dim'],
+                                         compression_ratio=h['compression_ratio'],
+                                         num_hash_functions=4,
+                                         padding_idx=0)
+        user_embeddings = BloomEmbedding(train.num_users, h['embedding_dim'],
+                                         compression_ratio=h['compression_ratio'],
+                                         num_hash_functions=4,
+                                         padding_idx=0)
+    else:
+        item_embeddings = ScaledEmbedding(train.num_items, h['embedding_dim'],
+                                          padding_idx=0)
+        user_embeddings = ScaledEmbedding(train.num_users, h['embedding_dim'],
+                                          padding_idx=0)
+
+    network = BilinearNet(train.num_users,
+                          train.num_items,
+                          user_embedding_layer=user_embeddings,
+                          item_embedding_layer=item_embeddings)
+
+    model = ImplicitFactorizationModel(loss=h['loss'],
+                                       n_iter=h['n_iter'],
+                                       batch_size=h['batch_size'],
+                                       learning_rate=h['learning_rate'],
+                                       embedding_dim=h['embedding_dim'],
+                                       l2=h['l2'],
+                                       representation=network,
+                                       use_cuda=CUDA,
+                                       random_state=random_state)
+
+    return model
+
+
+def build_sequence_model(hyperparameters, train, random_state):
 
     h = hyperparameters
 
@@ -155,21 +194,31 @@ def evaluate_model(hyperparameters, train, test, validation, random_state):
                                   use_cuda=CUDA,
                                   random_state=random_state)
 
+    return model
+
+
+def evaluate_model(model, train, test, validation):
+
     start_time = time.time()
     model.fit(train, verbose=True)
     elapsed = time.time() - start_time
+
     print('Elapsed {}'.format(elapsed))
     print(model)
 
-    test_mrr = sequence_mrr_score(model, test)
-    val_mrr = sequence_mrr_score(model, validation)
+    if hasattr(test, 'sequences'):
+        test_mrr = sequence_mrr_score(model, test)
+        val_mrr = sequence_mrr_score(model, validation)
+    else:
+        test_mrr = mrr_score(model, test)
+        val_mrr = mrr_score(model, validation)
 
     return test_mrr, val_mrr, elapsed
 
 
-def run(dataset, train, test, validation, random_state):
+def run(experiment_name, train, test, validation, random_state):
 
-    results = Results('{}_results.txt'.format(dataset))
+    results = Results('{}_results.txt'.format(experiment_name))
     compression_ratios = (np.arange(1, 10) / 10).tolist()
 
     best_result = results.best()
@@ -180,18 +229,31 @@ def run(dataset, train, test, validation, random_state):
     # Find a good baseline
     for hyperparameters in sample_hyperparameters(random_state, NUM_SAMPLES):
 
+        if 'factorization' in experiment_name:
+            # We want bigger batches for factorization models
+            hyperparameters['batch_size'] = hyperparameters['batch_size'] * 4
+
         hyperparameters['compression_ratio'] = 1.0
 
         if hyperparameters in results:
             print('Done, skipping...')
             continue
 
+        if 'factorization' in experiment_name:
+            model = build_factorization_model(hyperparameters,
+                                              train,
+                                              random_state)
+        else:
+            model = build_sequence_model(hyperparameters,
+                                         train,
+                                         random_state)
+
         print('Fitting {}'.format(hyperparameters))
-        (test_mrr, val_mrr, elapsed) = evaluate_model(hyperparameters,
+        (test_mrr, val_mrr, elapsed) = evaluate_model(model,
                                                       train,
                                                       test,
-                                                      validation,
-                                                      random_state)
+                                                      validation)
+
         print('Test MRR {} val MRR {} elapsed {}'.format(
             test_mrr.mean(), val_mrr.mean(), elapsed
         ))
@@ -208,15 +270,24 @@ def run(dataset, train, test, validation, random_state):
         hyperparameters['compression_ratio'] = compression_ratio
 
         if hyperparameters in results:
+            print('Compression computed')
             continue
+
+        if 'factorization' in experiment_name:
+            model = build_factorization_model(hyperparameters,
+                                              train,
+                                              random_state)
+        else:
+            model = build_sequence_model(hyperparameters,
+                                         train,
+                                         random_state)
 
         print('Evaluating {}'.format(hyperparameters))
 
-        (test_mrr, val_mrr, elapsed) = evaluate_model(hyperparameters,
+        (test_mrr, val_mrr, elapsed) = evaluate_model(model,
                                                       train,
                                                       test,
-                                                      validation,
-                                                      random_state)
+                                                      validation)
         print('Test MRR {} val MRR {} elapsed {}'.format(
             test_mrr.mean(), val_mrr.mean(), elapsed
         ))
@@ -230,6 +301,7 @@ if __name__ == '__main__':
 
     parser = argparse.ArgumentParser()
     parser.add_argument('dataset', type=str)
+    parser.add_argument('model', type=str)
 
     args = parser.parse_args()
 
@@ -237,36 +309,44 @@ if __name__ == '__main__':
 
     if args.dataset == 'movielens':
         dataset = get_movielens_dataset('1M')
-        max_sequence_length = 200
-        min_sequence_length = 20
-        step_size = 200
-        test_percentage = 0.2
+        test_percentage = 0.1
     else:
+        test_percentage = 0.01
         dataset = get_amazon_dataset(min_user_interactions=20,
                                      min_item_interactions=5)
+
+    print(dataset)
+
+    if args.model == 'sequence':
         max_sequence_length = int(np.percentile(dataset.tocsr()
                                                 .getnnz(axis=1),
                                                 95))
         min_sequence_length = 20
         step_size = max_sequence_length
-        test_percentage = 0.05
 
-    print(dataset)
-
-    train, rest = user_based_train_test_split(dataset,
-                                              test_percentage=0.05,
+        train, rest = user_based_train_test_split(dataset,
+                                                  test_percentage=0.05,
+                                                  random_state=random_state)
+        test, validation = user_based_train_test_split(rest,
+                                                       test_percentage=0.5,
+                                                       random_state=random_state)
+        train = train.to_sequence(max_sequence_length=max_sequence_length,
+                                  min_sequence_length=min_sequence_length,
+                                  step_size=step_size)
+        test = test.to_sequence(max_sequence_length=max_sequence_length,
+                                min_sequence_length=min_sequence_length,
+                                step_size=step_size)
+        validation = validation.to_sequence(max_sequence_length=max_sequence_length,
+                                            min_sequence_length=min_sequence_length,
+                                            step_size=step_size)
+    elif args.model == 'factorization':
+        train, rest = random_train_test_split(dataset,
+                                              test_percentage=test_percentage,
                                               random_state=random_state)
-    test, validation = user_based_train_test_split(rest,
+        test, validation = random_train_test_split(rest,
                                                    test_percentage=0.5,
                                                    random_state=random_state)
-    train = train.to_sequence(max_sequence_length=max_sequence_length,
-                              min_sequence_length=min_sequence_length,
-                              step_size=step_size)
-    test = test.to_sequence(max_sequence_length=max_sequence_length,
-                            min_sequence_length=min_sequence_length,
-                            step_size=step_size)
-    validation = validation.to_sequence(max_sequence_length=max_sequence_length,
-                                        min_sequence_length=min_sequence_length,
-                                        step_size=step_size)
 
-    run(args.dataset, train, test, validation, random_state)
+    experiment_name = '{}_{}'.format(args.dataset, args.model)
+
+    run(experiment_name, train, test, validation, random_state)

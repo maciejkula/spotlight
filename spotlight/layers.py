@@ -9,6 +9,8 @@ import torch.nn as nn
 
 from torch.autograd import Variable
 
+from spotlight._backports import EmbeddingBagFunc
+
 
 SEEDS = [
     179424941, 179425457, 179425907, 179426369,
@@ -58,7 +60,7 @@ class ZeroEmbedding(nn.Embedding):
 
 class ScaledEmbeddingBag(nn.EmbeddingBag):
     """
-    Embedding layer that initialises its values
+    EmbeddingBag layer that initialises its values
     to using a normal variable scaled by the inverse
     of the emedding dimension.
     """

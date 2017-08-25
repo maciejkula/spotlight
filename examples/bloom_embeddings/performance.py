@@ -10,43 +10,53 @@ from spotlight.layers import BloomEmbedding, ScaledEmbedding
 from spotlight.factorization.implicit import ImplicitFactorizationModel
 from spotlight.factorization.representations import BilinearNet
 from spotlight.sequence.implicit import ImplicitSequenceModel
-from spotlight.sequence.representations import PoolNet
+from spotlight.sequence.representations import LSTMNet
 
 from spotlight.datasets.movielens import get_movielens_dataset
 
 
 CUDA = torch.cuda.is_available()
+EMBEDDING_DIM = 64
+N_ITER = 2
+NUM_HASH_FUNCTIONS = 4
 
 
 def time_fitting(model, data, repetitions=2):
 
-    start_time = time.time()
+    timings = []
+
+    # Warm-up epoch
+    model.fit(data)
 
     for _ in range(repetitions):
+        start_time = time.time()
         model.fit(data)
+        timings.append(time.time() - start_time)
 
-    elapsed = time.time() - start_time
+    print(min(timings))
 
-    return elapsed / repetitions
+    return min(timings)
 
 
 def factorization_model(num_embeddings, bloom):
 
     if bloom:
-        user_embeddings = BloomEmbedding(num_embeddings, 32)
-        item_embeddings = BloomEmbedding(num_embeddings, 32)
+        user_embeddings = BloomEmbedding(num_embeddings, EMBEDDING_DIM,
+                                         num_hash_functions=NUM_HASH_FUNCTIONS)
+        item_embeddings = BloomEmbedding(num_embeddings, EMBEDDING_DIM,
+                                         num_hash_functions=NUM_HASH_FUNCTIONS)
     else:
-        user_embeddings = ScaledEmbedding(num_embeddings, 32)
-        item_embeddings = ScaledEmbedding(num_embeddings, 32)
+        user_embeddings = ScaledEmbedding(num_embeddings, EMBEDDING_DIM)
+        item_embeddings = ScaledEmbedding(num_embeddings, EMBEDDING_DIM)
 
     network = BilinearNet(num_embeddings,
                           num_embeddings,
                           user_embedding_layer=user_embeddings,
                           item_embedding_layer=item_embeddings)
 
-    model = ImplicitFactorizationModel(loss='bpr',
-                                       n_iter=10,
-                                       embedding_dim=32,
+    model = ImplicitFactorizationModel(loss='adaptive_hinge',
+                                       n_iter=N_ITER,
+                                       embedding_dim=EMBEDDING_DIM,
                                        batch_size=2048,
                                        learning_rate=1e-2,
                                        l2=1e-6,
@@ -59,18 +69,19 @@ def factorization_model(num_embeddings, bloom):
 def sequence_model(num_embeddings, bloom):
 
     if bloom:
-        item_embeddings = BloomEmbedding(num_embeddings, 32)
+        item_embeddings = BloomEmbedding(num_embeddings, EMBEDDING_DIM,
+                                         num_hash_functions=NUM_HASH_FUNCTIONS)
     else:
-        item_embeddings = ScaledEmbedding(num_embeddings, 32)
+        item_embeddings = ScaledEmbedding(num_embeddings, EMBEDDING_DIM)
 
-    network = PoolNet(num_embeddings, 32,
+    network = LSTMNet(num_embeddings, EMBEDDING_DIM,
                       item_embedding_layer=item_embeddings)
 
-    model = ImplicitSequenceModel(loss='bpr',
-                                  n_iter=10,
-                                  batch_size=32,
-                                  learning_rate=1e-2,
-                                  l2=1e-6,
+    model = ImplicitSequenceModel(loss='adaptive_hinge',
+                                  n_iter=N_ITER,
+                                  batch_size=512,
+                                  learning_rate=1e-3,
+                                  l2=1e-2,
                                   representation=network,
                                   use_cuda=CUDA)
 
@@ -79,15 +90,20 @@ def sequence_model(num_embeddings, bloom):
 
 def get_sequence_data():
 
-    dataset = get_movielens_dataset('100K')
-    data = dataset.to_sequence(max_sequence_length=200)
+    dataset = get_movielens_dataset('1M')
+    max_sequence_length = 200
+    min_sequence_length = 20
+    data = dataset.to_sequence(max_sequence_length=max_sequence_length,
+                               min_sequence_length=min_sequence_length,
+                               step_size=max_sequence_length)
+    print(data.sequences.shape)
 
     return data
 
 
 def get_factorization_data():
 
-    dataset = get_movielens_dataset('100K')
+    dataset = get_movielens_dataset('1M')
 
     return dataset
 
