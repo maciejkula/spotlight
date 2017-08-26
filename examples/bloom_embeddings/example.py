@@ -19,18 +19,19 @@ from spotlight.sequence.representations import LSTMNet
 from spotlight.factorization.representations import BilinearNet
 from spotlight.layers import BloomEmbedding, ScaledEmbedding
 from spotlight.evaluation import mrr_score, sequence_mrr_score
+from spotlight.torch_utils import set_seed
 
 
 CUDA = (os.environ.get('CUDA') is not None or
         shutil.which('nvidia-smi') is not None)
 
-NUM_SAMPLES = 10
+NUM_SAMPLES = 50
 
 LEARNING_RATES = [1e-4, 5 * 1e-4, 1e-3, 1e-2, 5 * 1e-2, 1e-1]
-LOSSES = ['bpr']
-BATCH_SIZE = [128, 256, 512]
+LOSSES = ['bpr', 'adaptive_hinge']
+BATCH_SIZE = [32, 64, 128, 256, 512]
 EMBEDDING_DIM = [32, 64]
-N_ITER = list(range(5, 10))
+N_ITER = list(range(5, 20))
 L2 = [1e-6, 1e-5, 1e-4, 1e-3, 1e-2, 0.0]
 
 
@@ -135,6 +136,8 @@ def sample_hyperparameters(random_state, num):
 def build_factorization_model(hyperparameters, train, random_state):
     h = hyperparameters
 
+    set_seed(42, CUDA)
+
     if h['compression_ratio'] < 1.0:
         item_embeddings = BloomEmbedding(train.num_items, h['embedding_dim'],
                                          compression_ratio=h['compression_ratio'],
@@ -163,7 +166,7 @@ def build_factorization_model(hyperparameters, train, random_state):
                                        l2=h['l2'],
                                        representation=network,
                                        use_cuda=CUDA,
-                                       random_state=random_state)
+                                       random_state=np.random.RandomState(42))
 
     return model
 
@@ -171,6 +174,8 @@ def build_factorization_model(hyperparameters, train, random_state):
 def build_sequence_model(hyperparameters, train, random_state):
 
     h = hyperparameters
+
+    set_seed(42, CUDA)
 
     if h['compression_ratio'] < 1.0:
         item_embeddings = BloomEmbedding(train.num_items, h['embedding_dim'],
@@ -192,7 +197,7 @@ def build_sequence_model(hyperparameters, train, random_state):
                                   l2=h['l2'],
                                   representation=network,
                                   use_cuda=CUDA,
-                                  random_state=random_state)
+                                  random_state=np.random.RandomState(42))
 
     return model
 
@@ -309,7 +314,7 @@ if __name__ == '__main__':
 
     if args.dataset == 'movielens':
         dataset = get_movielens_dataset('1M')
-        test_percentage = 0.1
+        test_percentage = 0.2
     else:
         test_percentage = 0.01
         dataset = get_amazon_dataset(min_user_interactions=20,
@@ -339,6 +344,10 @@ if __name__ == '__main__':
         validation = validation.to_sequence(max_sequence_length=max_sequence_length,
                                             min_sequence_length=min_sequence_length,
                                             step_size=step_size)
+        print('In test {}, in validation {}'.format(
+            len(test.sequences),
+            len(validation.sequences))
+        )
     elif args.model == 'factorization':
         train, rest = random_train_test_split(dataset,
                                               test_percentage=test_percentage,

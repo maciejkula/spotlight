@@ -1,9 +1,11 @@
-import numpy as np
+import argparse
+
 import pandas as pd
 
 import matplotlib
 matplotlib.use('Agg')  # NOQA
 import matplotlib.pyplot as plt
+
 import seaborn as sns
 
 from example import Results
@@ -33,7 +35,7 @@ def process_results(results):
     return compression_ratio, mrr, elapsed
 
 
-def plot_results(movielens, amazon):
+def plot_results(model, movielens, amazon):
 
     sns.set_style("darkgrid")
 
@@ -52,7 +54,7 @@ def plot_results(movielens, amazon):
     plt.title("Compression ratio vs MRR ratio")
 
     plt.legend(loc='lower right')
-    plt.savefig('plot.png')
+    plt.savefig('{}_plot.png'.format(model))
     plt.close()
 
     for name, result in (('Movielens',
@@ -70,11 +72,16 @@ def plot_results(movielens, amazon):
     plt.title("Compression ratio vs time ratio")
 
     plt.plot(compression_ratio, elapsed)
-    plt.savefig('time.png')
+    plt.savefig('{}_time.png'.format(model))
 
 
 if __name__ == '__main__':
 
-    results = Results('movielens_results.txt')
-    plot_results(Results('movielens_results.txt'),
-                 Results('amazon_results.txt'))
+    parser = argparse.ArgumentParser()
+    parser.add_argument('model', type=str)
+
+    args = parser.parse_args()
+
+    plot_results(args.model,
+                 Results('movielens_{}_results.txt'.format(args.model)),
+                 Results('amazon_{}_results.txt'.format(args.model)))

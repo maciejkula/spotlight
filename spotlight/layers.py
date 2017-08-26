@@ -9,8 +9,6 @@ import torch.nn as nn
 
 from torch.autograd import Variable
 
-from spotlight._backports import EmbeddingBagFunc
-
 
 SEEDS = [
     179424941, 179425457, 179425907, 179426369,
