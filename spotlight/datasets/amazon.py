@@ -57,14 +57,15 @@ def _map(elements, mapping):
 
 def get_amazon_dataset(min_user_interactions=10, min_item_interactions=10):
     """
-    Data on Amazon products from the SNAP `archive<https://snap.stanford.edu/data/amazon-meta.html>`_[1]_.
+    Data on Amazon products from the SNAP `archive
+    <https://snap.stanford.edu/data/amazon-meta.html>`_[1]_.
 
-    The dataset contains almost 8 million ratings given to 550,000 Amazon products: interactions represent
-    ratings given to users to products they have reviewed.
+    The dataset contains almost 8 million ratings given to 550,000 Amazon products:
+    interactions represent ratings given to users to products they have reviewed.
 
-    Compared to the Movielens dataset, the Amazon dataset is relatively sparse, and the number of products
-    represented is much higher. It may therefore be more useful for prototyping models for sparse and
-    high-dimensional settings.
+    Compared to the Movielens dataset, the Amazon dataset is relatively sparse,
+    and the number of products represented is much higher. It may therefore be
+    more useful for prototyping models for sparse and high-dimensional settings.
 
     Parameters
     ----------
@@ -77,9 +78,10 @@ def get_amazon_dataset(min_user_interactions=10, min_item_interactions=10):
     Notes
     -----
 
-    You may want to reduce the dimensionality of the dataset by excluding users and items with particularly
-    few interactions. Note that the exclusions are applied independently, so it is possible for users and
-    items in the remaining set to have fewer interactions than specified via the parameters.
+    You may want to reduce the dimensionality of the dataset by excluding users
+    and items with particularly few interactions. Note that the exclusions are
+    applied independently, so it is possible for users and items in the remaining
+    set to have fewer interactions than specified via the parameters.
 
     References
     ----------

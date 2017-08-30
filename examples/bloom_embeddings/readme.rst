@@ -26,22 +26,8 @@ While the approach in the paper uses binary input vectors, the Spotlight impleme
 
 For hashing, I used the murmurhash3 hash function family, hashing the indices with a different seed for every hash function, modulo the size of the compressed embedding layer. The hash mapping is computed once at the start of training, and indexed into for every minibatch.
 
-Experiments: fitting speed
---------------------------
-
-Improvements in fitting speed materialise only when the embedding dimension is high. The plot below shows the relative improvement in fitting time of a bloom embedding layer, assuming compression ratio of 0.2 and 4 hash functions. To get the timings, I run a factorization and a sequence model on the Movielens 100K dataset, artificially inflating the number of users and items.
-
-.. image:: speed.png
-   :align: center
-
-|
-
-The performance gains increase as the embedding dimension grows large; for small dimensionalities, bloom embeddings are slower, presumably due to hashing and averaging overhead. They are also larger for factorization models: sequence models only have one embedding layer (items).
-
-Performance gains diminish as the number of hash functions increases, and as the compression ratio goes to 1.0.
-
-Experiments: accuracy
----------------------
+Experiments: accuracy and fitting speed
+---------------------------------------
 
 To validate the idea (and its implementation), we can run it on a real datasets and gauge the effect of embedding on model accuracy and speed.
 
@@ -50,15 +36,23 @@ To get a better feel for the performance of the bloom embedding layers, I run ex
 - Movielens 1M: a classic dense dataset, with relatively few items and users (around 6000 users and 4000 items).
 - Amazon dataset: data on Amazon products from the SNAP `archive <https://snap.stanford.edu/data/amazon-meta.html>`_. The dataset contains almost 8 million ratings given to 550,000 Amazon products: interactions represent ratings given to users to products they have reviewed. Compared to the Movielens dataset, the Amazon dataset is relatively sparse, and the number of products represented is much higher. It may therefore be more representative of the types of problems where bloom embeddings are useful.
 
-I use LSTM-based sequence prediction models for both datasets: I obtain a user representation from a user's interaction history using an LSTM, and try to predict the next item in the user sequence. I use bloom embedding layers for item representations, at different levels of compression, and compare them to the accuracy obtained using normal embeddings. The model hyperparameters are set using a hyperparameter search that optimizes the accuracy of standard embedding model.
+I use LSTM-based sequence prediction models for both datasets: I obtain a user representation from a user's interaction history using an LSTM, and try to predict the next item in the user sequence. I use bloom embedding layers for item representations, at different levels of compression, and compare them to the accuracy obtained using normal embeddings. The model hyperparameters are set using a hyperparameter search that optimizes the accuracy of standard embedding model. Fitting is done on a K40 GPU.
 
-.. image:: plot.png
+.. image:: sequence_time.png
    :align: center
 
 |
 
+The first plot shows the relationship between the compression ratio and fitting speed. It looks like for these datasets, bloom embeddings do not confer a speed advantage. My suspicion is that this is due to my implementation using an embedding layer rather than a vector-matrix multiplication at the input stage, and negative sampling (rather than a full softmax) for the output stage. In an embedding implementation, runtime is proportional to the number of embedding indices (equal to the number of hash functions) rather than the overall dimensionality of the input vector. In sequence models, time spent on updating embedding layers appears not to be a factor. There is also a good deal of variability in the measured runtime: results should be taken with a grain of salt.
 
-.. image:: time.png
+.. image:: sequence_plot.png
    :align: center
 
 |
+
+What about accuracy? At 4 hash functions, a lot of compression can be applied with modest performance losses. As expected, the denser Movielens dataset is less compressible, losing more accuracy at high levels of compression. For both datasets, it appears that there are compression levels which perform better than no compression. It's possible that this is due to a regularization effect; it's also possible that in this limited experiment the signal strength is swamped by differences stemming from indeterministic floating point operations and differences in initialization.
+
+Conclusions
+-----------
+
+It's somewhat difficult to draw categorical conlcusions based on a small experiment with only limited hyperparameter optimization. Nevertheless, it seems fair to say that bloom embeddings can successfully reduce the number of parameters required in a model with little loss of accuracy (especially in sparser datasets). However, in sequence-based models trained with embedding layers and negative sampling the expected fitting speed gains are modest.

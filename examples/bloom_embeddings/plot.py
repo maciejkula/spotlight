@@ -11,9 +11,24 @@ import seaborn as sns
 from example import Results
 
 
-def process_results(results):
+def process_results(results, verbose=False):
 
-    data = pd.DataFrame([x for x in results])
+    baseline = results.best_baseline()
+
+    def like_baseline(x):
+        for key in ('n_iter',
+                    'batch_size',
+                    'l2',
+                    'learning_rate',
+                    'loss',
+                    'embedding_dim'):
+            if x[key] != baseline[key]:
+                return False
+
+        return True
+
+    data = pd.DataFrame([x for x in results
+                         if like_baseline(x)])
 
     best = (data.sort_values('test_mrr', ascending=False)
             .groupby('compression_ratio', as_index=False).first())
@@ -21,7 +36,8 @@ def process_results(results):
     # Normalize per iteration
     best['elapsed'] = best['elapsed'] / best['n_iter']
 
-    print(best)
+    if verbose:
+        print(best)
 
     baseline_mrr = (best[best['compression_ratio'] == 1.0]
                     ['validation_mrr'].values[0])
@@ -32,7 +48,7 @@ def process_results(results):
     mrr = best['validation_mrr'].values / baseline_mrr
     elapsed = best['elapsed'].values / baseline_time
 
-    return compression_ratio, mrr, elapsed
+    return compression_ratio[:-1], mrr[:-1], elapsed[:-1]
 
 
 def plot_results(model, movielens, amazon):
@@ -42,9 +58,11 @@ def plot_results(model, movielens, amazon):
     for name, result in (('Movielens',
                           movielens), ('Amazon', amazon)):
 
+        print('Dataset: {}'.format(name))
+
         (compression_ratio,
          mrr,
-         elapsed) = process_results(result)
+         elapsed) = process_results(result, verbose=True)
 
         plt.plot(compression_ratio, mrr,
                  label=name)
@@ -70,9 +88,10 @@ def plot_results(model, movielens, amazon):
     plt.ylabel("Time ratio to baseline")
     plt.xlabel("Compression ratio")
     plt.title("Compression ratio vs time ratio")
+    plt.legend(loc='lower right')
 
-    plt.plot(compression_ratio, elapsed)
     plt.savefig('{}_time.png'.format(model))
+    plt.close()
 
 
 if __name__ == '__main__':

@@ -29,9 +29,9 @@ NUM_SAMPLES = 50
 
 LEARNING_RATES = [1e-4, 5 * 1e-4, 1e-3, 1e-2, 5 * 1e-2, 1e-1]
 LOSSES = ['bpr', 'adaptive_hinge']
-BATCH_SIZE = [32, 64, 128, 256, 512]
-EMBEDDING_DIM = [32, 64]
-N_ITER = list(range(5, 20))
+BATCH_SIZE = [16, 32, 64, 128, 256, 512]
+EMBEDDING_DIM = [32, 64, 128, 256]
+N_ITER = list(range(1, 20))
 L2 = [1e-6, 1e-5, 1e-4, 1e-3, 1e-2, 0.0]
 
 
@@ -216,7 +216,7 @@ def evaluate_model(model, train, test, validation):
         val_mrr = sequence_mrr_score(model, validation)
     else:
         test_mrr = mrr_score(model, test)
-        val_mrr = mrr_score(model, validation)
+        val_mrr = mrr_score(model, test.tocsr() + validation.tocsr())
 
     return test_mrr, val_mrr, elapsed
 

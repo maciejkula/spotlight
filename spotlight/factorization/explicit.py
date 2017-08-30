@@ -13,8 +13,9 @@ from torch.autograd import Variable
 from spotlight.helpers import _repr_model
 from spotlight.factorization._components import _predict_process_ids
 from spotlight.factorization.representations import BilinearNet
-from spotlight.losses import (regression_loss,
-                              poisson_loss)
+from spotlight.losses import (poisson_loss,
+                              regression_loss)
+
 from spotlight.torch_utils import cpu, gpu, minibatch, set_seed, shuffle
 
 

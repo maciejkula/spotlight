@@ -3,7 +3,9 @@ Embedding layers useful for recommender models.
 """
 
 import numpy as np
+
 from sklearn.utils import murmurhash3_32
+
 import torch
 import torch.nn as nn
 
