@@ -22,7 +22,11 @@ Spotlight implementation
 
 While the approach in the paper uses binary input vectors, the Spotlight implementation uses embedding layers indexed by hashed indices; vectors retrieved by each hash function are averaged together to yield the final embedding. Mathematically, the two formulations should be identical, but we should expect different fitting speed gains.
 
-In the original formulation (using high-dimensional dense matrix-vector multiplications) the cost of high dimensionality is borne twice: firstly, in having to update all the parameters on every gradient step, and, secondly, in having to perform the full multiplication. This is wasteful because the vast majority of the entries in the matrix are zeros. My re-implementation uses embedding layers, which do not incur the cost of needless matrix multiplication, and so we will not see that part of the performance gain. Additionally, the models in the paper seem to be predominantly trained with a softmax loss, making predictions for all items in one go during training. In contrast, Spotlight uses `negative sampling <http://ruder.io/word-embeddings-softmax/index.html#negativesampling>`_ during training, and one-by-one predictions at prediction time. In this implementation, bloom embeddings offer no performance advantages at prediction time.
+In the paper the cost of high dimensionality is borne twice: firstly, in having to update all the parameters on every gradient step, and, secondly, in having to perform the full vector-matrix multiplication between the binary input vector and the initial fully-connected layer. Because the majority of the entries of the input vector are zero, doing the full multiplication is wasteful.
+
+To exploit this sparsity structure, my re-implementation uses embedding layers, which simply skip zero entries in the input vector. Consequently, they do not benefit from reducing the number of multiplications required at the input stage.
+
+Additionally, the models in the paper seem to be predominantly trained with a softmax loss, making predictions for all items in one go during training. In contrast, Spotlight uses `negative sampling <http://ruder.io/word-embeddings-softmax/index.html#negativesampling>`_ during training, and one-by-one predictions at prediction time. In this implementation, bloom embeddings offer no performance advantages at prediction time.
 
 (It would be interesting to compare the two approaches to user and item representation. However, this is beyond the scope of this post.)
 
