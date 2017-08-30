@@ -77,11 +77,11 @@ def test_check_input():
 
 
 @pytest.mark.parametrize('compression_ratio, expected_rmse', [
-    (0.2, 1.0),
-    (0.5, 1.0),
-    (1.0, 1.0),
-    (1.5, 1.0),
-    (2.0, 1.0),
+    (0.2, 1.5),
+    (0.5, 1.5),
+    (1.0, 1.5),
+    (1.5, 1.5),
+    (2.0, 1.5),
 ])
 def test_bloom(compression_ratio, expected_rmse):
 

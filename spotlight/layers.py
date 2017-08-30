@@ -240,7 +240,7 @@ class BloomEmbedding(nn.Module):
             hashed_indices = Variable(self._get_hashed_indices(indices))
 
             embedding = self.embeddings(hashed_indices)
-            embedding = embedding.mean(1)
+            embedding = embedding.sum(1)
             embedding = embedding.view(batch_size, seq_size, -1)
 
         return embedding
