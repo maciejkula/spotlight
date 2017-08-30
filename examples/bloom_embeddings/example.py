@@ -62,8 +62,8 @@ class Results:
     def best_baseline(self):
 
         results = sorted([x for x in self
-                          if x['compression_ratio'] == 1.0
-                          and x['embedding_dim'] >= 32],
+                          if x['compression_ratio'] == 1.0 and
+                          x['embedding_dim'] >= 32],
                          key=lambda x: -x['test_mrr'])
 
         if results:
