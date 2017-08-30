@@ -154,6 +154,7 @@ Examples
 
 1. `Rating prediction on the Movielens dataset <https://github.com/maciejkula/spotlight/tree/master/examples/movielens_explicit>`_.
 2. `Using causal convolutions for sequence recommendations <https://github.com/maciejkula/spotlight/tree/master/examples/movielens_sequence>`_.
+3. `Bloom embedding layers <https://github.com/maciejkula/spotlight/tree/master/bloom_embeddings>`_.
 
 
 Contributing
