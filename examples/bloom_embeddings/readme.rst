@@ -56,7 +56,7 @@ The first plot shows the relationship between the compression ratio and fitting 
 
 |
 
-What about accuracy? At 4 hash functions, a lot of compression can be applied with modest performance losses. As expected, the denser Movielens dataset is less compressible, losing more accuracy at high levels of compression. For both datasets, it appears that there are compression levels which perform better than no compression. It's possible that this is due to a regularization effect; it's also possible that in this limited experiment the signal strength is swamped by differences stemming from indeterministic floating point operations and differences in initialization.
+What about accuracy? At 4 hash functions, a lot of compression can be applied with modest performance losses. As expected, the denser Movielens dataset is less compressible, losing more accuracy at high levels of compression. For the Amazon datasets, it appears that there are compression levels which perform better than no compression. It's possible that this is due to a regularization effect; it's also possible that in this limited experiment the signal strength is swamped by differences stemming from indeterministic floating point operations and differences in initialization.
 
 Conclusions
 -----------
