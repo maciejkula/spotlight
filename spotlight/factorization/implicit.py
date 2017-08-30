@@ -62,6 +62,11 @@ class ImplicitFactorizationModel(object):
         rate if supplied. If no optimizer supplied, then use ADAM by default.
     use_cuda: boolean, optional
         Run the model on a GPU.
+    representation: a representation module, optional
+        If supplied, will override default settings and be used as the
+        main network module in the model. Intended to be used as an escape
+        hatch when you want to reuse the model's training functions but
+        want full freedom to specify your network topology.
     sparse: boolean, optional
         Use sparse gradients for embedding layers.
     random_state: instance of numpy.random.RandomState, optional
@@ -77,6 +82,7 @@ class ImplicitFactorizationModel(object):
                  learning_rate=1e-2,
                  optimizer_func=None,
                  use_cuda=False,
+                 representation=None,
                  sparse=False,
                  random_state=None):
 
@@ -92,6 +98,7 @@ class ImplicitFactorizationModel(object):
         self._batch_size = batch_size
         self._l2 = l2
         self._use_cuda = use_cuda
+        self._representation = representation
         self._sparse = sparse
         self._optimizer_func = optimizer_func
         self._random_state = random_state or np.random.RandomState()
@@ -119,13 +126,17 @@ class ImplicitFactorizationModel(object):
          self._num_items) = (interactions.num_users,
                              interactions.num_items)
 
-        self._net = gpu(
-            BilinearNet(self._num_users,
-                        self._num_items,
-                        self._embedding_dim,
-                        sparse=self._sparse),
-            self._use_cuda
-        )
+        if self._representation is not None:
+            self._net = gpu(self._representation,
+                            self._use_cuda)
+        else:
+            self._net = gpu(
+                BilinearNet(self._num_users,
+                            self._num_items,
+                            self._embedding_dim,
+                            sparse=self._sparse),
+                self._use_cuda
+            )
 
         if self._optimizer_func is None:
             self._optimizer = optim.Adam(

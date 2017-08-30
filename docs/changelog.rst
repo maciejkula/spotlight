@@ -5,6 +5,14 @@ Changelog
 v0.1.2 (unreleased)
 -------------------
 
+Added
+~~~~~
+
+* :class:`spotlight.layers.BloomEmbedding`: bloom embedding layers that reduce the number of
+  parameters required by hashing embedding indices into some fixed smaller dimensionality,
+  following Serrà, Joan, and Alexandros Karatzoglou. "Getting deep recommenders fit: Bloom
+  embeddings for sparse binary input/output networks."
+
 Changed
 ~~~~~~~
 

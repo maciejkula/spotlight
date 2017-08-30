@@ -25,19 +25,36 @@ class BilinearNet(nn.Module):
         Number of items in the model.
     embedding_dim: int, optional
         Dimensionality of the latent representations.
+    user_embedding_layer: an embedding layer, optional
+        If supplied, will be used as the user embedding layer
+        of the network.
+    item_embedding_layer: an embedding layer, optional
+        If supplied, will be used as the item embedding layer
+        of the network.
     sparse: boolean, optional
         Use sparse gradients.
+
     """
 
-    def __init__(self, num_users, num_items, embedding_dim=32, sparse=False):
+    def __init__(self, num_users, num_items, embedding_dim=32,
+                 user_embedding_layer=None, item_embedding_layer=None, sparse=False):
+
         super(BilinearNet, self).__init__()
 
         self.embedding_dim = embedding_dim
 
-        self.user_embeddings = ScaledEmbedding(num_users, embedding_dim,
-                                               sparse=sparse)
-        self.item_embeddings = ScaledEmbedding(num_items, embedding_dim,
-                                               sparse=sparse)
+        if user_embedding_layer is not None:
+            self.user_embeddings = user_embedding_layer
+        else:
+            self.user_embeddings = ScaledEmbedding(num_users, embedding_dim,
+                                                   sparse=sparse)
+
+        if item_embedding_layer is not None:
+            self.item_embeddings = item_embedding_layer
+        else:
+            self.item_embeddings = ScaledEmbedding(num_items, embedding_dim,
+                                                   sparse=sparse)
+
         self.user_biases = ZeroEmbedding(num_users, 1, sparse=sparse)
         self.item_biases = ZeroEmbedding(num_items, 1, sparse=sparse)
 

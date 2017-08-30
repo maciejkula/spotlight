@@ -1,12 +1,15 @@
 import os
 
 import numpy as np
+import pytest
 import torch
 
 from spotlight.cross_validation import random_train_test_split
 from spotlight.datasets import movielens
 from spotlight.evaluation import mrr_score
 from spotlight.factorization.implicit import ImplicitFactorizationModel
+from spotlight.factorization.representations import BilinearNet
+from spotlight.layers import BloomEmbedding
 
 
 RANDOM_STATE = np.random.RandomState(42)
@@ -118,3 +121,43 @@ def test_adaptive_hinge():
     mrr = mrr_score(model, test, train=train).mean()
 
     assert mrr > 0.07
+
+
+@pytest.mark.parametrize('compression_ratio, expected_mrr', [
+    (0.5, 0.03),
+    (1.0, 0.04),
+    (1.5, 0.045),
+    (2.0, 0.045),
+])
+def test_bpr_bloom(compression_ratio, expected_mrr):
+
+    interactions = movielens.get_movielens_dataset('100K')
+
+    train, test = random_train_test_split(interactions,
+                                          random_state=RANDOM_STATE)
+
+    user_embeddings = BloomEmbedding(interactions.num_users, 32,
+                                     compression_ratio=compression_ratio,
+                                     num_hash_functions=2)
+    item_embeddings = BloomEmbedding(interactions.num_items, 32,
+                                     compression_ratio=compression_ratio,
+                                     num_hash_functions=2)
+    network = BilinearNet(interactions.num_users,
+                          interactions.num_items,
+                          user_embedding_layer=user_embeddings,
+                          item_embedding_layer=item_embeddings)
+
+    model = ImplicitFactorizationModel(loss='bpr',
+                                       n_iter=10,
+                                       batch_size=1024,
+                                       learning_rate=1e-2,
+                                       l2=1e-6,
+                                       representation=network,
+                                       use_cuda=CUDA)
+
+    model.fit(train)
+    print(model)
+
+    mrr = mrr_score(model, test, train=train).mean()
+
+    assert mrr > expected_mrr
