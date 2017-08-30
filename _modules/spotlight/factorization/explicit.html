@@ -113,6 +113,7 @@
 <li class="toctree-l2"><a class="reference internal" href="../../../factorization/representations.html">Latent representations</a></li>
 </ul>
 </li>
+<li class="toctree-l1"><a class="reference internal" href="../../../layers.html">Layers</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../losses.html">Loss functions</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../evaluation.html">Evaluation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../sampling.html">Sampling</a></li>
@@ -124,6 +125,7 @@
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../../../changelog.html">Changelog</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="../../../changelog.html#v0-1-2-unreleased">v0.1.2 (unreleased)</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../../changelog.html#added">Added</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../../changelog.html#changed">Changed</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../../changelog.html#fixed">Fixed</a></li>
 </ul>
@@ -209,8 +211,9 @@
 <span class="kn">from</span> <span class="nn">spotlight.helpers</span> <span class="k">import</span> <span class="n">_repr_model</span>
 <span class="kn">from</span> <span class="nn">spotlight.factorization._components</span> <span class="k">import</span> <span class="n">_predict_process_ids</span>
 <span class="kn">from</span> <span class="nn">spotlight.factorization.representations</span> <span class="k">import</span> <span class="n">BilinearNet</span>
-<span class="kn">from</span> <span class="nn">spotlight.losses</span> <span class="k">import</span> <span class="p">(</span><span class="n">regression_loss</span><span class="p">,</span>
-                              <span class="n">poisson_loss</span><span class="p">)</span>
+<span class="kn">from</span> <span class="nn">spotlight.losses</span> <span class="k">import</span> <span class="p">(</span><span class="n">poisson_loss</span><span class="p">,</span>
+                              <span class="n">regression_loss</span><span class="p">)</span>
+
 <span class="kn">from</span> <span class="nn">spotlight.torch_utils</span> <span class="k">import</span> <span class="n">cpu</span><span class="p">,</span> <span class="n">gpu</span><span class="p">,</span> <span class="n">minibatch</span><span class="p">,</span> <span class="n">set_seed</span><span class="p">,</span> <span class="n">shuffle</span>
 
 
@@ -250,6 +253,11 @@
 <span class="sd">        rate if supplied. If no optimizer supplied, then use ADAM by default.</span>
 <span class="sd">    use_cuda: boolean, optional</span>
 <span class="sd">        Run the model on a GPU.</span>
+<span class="sd">    representation: a representation module, optional</span>
+<span class="sd">        If supplied, will override default settings and be used as the</span>
+<span class="sd">        main network module in the model. Intended to be used as an escape</span>
+<span class="sd">        hatch when you want to reuse the model&#39;s training functions but</span>
+<span class="sd">        want full freedom to specify your network topology.</span>
 <span class="sd">    sparse: boolean, optional</span>
 <span class="sd">        Use sparse gradients for embedding layers.</span>
 <span class="sd">    random_state: instance of numpy.random.RandomState, optional</span>
@@ -265,6 +273,7 @@
                  <span class="n">learning_rate</span><span class="o">=</span><span class="mf">1e-2</span><span class="p">,</span>
                  <span class="n">optimizer_func</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
                  <span class="n">use_cuda</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+                 <span class="n">representation</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
                  <span class="n">sparse</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
                  <span class="n">random_state</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
 
@@ -278,6 +287,7 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">_batch_size</span> <span class="o">=</span> <span class="n">batch_size</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_l2</span> <span class="o">=</span> <span class="n">l2</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_use_cuda</span> <span class="o">=</span> <span class="n">use_cuda</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_representation</span> <span class="o">=</span> <span class="n">representation</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_sparse</span> <span class="o">=</span> <span class="n">sparse</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_optimizer_func</span> <span class="o">=</span> <span class="n">optimizer_func</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_random_state</span> <span class="o">=</span> <span class="n">random_state</span> <span class="ow">or</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">RandomState</span><span class="p">()</span>
@@ -305,13 +315,17 @@
          <span class="bp">self</span><span class="o">.</span><span class="n">_num_items</span><span class="p">)</span> <span class="o">=</span> <span class="p">(</span><span class="n">interactions</span><span class="o">.</span><span class="n">num_users</span><span class="p">,</span>
                              <span class="n">interactions</span><span class="o">.</span><span class="n">num_items</span><span class="p">)</span>
 
-        <span class="bp">self</span><span class="o">.</span><span class="n">_net</span> <span class="o">=</span> <span class="n">gpu</span><span class="p">(</span>
-            <span class="n">BilinearNet</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_num_users</span><span class="p">,</span>
-                        <span class="bp">self</span><span class="o">.</span><span class="n">_num_items</span><span class="p">,</span>
-                        <span class="bp">self</span><span class="o">.</span><span class="n">_embedding_dim</span><span class="p">,</span>
-                        <span class="n">sparse</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_sparse</span><span class="p">),</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">_use_cuda</span>
-        <span class="p">)</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_representation</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_net</span> <span class="o">=</span> <span class="n">gpu</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_representation</span><span class="p">,</span>
+                            <span class="bp">self</span><span class="o">.</span><span class="n">_use_cuda</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_net</span> <span class="o">=</span> <span class="n">gpu</span><span class="p">(</span>
+                <span class="n">BilinearNet</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_num_users</span><span class="p">,</span>
+                            <span class="bp">self</span><span class="o">.</span><span class="n">_num_items</span><span class="p">,</span>
+                            <span class="bp">self</span><span class="o">.</span><span class="n">_embedding_dim</span><span class="p">,</span>
+                            <span class="n">sparse</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_sparse</span><span class="p">),</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_use_cuda</span>
+            <span class="p">)</span>
 
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_optimizer_func</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_optimizer</span> <span class="o">=</span> <span class="n">optim</span><span class="o">.</span><span class="n">Adam</span><span class="p">(</span>

@@ -39,7 +39,7 @@
         <link rel="search" title="Search" href="../search.html"/>
     <link rel="top" title="Spotlight v0.1.1 documentation" href="../index.html"/>
         <link rel="up" title="Factorization models" href="factorization.html"/>
-        <link rel="next" title="Loss functions" href="../losses.html"/>
+        <link rel="next" title="Layers" href="../layers.html"/>
         <link rel="prev" title="Explicit factorization models" href="explicit.html"/> 
 
   
@@ -115,6 +115,7 @@
 <li class="toctree-l2 current"><a class="current reference internal" href="#">Latent representations</a></li>
 </ul>
 </li>
+<li class="toctree-l1"><a class="reference internal" href="../layers.html">Layers</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../losses.html">Loss functions</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../evaluation.html">Evaluation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../sampling.html">Sampling</a></li>
@@ -126,6 +127,7 @@
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../changelog.html">Changelog</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="../changelog.html#v0-1-2-unreleased">v0.1.2 (unreleased)</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../changelog.html#added">Added</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../changelog.html#changed">Changed</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../changelog.html#fixed">Fixed</a></li>
 </ul>
@@ -203,7 +205,7 @@
 factorization models.</p>
 <dl class="class">
 <dt id="spotlight.factorization.representations.BilinearNet">
-<em class="property">class </em><code class="descclassname">spotlight.factorization.representations.</code><code class="descname">BilinearNet</code><span class="sig-paren">(</span><em>num_users</em>, <em>num_items</em>, <em>embedding_dim=32</em>, <em>sparse=False</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/spotlight/factorization/representations.html#BilinearNet"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#spotlight.factorization.representations.BilinearNet" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="descclassname">spotlight.factorization.representations.</code><code class="descname">BilinearNet</code><span class="sig-paren">(</span><em>num_users</em>, <em>num_items</em>, <em>embedding_dim=32</em>, <em>user_embedding_layer=None</em>, <em>item_embedding_layer=None</em>, <em>sparse=False</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/spotlight/factorization/representations.html#BilinearNet"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#spotlight.factorization.representations.BilinearNet" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bilinear factorization representation.</p>
 <p>Encodes both users and items as an embedding layer; the score
 for a user-item pair is given by the dot product of the item
@@ -216,6 +218,10 @@ and user latent vectors.</p>
 <li><strong>num_users</strong> (<em>int</em>) – Number of users in the model.</li>
 <li><strong>num_items</strong> (<em>int</em>) – Number of items in the model.</li>
 <li><strong>embedding_dim</strong> (<em>int</em><em>, </em><em>optional</em>) – Dimensionality of the latent representations.</li>
+<li><strong>user_embedding_layer</strong> (<em>an embedding layer</em><em>, </em><em>optional</em>) – If supplied, will be used as the user embedding layer
+of the network.</li>
+<li><strong>item_embedding_layer</strong> (<em>an embedding layer</em><em>, </em><em>optional</em>) – If supplied, will be used as the item embedding layer
+of the network.</li>
 <li><strong>sparse</strong> (<em>boolean</em><em>, </em><em>optional</em>) – Use sparse gradients.</li>
 </ul>
 </td>
@@ -260,7 +266,7 @@ and user latent vectors.</p>
   
     <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
       
-        <a href="../losses.html" class="btn btn-neutral float-right" title="Loss functions" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+        <a href="../layers.html" class="btn btn-neutral float-right" title="Layers" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
       
       
         <a href="explicit.html" class="btn btn-neutral" title="Explicit factorization models" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>

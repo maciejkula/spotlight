@@ -113,6 +113,7 @@
 <li class="toctree-l2"><a class="reference internal" href="../../../factorization/representations.html">Latent representations</a></li>
 </ul>
 </li>
+<li class="toctree-l1"><a class="reference internal" href="../../../layers.html">Layers</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../losses.html">Loss functions</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../evaluation.html">Evaluation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../sampling.html">Sampling</a></li>
@@ -124,6 +125,7 @@
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../../../changelog.html">Changelog</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="../../../changelog.html#v0-1-2-unreleased">v0.1.2 (unreleased)</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../../changelog.html#added">Added</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../../changelog.html#changed">Changed</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../../changelog.html#fixed">Fixed</a></li>
 </ul>
@@ -436,6 +438,7 @@
                 <span class="n">epoch_loss</span> <span class="o">+=</span> <span class="n">loss</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
 
                 <span class="n">loss</span><span class="o">.</span><span class="n">backward</span><span class="p">()</span>
+                <span class="c1"># assert False</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">_optimizer</span><span class="o">.</span><span class="n">step</span><span class="p">()</span>
 
             <span class="n">epoch_loss</span> <span class="o">/=</span> <span class="n">minibatch_num</span> <span class="o">+</span> <span class="mi">1</span>

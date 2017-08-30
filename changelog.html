@@ -113,6 +113,7 @@
 <li class="toctree-l2"><a class="reference internal" href="factorization/representations.html">Latent representations</a></li>
 </ul>
 </li>
+<li class="toctree-l1"><a class="reference internal" href="layers.html">Layers</a></li>
 <li class="toctree-l1"><a class="reference internal" href="losses.html">Loss functions</a></li>
 <li class="toctree-l1"><a class="reference internal" href="evaluation.html">Evaluation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="sampling.html">Sampling</a></li>
@@ -124,6 +125,7 @@
 <ul class="current">
 <li class="toctree-l1 current"><a class="current reference internal" href="#">Changelog</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="#v0-1-2-unreleased">v0.1.2 (unreleased)</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#added">Added</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#changed">Changed</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#fixed">Fixed</a></li>
 </ul>
@@ -197,6 +199,15 @@
 <h1>Changelog<a class="headerlink" href="#changelog" title="Permalink to this headline">¶</a></h1>
 <div class="section" id="v0-1-2-unreleased">
 <h2>v0.1.2 (unreleased)<a class="headerlink" href="#v0-1-2-unreleased" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="added">
+<h3>Added<a class="headerlink" href="#added" title="Permalink to this headline">¶</a></h3>
+<ul class="simple">
+<li><a class="reference internal" href="layers.html#spotlight.layers.BloomEmbedding" title="spotlight.layers.BloomEmbedding"><code class="xref py py-class docutils literal"><span class="pre">spotlight.layers.BloomEmbedding</span></code></a>: bloom embedding layers that reduce the number of
+parameters required by hashing embedding indices into some fixed smaller dimensionality,
+following Serrà, Joan, and Alexandros Karatzoglou. “Getting deep recommenders fit: Bloom
+embeddings for sparse binary input/output networks.”</li>
+</ul>
+</div>
 <div class="section" id="changed">
 <h3>Changed<a class="headerlink" href="#changed" title="Permalink to this headline">¶</a></h3>
 <ul class="simple">

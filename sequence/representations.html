@@ -115,6 +115,7 @@
 <li class="toctree-l2"><a class="reference internal" href="../factorization/representations.html">Latent representations</a></li>
 </ul>
 </li>
+<li class="toctree-l1"><a class="reference internal" href="../layers.html">Layers</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../losses.html">Loss functions</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../evaluation.html">Evaluation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../sampling.html">Sampling</a></li>
@@ -126,6 +127,7 @@
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../changelog.html">Changelog</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="../changelog.html#v0-1-2-unreleased">v0.1.2 (unreleased)</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../changelog.html#added">Added</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../changelog.html#changed">Changed</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../changelog.html#fixed">Fixed</a></li>
 </ul>
@@ -203,7 +205,7 @@
 as functions of the items they have interacted with in the past.</p>
 <dl class="class">
 <dt id="spotlight.sequence.representations.CNNNet">
-<em class="property">class </em><code class="descclassname">spotlight.sequence.representations.</code><code class="descname">CNNNet</code><span class="sig-paren">(</span><em>num_items</em>, <em>embedding_dim=32</em>, <em>kernel_width=3</em>, <em>dilation=1</em>, <em>num_layers=1</em>, <em>nonlinearity='tanh'</em>, <em>residual_connections=True</em>, <em>sparse=False</em>, <em>benchmark=True</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/spotlight/sequence/representations.html#CNNNet"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#spotlight.sequence.representations.CNNNet" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="descclassname">spotlight.sequence.representations.</code><code class="descname">CNNNet</code><span class="sig-paren">(</span><em>num_items</em>, <em>embedding_dim=32</em>, <em>kernel_width=3</em>, <em>dilation=1</em>, <em>num_layers=1</em>, <em>nonlinearity='tanh'</em>, <em>residual_connections=True</em>, <em>sparse=False</em>, <em>benchmark=True</em>, <em>item_embedding_layer=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/spotlight/sequence/representations.html#CNNNet"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#spotlight.sequence.representations.CNNNet" title="Permalink to this definition">¶</a></dt>
 <dd><p>Module representing users through stacked causal atrous convolutions (<a class="footnote-reference" href="#id3" id="id1">[3]</a>, <a class="footnote-reference" href="#id4" id="id2">[4]</a>).</p>
 <p>To represent a sequence, it runs a 1D convolution over the input sequence,
 from left to right. At each timestep, the output of the convolution is
@@ -239,6 +241,8 @@ of layers.</li>
 <li><strong>nonlinearity</strong> (<em>string</em><em>, </em><em>optional</em>) – One of (‘tanh’, ‘relu’). Denotes the type of non-linearity to apply
 after each convolutional layer.</li>
 <li><strong>residual_connections</strong> (<em>boolean</em><em>, </em><em>optional</em>) – Whether to use reisdual connections between convolutional layers.</li>
+<li><strong>item_embedding_layer</strong> (<em>an embedding layer</em><em>, </em><em>optional</em>) – If supplied, will be used as the item embedding layer
+of the network.</li>
 </ul>
 </td>
 </tr>
@@ -308,7 +312,7 @@ for prediction or evaluation.</td>
 
 <dl class="class">
 <dt id="spotlight.sequence.representations.LSTMNet">
-<em class="property">class </em><code class="descclassname">spotlight.sequence.representations.</code><code class="descname">LSTMNet</code><span class="sig-paren">(</span><em>num_items</em>, <em>embedding_dim=32</em>, <em>sparse=False</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/spotlight/sequence/representations.html#LSTMNet"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#spotlight.sequence.representations.LSTMNet" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="descclassname">spotlight.sequence.representations.</code><code class="descname">LSTMNet</code><span class="sig-paren">(</span><em>num_items</em>, <em>embedding_dim=32</em>, <em>item_embedding_layer=None</em>, <em>sparse=False</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/spotlight/sequence/representations.html#LSTMNet"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#spotlight.sequence.representations.LSTMNet" title="Permalink to this definition">¶</a></dt>
 <dd><p>Module representing users through running a recurrent neural network
 over the sequence, using the hidden state at each timestep as the
 sequence representation, a’la <a class="footnote-reference" href="#id6" id="id5">[2]</a></p>
@@ -323,6 +327,8 @@ be aggregating both across the minibatch and aross time in the sequence.</p>
 <li><strong>num_items</strong> (<em>int</em>) – Number of items to be represented.</li>
 <li><strong>embedding_dim</strong> (<em>int</em><em>, </em><em>optional</em>) – Embedding dimension of the embedding layer, and the number of hidden
 units in the LSTM layer.</li>
+<li><strong>item_embedding_layer</strong> (<em>an embedding layer</em><em>, </em><em>optional</em>) – If supplied, will be used as the item embedding layer
+of the network.</li>
 </ul>
 </td>
 </tr>
@@ -385,7 +391,7 @@ for prediction or evaluation.</td>
 
 <dl class="class">
 <dt id="spotlight.sequence.representations.PoolNet">
-<em class="property">class </em><code class="descclassname">spotlight.sequence.representations.</code><code class="descname">PoolNet</code><span class="sig-paren">(</span><em>num_items</em>, <em>embedding_dim=32</em>, <em>sparse=False</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/spotlight/sequence/representations.html#PoolNet"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#spotlight.sequence.representations.PoolNet" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="descclassname">spotlight.sequence.representations.</code><code class="descname">PoolNet</code><span class="sig-paren">(</span><em>num_items</em>, <em>embedding_dim=32</em>, <em>item_embedding_layer=None</em>, <em>sparse=False</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/spotlight/sequence/representations.html#PoolNet"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#spotlight.sequence.representations.PoolNet" title="Permalink to this definition">¶</a></dt>
 <dd><p>Module representing users through averaging the representations of items
 they have interacted with, a’la <a class="footnote-reference" href="#id8" id="id7">[1]</a>.</p>
 <p>To represent a sequence, it simply averages the representations of all
@@ -400,6 +406,8 @@ be aggregating both across the minibatch and aross time in the sequence.</p>
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
 <li><strong>num_items</strong> (<em>int</em>) – Number of items to be represented.</li>
 <li><strong>embedding_dim</strong> (<em>int</em><em>, </em><em>optional</em>) – Embedding dimension of the embedding layer.</li>
+<li><strong>item_embedding_layer</strong> (<em>an embedding layer</em><em>, </em><em>optional</em>) – If supplied, will be used as the item embedding layer
+of the network.</li>
 </ul>
 </td>
 </tr>

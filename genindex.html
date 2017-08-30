@@ -113,6 +113,7 @@
 <li class="toctree-l2"><a class="reference internal" href="factorization/representations.html">Latent representations</a></li>
 </ul>
 </li>
+<li class="toctree-l1"><a class="reference internal" href="layers.html">Layers</a></li>
 <li class="toctree-l1"><a class="reference internal" href="losses.html">Loss functions</a></li>
 <li class="toctree-l1"><a class="reference internal" href="evaluation.html">Evaluation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="sampling.html">Sampling</a></li>
@@ -124,6 +125,7 @@
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="changelog.html">Changelog</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="changelog.html#v0-1-2-unreleased">v0.1.2 (unreleased)</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="changelog.html#added">Added</a></li>
 <li class="toctree-l3"><a class="reference internal" href="changelog.html#changed">Changed</a></li>
 <li class="toctree-l3"><a class="reference internal" href="changelog.html#fixed">Fixed</a></li>
 </ul>
@@ -210,6 +212,7 @@
  | <a href="#S"><strong>S</strong></a>
  | <a href="#T"><strong>T</strong></a>
  | <a href="#U"><strong>U</strong></a>
+ | <a href="#Z"><strong>Z</strong></a>
  
 </div>
 <h2 id="A">A</h2>
@@ -227,6 +230,8 @@
 </li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="layers.html#spotlight.layers.BloomEmbedding">BloomEmbedding (class in spotlight.layers)</a>
+</li>
       <li><a href="losses.html#spotlight.losses.bpr_loss">bpr_loss() (in module spotlight.losses)</a>
 </li>
   </ul></td>
@@ -259,11 +264,11 @@
         <li><a href="sequence/implicit.html#spotlight.sequence.implicit.ImplicitSequenceModel.fit">(spotlight.sequence.implicit.ImplicitSequenceModel method)</a>
 </li>
       </ul></li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="factorization/representations.html#spotlight.factorization.representations.BilinearNet.forward">forward() (spotlight.factorization.representations.BilinearNet method)</a>
 
       <ul>
+        <li><a href="layers.html#spotlight.layers.BloomEmbedding.forward">(spotlight.layers.BloomEmbedding method)</a>
+</li>
         <li><a href="sequence/representations.html#spotlight.sequence.representations.CNNNet.forward">(spotlight.sequence.representations.CNNNet method)</a>
 </li>
         <li><a href="sequence/representations.html#spotlight.sequence.representations.LSTMNet.forward">(spotlight.sequence.representations.LSTMNet method)</a>
@@ -351,10 +356,18 @@
   <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="cross_validation.html#spotlight.cross_validation.random_train_test_split">random_train_test_split() (in module spotlight.cross_validation)</a>
 </li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="losses.html#spotlight.losses.regression_loss">regression_loss() (in module spotlight.losses)</a>
 </li>
+      <li><a href="layers.html#spotlight.layers.ScaledEmbedding.reset_parameters">reset_parameters() (spotlight.layers.ScaledEmbedding method)</a>
+
+      <ul>
+        <li><a href="layers.html#spotlight.layers.ScaledEmbeddingBag.reset_parameters">(spotlight.layers.ScaledEmbeddingBag method)</a>
+</li>
+        <li><a href="layers.html#spotlight.layers.ZeroEmbedding.reset_parameters">(spotlight.layers.ZeroEmbedding method)</a>
+</li>
+      </ul></li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="evaluation.html#spotlight.evaluation.rmse_score">rmse_score() (in module spotlight.evaluation)</a>
 </li>
   </ul></td>
@@ -364,6 +377,10 @@
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="sampling.html#spotlight.sampling.sample_items">sample_items() (in module spotlight.sampling)</a>
+</li>
+      <li><a href="layers.html#spotlight.layers.ScaledEmbedding">ScaledEmbedding (class in spotlight.layers)</a>
+</li>
+      <li><a href="layers.html#spotlight.layers.ScaledEmbeddingBag">ScaledEmbeddingBag (class in spotlight.layers)</a>
 </li>
       <li><a href="evaluation.html#spotlight.evaluation.sequence_mrr_score">sequence_mrr_score() (in module spotlight.evaluation)</a>
 </li>
@@ -392,6 +409,8 @@
       <li><a href="factorization/representations.html#module-spotlight.factorization.representations">spotlight.factorization.representations (module)</a>
 </li>
       <li><a href="interactions.html#module-spotlight.interactions">spotlight.interactions (module)</a>
+</li>
+      <li><a href="layers.html#module-spotlight.layers">spotlight.layers (module)</a>
 </li>
       <li><a href="losses.html#module-spotlight.losses">spotlight.losses (module)</a>
 </li>
@@ -433,6 +452,14 @@
         <li><a href="sequence/representations.html#spotlight.sequence.representations.PoolNet.user_representation">(spotlight.sequence.representations.PoolNet method)</a>
 </li>
       </ul></li>
+  </ul></td>
+</tr></table>
+
+<h2 id="Z">Z</h2>
+<table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="layers.html#spotlight.layers.ZeroEmbedding">ZeroEmbedding (class in spotlight.layers)</a>
+</li>
   </ul></td>
 </tr></table>
 

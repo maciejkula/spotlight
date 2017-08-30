@@ -113,6 +113,7 @@
 <li class="toctree-l2"><a class="reference internal" href="../../../factorization/representations.html">Latent representations</a></li>
 </ul>
 </li>
+<li class="toctree-l1"><a class="reference internal" href="../../../layers.html">Layers</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../losses.html">Loss functions</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../evaluation.html">Evaluation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../sampling.html">Sampling</a></li>
@@ -124,6 +125,7 @@
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../../../changelog.html">Changelog</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="../../../changelog.html#v0-1-2-unreleased">v0.1.2 (unreleased)</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../../changelog.html#added">Added</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../../changelog.html#changed">Changed</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../../changelog.html#fixed">Fixed</a></li>
 </ul>
@@ -221,19 +223,36 @@
 <span class="sd">        Number of items in the model.</span>
 <span class="sd">    embedding_dim: int, optional</span>
 <span class="sd">        Dimensionality of the latent representations.</span>
+<span class="sd">    user_embedding_layer: an embedding layer, optional</span>
+<span class="sd">        If supplied, will be used as the user embedding layer</span>
+<span class="sd">        of the network.</span>
+<span class="sd">    item_embedding_layer: an embedding layer, optional</span>
+<span class="sd">        If supplied, will be used as the item embedding layer</span>
+<span class="sd">        of the network.</span>
 <span class="sd">    sparse: boolean, optional</span>
 <span class="sd">        Use sparse gradients.</span>
+
 <span class="sd">    &quot;&quot;&quot;</span>
 
-    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">num_users</span><span class="p">,</span> <span class="n">num_items</span><span class="p">,</span> <span class="n">embedding_dim</span><span class="o">=</span><span class="mi">32</span><span class="p">,</span> <span class="n">sparse</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">num_users</span><span class="p">,</span> <span class="n">num_items</span><span class="p">,</span> <span class="n">embedding_dim</span><span class="o">=</span><span class="mi">32</span><span class="p">,</span>
+                 <span class="n">user_embedding_layer</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">item_embedding_layer</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">sparse</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+
         <span class="nb">super</span><span class="p">(</span><span class="n">BilinearNet</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">embedding_dim</span> <span class="o">=</span> <span class="n">embedding_dim</span>
 
-        <span class="bp">self</span><span class="o">.</span><span class="n">user_embeddings</span> <span class="o">=</span> <span class="n">ScaledEmbedding</span><span class="p">(</span><span class="n">num_users</span><span class="p">,</span> <span class="n">embedding_dim</span><span class="p">,</span>
-                                               <span class="n">sparse</span><span class="o">=</span><span class="n">sparse</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">item_embeddings</span> <span class="o">=</span> <span class="n">ScaledEmbedding</span><span class="p">(</span><span class="n">num_items</span><span class="p">,</span> <span class="n">embedding_dim</span><span class="p">,</span>
-                                               <span class="n">sparse</span><span class="o">=</span><span class="n">sparse</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">user_embedding_layer</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">user_embeddings</span> <span class="o">=</span> <span class="n">user_embedding_layer</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">user_embeddings</span> <span class="o">=</span> <span class="n">ScaledEmbedding</span><span class="p">(</span><span class="n">num_users</span><span class="p">,</span> <span class="n">embedding_dim</span><span class="p">,</span>
+                                                   <span class="n">sparse</span><span class="o">=</span><span class="n">sparse</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">item_embedding_layer</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">item_embeddings</span> <span class="o">=</span> <span class="n">item_embedding_layer</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">item_embeddings</span> <span class="o">=</span> <span class="n">ScaledEmbedding</span><span class="p">(</span><span class="n">num_items</span><span class="p">,</span> <span class="n">embedding_dim</span><span class="p">,</span>
+                                                   <span class="n">sparse</span><span class="o">=</span><span class="n">sparse</span><span class="p">)</span>
+
         <span class="bp">self</span><span class="o">.</span><span class="n">user_biases</span> <span class="o">=</span> <span class="n">ZeroEmbedding</span><span class="p">(</span><span class="n">num_users</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="n">sparse</span><span class="o">=</span><span class="n">sparse</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">item_biases</span> <span class="o">=</span> <span class="n">ZeroEmbedding</span><span class="p">(</span><span class="n">num_items</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="n">sparse</span><span class="o">=</span><span class="n">sparse</span><span class="p">)</span>
 
