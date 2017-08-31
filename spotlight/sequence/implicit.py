@@ -269,7 +269,7 @@ class ImplicitSequenceModel(object):
                                            n=5):
         batch_size, sliding_window = shape
         negative_prediction = self._get_negative_prediction(
-            (n*batch_size, sliding_window),
+            (n * batch_size, sliding_window),
             user_representation.repeat(n, 1, 1))
 
         return negative_prediction.view(n, batch_size, sliding_window)

@@ -219,7 +219,8 @@ class ImplicitFactorizationModel(object):
                 positive_prediction = self._net(user_var, item_var)
 
                 if self._loss == 'adaptive_hinge':
-                    negative_prediction = self._get_multiple_negative_predictions(user_var, n=self._num_negative_samples)
+                    negative_prediction = self._get_multiple_negative_predictions(
+                        user_var, n=self._num_negative_samples)
                 else:
                     negative_prediction = self._get_negative_prediction(user_var)
 
