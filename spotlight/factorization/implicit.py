@@ -66,6 +66,8 @@ class ImplicitFactorizationModel(object):
         Use sparse gradients for embedding layers.
     random_state: instance of numpy.random.RandomState, optional
         Random state to use when fitting.
+    num_negative_samples: int, optional
+        Number of negative samples to generate for adaptive hinge loss.
     """
 
     def __init__(self,
@@ -192,10 +194,9 @@ class ImplicitFactorizationModel(object):
             self._initialize(interactions)
 
         self._check_input(user_ids, item_ids)
-        import time
 
         for epoch_num in range(self._n_iter):
-            t0 = time.time()
+
             users, items = shuffle(user_ids,
                                    item_ids,
                                    random_state=self._random_state)

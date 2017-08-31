@@ -57,6 +57,8 @@ class ImplicitSequenceModel(object):
         Use sparse gradients for embedding layers.
     random_state: instance of numpy.random.RandomState, optional
         Random state to use when fitting.
+    num_negative_samples: int, optional
+        Number of negative samples to generate for adaptive hinge loss.
 
     Notes
     -----
@@ -227,9 +229,10 @@ class ImplicitSequenceModel(object):
                                                 sequence_var)
 
                 if self._loss == 'adaptive_hinge':
-                    negative_prediction = self._get_multiple_negative_predictions(sequence_var.size(),
-                                                                         user_representation,
-                                                                         n=self._num_negative_samples)
+                    negative_prediction = self._get_multiple_negative_predictions(
+                        sequence_var.size(),
+                        user_representation,
+                        n=self._num_negative_samples)
                 else:
                     negative_prediction = self._get_negative_prediction(sequence_var.size(),
                                                                         user_representation)
