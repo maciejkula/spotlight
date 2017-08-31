@@ -161,8 +161,7 @@ def adaptive_hinge_loss(positive_predictions, negative_predictions, mask=None):
        Vol. 11. 2011.
     """
 
-    stacked_negative_predictions = torch.stack(negative_predictions, dim=0)
-    highest_negative_predictions, _ = torch.max(stacked_negative_predictions, 0)
+    highest_negative_predictions, _ = torch.max(negative_predictions, 0)
 
     return hinge_loss(positive_predictions, highest_negative_predictions.squeeze(), mask=mask)
 

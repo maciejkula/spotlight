@@ -90,7 +90,8 @@ class ImplicitSequenceModel(object):
                  optimizer_func=None,
                  use_cuda=False,
                  sparse=False,
-                 random_state=None):
+                 random_state=None,
+                 num_negative_samples=5):
 
         assert loss in ('pointwise',
                         'bpr',
@@ -113,6 +114,7 @@ class ImplicitSequenceModel(object):
         self._sparse = sparse
         self._optimizer_func = optimizer_func
         self._random_state = random_state or np.random.RandomState()
+        self._num_negative_samples = num_negative_samples
 
         self._num_items = None
         self._net = None
@@ -225,9 +227,9 @@ class ImplicitSequenceModel(object):
                                                 sequence_var)
 
                 if self._loss == 'adaptive_hinge':
-                    negative_prediction = [self._get_negative_prediction(sequence_var.size(),
-                                                                         user_representation)
-                                           for __ in range(5)]
+                    negative_prediction = self._get_multiple_negative_predictions(sequence_var.size(),
+                                                                         user_representation,
+                                                                         n=self._num_negative_samples)
                 else:
                     negative_prediction = self._get_negative_prediction(sequence_var.size(),
                                                                         user_representation)
@@ -259,6 +261,15 @@ class ImplicitSequenceModel(object):
         negative_prediction = self._net(user_representation, negative_var)
 
         return negative_prediction
+
+    def _get_multiple_negative_predictions(self, shape, user_representation,
+                                           n=5):
+        batch_size, sliding_window = shape
+        negative_prediction = self._get_negative_prediction(
+            (n*batch_size, sliding_window),
+            user_representation.repeat(n, 1, 1))
+
+        return negative_prediction.view(n, batch_size, sliding_window)
 
     def predict(self, sequences, item_ids=None):
         """
