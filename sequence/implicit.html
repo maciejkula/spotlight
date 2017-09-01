@@ -205,7 +205,7 @@
 a user has interacted with.</p>
 <dl class="class">
 <dt id="spotlight.sequence.implicit.ImplicitSequenceModel">
-<em class="property">class </em><code class="descclassname">spotlight.sequence.implicit.</code><code class="descname">ImplicitSequenceModel</code><span class="sig-paren">(</span><em>loss='pointwise'</em>, <em>representation='pooling'</em>, <em>embedding_dim=32</em>, <em>n_iter=10</em>, <em>batch_size=256</em>, <em>l2=0.0</em>, <em>learning_rate=0.01</em>, <em>optimizer_func=None</em>, <em>use_cuda=False</em>, <em>sparse=False</em>, <em>random_state=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/spotlight/sequence/implicit.html#ImplicitSequenceModel"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#spotlight.sequence.implicit.ImplicitSequenceModel" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="descclassname">spotlight.sequence.implicit.</code><code class="descname">ImplicitSequenceModel</code><span class="sig-paren">(</span><em>loss='pointwise'</em>, <em>representation='pooling'</em>, <em>embedding_dim=32</em>, <em>n_iter=10</em>, <em>batch_size=256</em>, <em>l2=0.0</em>, <em>learning_rate=0.01</em>, <em>optimizer_func=None</em>, <em>use_cuda=False</em>, <em>sparse=False</em>, <em>random_state=None</em>, <em>num_negative_samples=5</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/spotlight/sequence/implicit.html#ImplicitSequenceModel"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#spotlight.sequence.implicit.ImplicitSequenceModel" title="Permalink to this definition">¶</a></dt>
 <dd><p>Model for sequential recommendations using implicit feedback.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -230,6 +230,7 @@ rate if supplied. If no optimizer supplied, then use ADAM by default.</li>
 <li><strong>use_cuda</strong> (<em>boolean</em><em>, </em><em>optional</em>) – Run the model on a GPU.</li>
 <li><strong>sparse</strong> (<em>boolean</em><em>, </em><em>optional</em>) – Use sparse gradients for embedding layers.</li>
 <li><strong>random_state</strong> (<em>instance of numpy.random.RandomState</em><em>, </em><em>optional</em>) – Random state to use when fitting.</li>
+<li><strong>num_negative_samples</strong> (<em>int</em><em>, </em><em>optional</em>) – Number of negative samples to generate for adaptive hinge loss.</li>
 </ul>
 </td>
 </tr>

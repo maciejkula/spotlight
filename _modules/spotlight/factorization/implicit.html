@@ -269,6 +269,8 @@
 <span class="sd">        Use sparse gradients for embedding layers.</span>
 <span class="sd">    random_state: instance of numpy.random.RandomState, optional</span>
 <span class="sd">        Random state to use when fitting.</span>
+<span class="sd">    num_negative_samples: int, optional</span>
+<span class="sd">        Number of negative samples to generate for adaptive hinge loss.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span>
@@ -282,7 +284,8 @@
                  <span class="n">use_cuda</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
                  <span class="n">representation</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
                  <span class="n">sparse</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
-                 <span class="n">random_state</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+                 <span class="n">random_state</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                 <span class="n">num_negative_samples</span><span class="o">=</span><span class="mi">5</span><span class="p">):</span>
 
         <span class="k">assert</span> <span class="n">loss</span> <span class="ow">in</span> <span class="p">(</span><span class="s1">&#39;pointwise&#39;</span><span class="p">,</span>
                         <span class="s1">&#39;bpr&#39;</span><span class="p">,</span>
@@ -300,6 +303,7 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">_sparse</span> <span class="o">=</span> <span class="n">sparse</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_optimizer_func</span> <span class="o">=</span> <span class="n">optimizer_func</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_random_state</span> <span class="o">=</span> <span class="n">random_state</span> <span class="ow">or</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">RandomState</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_num_negative_samples</span> <span class="o">=</span> <span class="n">num_negative_samples</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">_num_users</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_num_items</span> <span class="o">=</span> <span class="kc">None</span>
@@ -424,8 +428,8 @@
                 <span class="n">positive_prediction</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_net</span><span class="p">(</span><span class="n">user_var</span><span class="p">,</span> <span class="n">item_var</span><span class="p">)</span>
 
                 <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_loss</span> <span class="o">==</span> <span class="s1">&#39;adaptive_hinge&#39;</span><span class="p">:</span>
-                    <span class="n">negative_prediction</span> <span class="o">=</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">_get_negative_prediction</span><span class="p">(</span><span class="n">user_var</span><span class="p">)</span>
-                                           <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">5</span><span class="p">)]</span>
+                    <span class="n">negative_prediction</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_multiple_negative_predictions</span><span class="p">(</span>
+                        <span class="n">user_var</span><span class="p">,</span> <span class="n">n</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_num_negative_samples</span><span class="p">)</span>
                 <span class="k">else</span><span class="p">:</span>
                     <span class="n">negative_prediction</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_negative_prediction</span><span class="p">(</span><span class="n">user_var</span><span class="p">)</span>
 
@@ -454,6 +458,12 @@
         <span class="n">negative_prediction</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_net</span><span class="p">(</span><span class="n">user_ids</span><span class="p">,</span> <span class="n">negative_var</span><span class="p">)</span>
 
         <span class="k">return</span> <span class="n">negative_prediction</span>
+
+    <span class="k">def</span> <span class="nf">_get_multiple_negative_predictions</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">user_ids</span><span class="p">,</span> <span class="n">n</span><span class="o">=</span><span class="mi">5</span><span class="p">):</span>
+
+        <span class="n">negative_prediction</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_negative_prediction</span><span class="p">(</span><span class="n">user_ids</span><span class="o">.</span><span class="n">repeat</span><span class="p">(</span><span class="n">n</span><span class="p">))</span>
+
+        <span class="k">return</span> <span class="n">negative_prediction</span><span class="o">.</span><span class="n">view</span><span class="p">(</span><span class="n">n</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">user_ids</span><span class="p">))</span>
 
 <div class="viewcode-block" id="ImplicitFactorizationModel.predict"><a class="viewcode-back" href="../../../factorization/implicit.html#spotlight.factorization.implicit.ImplicitFactorizationModel.predict">[docs]</a>    <span class="k">def</span> <span class="nf">predict</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">user_ids</span><span class="p">,</span> <span class="n">item_ids</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
