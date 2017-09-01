@@ -61,4 +61,4 @@ What about accuracy? At 4 hash functions, a lot of compression can be applied wi
 Conclusions
 -----------
 
-It's somewhat difficult to draw categorical conlcusions based on a small experiment with only limited hyperparameter optimization. Nevertheless, it seems fair to say that bloom embeddings can successfully reduce the number of parameters required in a model with little loss of accuracy (especially in sparser datasets). However, in sequence-based models trained with embedding layers and negative sampling the expected fitting speed gains are modest.
+It's somewhat difficult to draw categorical conclusions based on a small experiment with only limited hyperparameter optimization. Nevertheless, it seems fair to say that bloom embeddings can successfully reduce the number of parameters required in a model with little loss of accuracy (especially in sparser datasets). However, in sequence-based models trained with embedding layers and negative sampling the expected fitting speed gains are modest.
