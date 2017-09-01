@@ -71,6 +71,8 @@ class ImplicitFactorizationModel(object):
         Use sparse gradients for embedding layers.
     random_state: instance of numpy.random.RandomState, optional
         Random state to use when fitting.
+    num_negative_samples: int, optional
+        Number of negative samples to generate for adaptive hinge loss.
     """
 
     def __init__(self,
@@ -84,7 +86,8 @@ class ImplicitFactorizationModel(object):
                  use_cuda=False,
                  representation=None,
                  sparse=False,
-                 random_state=None):
+                 random_state=None,
+                 num_negative_samples=5):
 
         assert loss in ('pointwise',
                         'bpr',
@@ -102,6 +105,7 @@ class ImplicitFactorizationModel(object):
         self._sparse = sparse
         self._optimizer_func = optimizer_func
         self._random_state = random_state or np.random.RandomState()
+        self._num_negative_samples = num_negative_samples
 
         self._num_users = None
         self._num_items = None
@@ -226,8 +230,8 @@ class ImplicitFactorizationModel(object):
                 positive_prediction = self._net(user_var, item_var)
 
                 if self._loss == 'adaptive_hinge':
-                    negative_prediction = [self._get_negative_prediction(user_var)
-                                           for _ in range(5)]
+                    negative_prediction = self._get_multiple_negative_predictions(
+                        user_var, n=self._num_negative_samples)
                 else:
                     negative_prediction = self._get_negative_prediction(user_var)
 
@@ -256,6 +260,12 @@ class ImplicitFactorizationModel(object):
         negative_prediction = self._net(user_ids, negative_var)
 
         return negative_prediction
+
+    def _get_multiple_negative_predictions(self, user_ids, n=5):
+
+        negative_prediction = self._get_negative_prediction(user_ids.repeat(n))
+
+        return negative_prediction.view(n, len(user_ids))
 
     def predict(self, user_ids, item_ids=None):
         """
