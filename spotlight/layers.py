@@ -182,7 +182,7 @@ class BloomEmbedding(nn.Module):
         def _hash(x, seed):
 
             # TODO: integrate with padding index
-            result = murmurhash3_32(indices, seed=seed)
+            result = murmurhash3_32(x, seed=seed)
             result[self.padding_idx] = 0
 
             return result % self.compressed_num_embeddings
