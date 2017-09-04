@@ -157,6 +157,22 @@ Examples
 3. `Bloom embedding layers <https://github.com/maciejkula/spotlight/tree/master/examples/bloom_embeddings>`_.
 
 
+How to cite
+~~~~~~~~~~~
+
+Please cite Spotlight if it helps your research. You can use the following BibTeX entry:
+
+.. code-block::
+
+   @misc{kula2017spotlight,
+     title={Spotlight},
+     author={Kula, Maciej},
+     year={2017},
+     publisher={GitHub},
+     howpublished={\url{https://github.com/maciejkula/spotlight}},
+   }
+
+
 Contributing
 ~~~~~~~~~~~~
 
