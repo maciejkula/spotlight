@@ -56,7 +56,7 @@ def mrr_score(model, test, train=None):
     return np.array(mrrs)
 
 
-def sequence_mrr_score(model, test):
+def sequence_mrr_score(model, test, exclude_preceding=False):
     """
     Compute mean reciprocal rank (MRR) scores. Each sequence
     in test is split into two parts: the first part, containing
@@ -72,6 +72,9 @@ def sequence_mrr_score(model, test):
         The model to evaluate.
     test: :class:`spotlight.interactions.SequenceInteractions`
         Test interactions.
+    exclude_preceding: boolean, optional
+        When true, items already present in the sequence will
+        be excluded from evaluation.
 
     Returns
     -------
@@ -88,6 +91,9 @@ def sequence_mrr_score(model, test):
     for i in range(len(sequences)):
 
         predictions = -model.predict(sequences[i])
+
+        if exclude_preceding:
+            predictions[sequences[i]] = FLOAT_MAX
 
         mrr = (1.0 / st.rankdata(predictions)[targets[i]]).mean()
 
