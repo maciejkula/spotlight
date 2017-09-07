@@ -57,7 +57,7 @@ def test_bpr():
     precision = np.mean(precision, axis=0)
     recall = np.mean(recall, axis=0)
 
-    print precision, recall
+    print(precision, recall)
 
     assert mrr > 0.07
 
