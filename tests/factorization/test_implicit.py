@@ -10,7 +10,7 @@ from spotlight.evaluation import mrr_score
 from spotlight.factorization.implicit import ImplicitFactorizationModel
 from spotlight.factorization.representations import BilinearNet
 from spotlight.layers import BloomEmbedding
-
+from spotlight.evaluation import precision_recall_at_k
 
 RANDOM_STATE = np.random.RandomState(42)
 CUDA = bool(os.environ.get('SPOTLIGHT_CUDA', False))
@@ -49,9 +49,15 @@ def test_bpr():
                                        learning_rate=1e-2,
                                        l2=1e-6,
                                        use_cuda=CUDA)
-    model.fit(train)
+    model.fit(train, verbose=True)
 
     mrr = mrr_score(model, test, train=train).mean()
+
+    precision, recall = precision_recall_at_k(model, test, k=[1, 5, 10])
+    precision = np.mean(precision, axis=0)
+    recall = np.mean(recall, axis=0)
+
+    print precision, recall
 
     assert mrr > 0.07
 
@@ -161,3 +167,6 @@ def test_bpr_bloom(compression_ratio, expected_mrr):
     mrr = mrr_score(model, test, train=train).mean()
 
     assert mrr > expected_mrr
+
+if __name__ == '__main__':
+    test_bpr()
