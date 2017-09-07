@@ -49,7 +49,7 @@ def test_bpr():
                                        learning_rate=1e-2,
                                        l2=1e-6,
                                        use_cuda=CUDA)
-    model.fit(train, verbose=True)
+    model.fit(train)
 
     mrr = mrr_score(model, test, train=train).mean()
 
@@ -167,6 +167,3 @@ def test_bpr_bloom(compression_ratio, expected_mrr):
     mrr = mrr_score(model, test, train=train).mean()
 
     assert mrr > expected_mrr
-
-if __name__ == '__main__':
-    test_bpr()
