@@ -12,6 +12,7 @@ Added
   parameters required by hashing embedding indices into some fixed smaller dimensionality,
   following Serrà, Joan, and Alexandros Karatzoglou. "Getting deep recommenders fit: Bloom
   embeddings for sparse binary input/output networks."
+* ``sequence_mrr_score`` now accepts an option that excludes previously seen items from scoring.
 
 Changed
 ~~~~~~~
