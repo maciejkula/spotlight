@@ -35,7 +35,7 @@ Installation
 
 .. code-block:: python
 
-   conda install -c maciejkula -c soumith spotlight=0.1.1
+   conda install -c maciejkula -c soumith spotlight=0.1.2
 
 
 Usage
