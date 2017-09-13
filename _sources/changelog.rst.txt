@@ -2,7 +2,7 @@
 Changelog
 =========
 
-v0.1.2 (unreleased)
+v0.1.2 (2017-09-10)
 -------------------
 
 Added
@@ -25,4 +25,3 @@ Fixed
 ~~~~~
 
 * Factorization predict APIs now work as advertised in the documentation.
-
