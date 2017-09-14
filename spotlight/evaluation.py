@@ -102,7 +102,7 @@ def sequence_mrr_score(model, test, exclude_preceding=False):
     return np.array(mrrs)
 
 
-def precision_recall_at_k(model, test, k):
+def precision_recall_score(model, test, train=None, k=10):
     """
     Compute Precision@k and Recall@k scores. One score
     is given for every user with interactions in the test
@@ -116,6 +116,10 @@ def precision_recall_at_k(model, test, k):
         The model to evaluate.
     test: :class:`spotlight.interactions.Interactions`
         Test interactions.
+    train: :class:`spotlight.interactions.Interactions`, optional
+        Train interactions. If supplied, scores of known
+        interactions will be set to very low values and so not
+        affect the MRR.
     k: int or array of int,
         The maximum number of predicted items
     Returns
@@ -127,31 +131,46 @@ def precision_recall_at_k(model, test, k):
 
     test = test.tocsr()
 
-    if not isinstance(k, list):
-        k = [k]
+    if train is not None:
+        train = train.tocsr()
 
-    precisions = []
-    recalls = []
+    if not isinstance(k, list):
+        ks = [k]
+    else:
+        ks = k
+
+    precisions = [list() for _ in range(len(ks))]
+    recalls = [list() for _ in range(len(ks))]
 
     for user_id, row in enumerate(test):
 
         if not len(row.indices):
             continue
 
-        precision_at_k = []
-        recall_at_k = []
-
         predictions = -model.predict(user_id)
         predictions = predictions.argsort()
+
+        if train is not None:
+            rated = train[user_id].indices
+        else:
+            rated = []
+
+        predictions = [p for p in predictions if p not in rated]
+
         targets = row.indices
 
-        for _k in k:
-            pred = np.asarray(predictions)[:_k]
+        for i, _k in enumerate(ks):
+            pred = predictions[:_k]
             num_hit = len(set(pred).intersection(set(targets)))
-            precision_at_k.append(float(num_hit) / len(pred))
-            recall_at_k.append(float(num_hit) / len(targets))
-        precisions.append(precision_at_k)
-        recalls.append(recall_at_k)
+            precisions[i].append(float(num_hit) / len(pred))
+            recalls[i].append(float(num_hit) / len(targets))
+
+    precisions = [np.array(i) for i in precisions]
+    recalls = [np.array(i) for i in recalls]
+
+    if not isinstance(k, list):
+        precisions = precisions[0]
+        recalls = recalls[0]
 
     return precisions, recalls
 
