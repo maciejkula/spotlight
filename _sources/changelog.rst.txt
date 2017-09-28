@@ -2,6 +2,14 @@
 Changelog
 =========
 
+unreleased (unreleased)
+-----------------------
+
+Added
+~~~~~
+
+* Goodbooks dataset.
+
 v0.1.2 (2017-09-10)
 -------------------
 

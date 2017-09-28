@@ -99,6 +99,7 @@
 <li class="toctree-l1"><a class="reference internal" href="../../../datasets/datasets.html">Datasets</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="../../../datasets/synthetic.html">Synthetic</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../../datasets/movielens.html">Movielens</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../datasets/goodbooks.html">Goodbooks</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="../../../cross_validation.html">Cross validation</a></li>
@@ -124,8 +125,12 @@
 </ul>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../../../changelog.html">Changelog</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="../../../changelog.html#v0-1-2-2017-09-10">v0.1.2 (2017-09-10)</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../changelog.html#unreleased-unreleased">unreleased (unreleased)</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="../../../changelog.html#added">Added</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../../../changelog.html#v0-1-2-2017-09-10">v0.1.2 (2017-09-10)</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../../changelog.html#id1">Added</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../../changelog.html#changed">Changed</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../../changelog.html#fixed">Fixed</a></li>
 </ul>
@@ -467,9 +472,10 @@
     <span class="k">def</span> <span class="nf">_get_multiple_negative_predictions</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">shape</span><span class="p">,</span> <span class="n">user_representation</span><span class="p">,</span>
                                            <span class="n">n</span><span class="o">=</span><span class="mi">5</span><span class="p">):</span>
         <span class="n">batch_size</span><span class="p">,</span> <span class="n">sliding_window</span> <span class="o">=</span> <span class="n">shape</span>
+        <span class="n">size</span> <span class="o">=</span> <span class="p">(</span><span class="n">n</span><span class="p">,)</span> <span class="o">+</span> <span class="p">(</span><span class="mi">1</span><span class="p">,)</span> <span class="o">*</span> <span class="p">(</span><span class="n">user_representation</span><span class="o">.</span><span class="n">dim</span><span class="p">()</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span>
         <span class="n">negative_prediction</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_negative_prediction</span><span class="p">(</span>
             <span class="p">(</span><span class="n">n</span> <span class="o">*</span> <span class="n">batch_size</span><span class="p">,</span> <span class="n">sliding_window</span><span class="p">),</span>
-            <span class="n">user_representation</span><span class="o">.</span><span class="n">repeat</span><span class="p">(</span><span class="n">n</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">))</span>
+            <span class="n">user_representation</span><span class="o">.</span><span class="n">repeat</span><span class="p">(</span><span class="o">*</span><span class="n">size</span><span class="p">))</span>
 
         <span class="k">return</span> <span class="n">negative_prediction</span><span class="o">.</span><span class="n">view</span><span class="p">(</span><span class="n">n</span><span class="p">,</span> <span class="n">batch_size</span><span class="p">,</span> <span class="n">sliding_window</span><span class="p">)</span>
 
@@ -512,7 +518,8 @@
         <span class="n">item_var</span> <span class="o">=</span> <span class="n">Variable</span><span class="p">(</span><span class="n">gpu</span><span class="p">(</span><span class="n">item_ids</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_use_cuda</span><span class="p">))</span>
 
         <span class="n">_</span><span class="p">,</span> <span class="n">sequence_representations</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_net</span><span class="o">.</span><span class="n">user_representation</span><span class="p">(</span><span class="n">sequence_var</span><span class="p">)</span>
-        <span class="n">out</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_net</span><span class="p">(</span><span class="n">sequence_representations</span><span class="o">.</span><span class="n">repeat</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">item_var</span><span class="p">),</span> <span class="mi">1</span><span class="p">),</span>
+        <span class="n">size</span> <span class="o">=</span> <span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">item_var</span><span class="p">),)</span> <span class="o">+</span> <span class="n">sequence_representations</span><span class="o">.</span><span class="n">size</span><span class="p">()[</span><span class="mi">1</span><span class="p">:]</span>
+        <span class="n">out</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_net</span><span class="p">(</span><span class="n">sequence_representations</span><span class="o">.</span><span class="n">expand</span><span class="p">(</span><span class="o">*</span><span class="n">size</span><span class="p">),</span>
                         <span class="n">item_var</span><span class="p">)</span>
 
         <span class="k">return</span> <span class="n">cpu</span><span class="p">(</span><span class="n">out</span><span class="o">.</span><span class="n">data</span><span class="p">)</span><span class="o">.</span><span class="n">numpy</span><span class="p">()</span><span class="o">.</span><span class="n">flatten</span><span class="p">()</span></div></div>

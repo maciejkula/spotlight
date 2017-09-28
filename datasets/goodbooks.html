@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>Movielens &mdash; Spotlight v0.1.2 documentation</title>
+  <title>Goodbooks &mdash; Spotlight v0.1.2 documentation</title>
   
 
   
@@ -39,8 +39,8 @@
         <link rel="search" title="Search" href="../search.html"/>
     <link rel="top" title="Spotlight v0.1.2 documentation" href="../index.html"/>
         <link rel="up" title="Datasets" href="datasets.html"/>
-        <link rel="next" title="Goodbooks" href="goodbooks.html"/>
-        <link rel="prev" title="Synthetic" href="synthetic.html"/> 
+        <link rel="next" title="Interactions" href="../cross_validation.html"/>
+        <link rel="prev" title="Movielens" href="movielens.html"/> 
 
   
   <script src="../_static/js/modernizr.min.js"></script>
@@ -100,8 +100,8 @@
 <li class="toctree-l1"><a class="reference internal" href="../interactions.html">Interactions</a></li>
 <li class="toctree-l1 current"><a class="reference internal" href="datasets.html">Datasets</a><ul class="current">
 <li class="toctree-l2"><a class="reference internal" href="synthetic.html">Synthetic</a></li>
-<li class="toctree-l2 current"><a class="current reference internal" href="#">Movielens</a></li>
-<li class="toctree-l2"><a class="reference internal" href="goodbooks.html">Goodbooks</a></li>
+<li class="toctree-l2"><a class="reference internal" href="movielens.html">Movielens</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">Goodbooks</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="../cross_validation.html">Cross validation</a></li>
@@ -185,13 +185,13 @@
         
           <li><a href="datasets.html">Datasets</a> &raquo;</li>
         
-      <li>Movielens</li>
+      <li>Goodbooks</li>
     
     
       <li class="wy-breadcrumbs-aside">
         
             
-            <a href="../_sources/datasets/movielens.rst.txt" rel="nofollow"> View page source</a>
+            <a href="../_sources/datasets/goodbooks.rst.txt" rel="nofollow"> View page source</a>
           
         
       </li>
@@ -204,31 +204,35 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
             
-  <div class="section" id="module-spotlight.datasets.movielens">
-<span id="movielens"></span><h1>Movielens<a class="headerlink" href="#module-spotlight.datasets.movielens" title="Permalink to this headline">¶</a></h1>
-<p>Utilities for fetching the Movielens datasets <a class="footnote-reference" href="#id2" id="id1">[1]</a>.</p>
+  <div class="section" id="module-spotlight.datasets.goodbooks">
+<span id="goodbooks"></span><h1>Goodbooks<a class="headerlink" href="#module-spotlight.datasets.goodbooks" title="Permalink to this headline">¶</a></h1>
+<p>Utilities for fetching the Goodbooks-10K dataset <a class="footnote-reference" href="#id2" id="id1">[1]</a>.</p>
 <p class="rubric">References</p>
 <table class="docutils footnote" frame="void" id="id2" rules="none">
 <colgroup><col class="label" /><col /></colgroup>
 <tbody valign="top">
-<tr><td class="label"><a class="fn-backref" href="#id1">[1]</a></td><td><a class="reference external" href="https://grouplens.org/datasets/movielens/">https://grouplens.org/datasets/movielens/</a></td></tr>
+<tr><td class="label"><a class="fn-backref" href="#id1">[1]</a></td><td><a class="reference external" href="https://github.com/zygmuntz/goodbooks-10k">https://github.com/zygmuntz/goodbooks-10k</a></td></tr>
 </tbody>
 </table>
 <dl class="function">
-<dt id="spotlight.datasets.movielens.get_movielens_dataset">
-<code class="descclassname">spotlight.datasets.movielens.</code><code class="descname">get_movielens_dataset</code><span class="sig-paren">(</span><em>variant='100K'</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/spotlight/datasets/movielens.html#get_movielens_dataset"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#spotlight.datasets.movielens.get_movielens_dataset" title="Permalink to this definition">¶</a></dt>
-<dd><p>Download and return one of the Movielens datasets.</p>
+<dt id="spotlight.datasets.goodbooks.get_goodbooks_dataset">
+<code class="descclassname">spotlight.datasets.goodbooks.</code><code class="descname">get_goodbooks_dataset</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/spotlight/datasets/goodbooks.html#get_goodbooks_dataset"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#spotlight.datasets.goodbooks.get_goodbooks_dataset" title="Permalink to this definition">¶</a></dt>
+<dd><p>Download and return the goodbooks-10K dataset <a class="footnote-reference" href="#id4" id="id3">[2]</a>.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>variant</strong> (<em>string</em><em>, </em><em>optional</em>) – String specifying which of the Movielens datasets
-to download. One of (‘100K’, ‘1M’, ‘10M’, ‘20M’).</td>
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body"><strong>Interactions</strong> – instance of the interactions class</td>
 </tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><strong>Interactions</strong> – instance of the interactions class</td>
+<tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body"><a class="reference internal" href="../interactions.html#spotlight.interactions.Interactions" title="spotlight.interactions.Interactions"><code class="xref py py-class docutils literal"><span class="pre">spotlight.interactions.Interactions</span></code></a></td>
 </tr>
-<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><a class="reference internal" href="../interactions.html#spotlight.interactions.Interactions" title="spotlight.interactions.Interactions"><code class="xref py py-class docutils literal"><span class="pre">spotlight.interactions.Interactions</span></code></a></td>
-</tr>
+</tbody>
+</table>
+<p class="rubric">References</p>
+<table class="docutils footnote" frame="void" id="id4" rules="none">
+<colgroup><col class="label" /><col /></colgroup>
+<tbody valign="top">
+<tr><td class="label"><a class="fn-backref" href="#id3">[2]</a></td><td><a class="reference external" href="https://github.com/zygmuntz/goodbooks-10k">https://github.com/zygmuntz/goodbooks-10k</a></td></tr>
 </tbody>
 </table>
 </dd></dl>
@@ -245,10 +249,10 @@ to download. One of (‘100K’, ‘1M’, ‘10M’, ‘20M’).</td>
   
     <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
       
-        <a href="goodbooks.html" class="btn btn-neutral float-right" title="Goodbooks" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+        <a href="../cross_validation.html" class="btn btn-neutral float-right" title="Interactions" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
       
       
-        <a href="synthetic.html" class="btn btn-neutral" title="Synthetic" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+        <a href="movielens.html" class="btn btn-neutral" title="Movielens" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
       
     </div>
   
