@@ -10,3 +10,4 @@ Datasets
 
    Synthetic <synthetic>
    Movielens <movielens>
+   Goodbooks <goodbooks>

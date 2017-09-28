@@ -31,7 +31,7 @@ def _get_dataset():
 
 def get_goodbooks_dataset():
     """
-    Download and return the goodbooks-10K dataset [1]_.
+    Download and return the goodbooks-10K dataset [2]_.
 
     Returns
     -------
@@ -42,7 +42,7 @@ def get_goodbooks_dataset():
     References
     ----------
 
-    .. [1] https://github.com/zygmuntz/goodbooks-10k
+    .. [2] https://github.com/zygmuntz/goodbooks-10k
     """
 
     return Interactions(*_get_dataset())
