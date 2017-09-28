@@ -299,3 +299,14 @@ class SequenceInteractions(object):
             self.num_items = sequences.max() + 1
         else:
             self.num_items = num_items
+
+    def __repr__(self):
+
+        num_sequences, sequence_length = self.sequences.shape
+
+        return ('<Sequence interactions dataset ({num_sequences} '
+                'sequences x {sequence_length} sequence length)>'
+                .format(
+                    num_sequences=num_sequences,
+                    sequence_length=sequence_length,
+                ))
