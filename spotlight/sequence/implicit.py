@@ -269,9 +269,10 @@ class ImplicitSequenceModel(object):
     def _get_multiple_negative_predictions(self, shape, user_representation,
                                            n=5):
         batch_size, sliding_window = shape
+        size = (n,) + (1,) * (user_representation.dim() - 1)
         negative_prediction = self._get_negative_prediction(
             (n * batch_size, sliding_window),
-            user_representation.repeat(n, 1, 1))
+            user_representation.repeat(*size))
 
         return negative_prediction.view(n, batch_size, sliding_window)
 
@@ -314,7 +315,8 @@ class ImplicitSequenceModel(object):
         item_var = Variable(gpu(item_ids, self._use_cuda))
 
         _, sequence_representations = self._net.user_representation(sequence_var)
-        out = self._net(sequence_representations.repeat(len(item_var), 1),
+        size = (len(item_var),) + sequence_representations.size()[1:]
+        out = self._net(sequence_representations.expand(*size),
                         item_var)
 
         return cpu(out.data).numpy().flatten()
