@@ -102,6 +102,14 @@ def sequence_mrr_score(model, test, exclude_preceding=False):
     return np.array(mrrs)
 
 
+def _get_precision_recall(predictions, targets, k):
+
+    predictions = predictions[:k]
+    num_hit = len(set(predictions).intersection(set(targets)))
+
+    return float(num_hit) / len(predictions), float(num_hit) / len(targets)
+
+
 def precision_recall_score(model, test, train=None, k=10):
     """
     Compute Precision@k and Recall@k scores. One score
@@ -118,15 +126,17 @@ def precision_recall_score(model, test, train=None, k=10):
         Test interactions.
     train: :class:`spotlight.interactions.Interactions`, optional
         Train interactions. If supplied, scores of known
-        interactions will be set to very low values and so not
-        affect the MRR.
+        interactions will not affect the computed metrics.
     k: int or array of int,
         The maximum number of predicted items
     Returns
     -------
 
-    (Precision@k, Recall@k): numpy array of shape (num_users,)
+    (Precision@k, Recall@k): numpy array of shape (num_users, len(k))
         A tuple of Precisions@k and Recalls@k for each user in test.
+        If k is a scalar, will return a tuple of vectors. If k is an
+        array, will return a tuple of arrays, where each row corresponds
+        to a user and each column corresponds to a value of k.
     """
 
     test = test.tocsr()
@@ -134,13 +144,11 @@ def precision_recall_score(model, test, train=None, k=10):
     if train is not None:
         train = train.tocsr()
 
-    if not isinstance(k, list):
-        ks = [k]
-    else:
-        ks = k
+    if np.isscalar(k):
+        k = np.array([k])
 
-    precisions = [list() for _ in range(len(ks))]
-    recalls = [list() for _ in range(len(ks))]
+    precision = []
+    recall = []
 
     for user_id, row in enumerate(test):
 
@@ -148,31 +156,27 @@ def precision_recall_score(model, test, train=None, k=10):
             continue
 
         predictions = -model.predict(user_id)
-        predictions = predictions.argsort()
 
         if train is not None:
             rated = train[user_id].indices
-        else:
-            rated = []
+            predictions[rated] = FLOAT_MAX
 
-        predictions = [p for p in predictions if p not in rated]
+        predictions = predictions.argsort()
 
         targets = row.indices
 
-        for i, _k in enumerate(ks):
-            pred = predictions[:_k]
-            num_hit = len(set(pred).intersection(set(targets)))
-            precisions[i].append(float(num_hit) / len(pred))
-            recalls[i].append(float(num_hit) / len(targets))
+        user_precision, user_recall = zip(*[
+            _get_precision_recall(predictions, targets, x)
+            for x in k
+        ])
 
-    precisions = [np.array(i) for i in precisions]
-    recalls = [np.array(i) for i in recalls]
+        precision.append(user_precision)
+        recall.append(user_recall)
 
-    if not isinstance(k, list):
-        precisions = precisions[0]
-        recalls = recalls[0]
+    precision = np.array(precision).squeeze()
+    recall = np.array(recall).squeeze()
 
-    return precisions, recalls
+    return precision, recall
 
 
 def rmse_score(model, test):
