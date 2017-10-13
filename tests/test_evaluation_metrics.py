@@ -2,6 +2,8 @@ import os
 
 import numpy as np
 
+import pytest
+
 from spotlight.evaluation import precision_recall_score
 from spotlight.cross_validation import random_train_test_split
 from spotlight.datasets import movielens
@@ -11,7 +13,8 @@ RANDOM_STATE = np.random.RandomState(42)
 CUDA = bool(os.environ.get('SPOTLIGHT_CUDA', False))
 
 
-def test_precision_recall():
+@pytest.fixture(scope='module')
+def data():
 
     interactions = movielens.get_movielens_dataset('100K')
 
@@ -19,7 +22,7 @@ def test_precision_recall():
                                           random_state=RANDOM_STATE)
 
     model = ImplicitFactorizationModel(loss='bpr',
-                                       n_iter=10,
+                                       n_iter=1,
                                        batch_size=1024,
                                        learning_rate=1e-2,
                                        l2=1e-6,
@@ -27,6 +30,27 @@ def test_precision_recall():
                                        use_cuda=CUDA)
     model.fit(train)
 
-    precision, recall = precision_recall_score(model, test, train)
+    return train, test, model
 
-    print(np.mean(precision), np.mean(recall))
+
+@pytest.mark.parametrize('k', [
+    1,
+    [1, 1],
+    [1, 1, 1]
+])
+def test_precision_recall(data, k):
+
+    (train, test, model) = data
+
+    interactions = movielens.get_movielens_dataset('100K')
+    train, test = random_train_test_split(interactions,
+                                          random_state=RANDOM_STATE)
+
+    precision, recall = precision_recall_score(model, test, train, k=k)
+
+    assert precision.shape == recall.shape
+
+    if not isinstance(k, list):
+        assert len(precision.shape) == 1
+    else:
+        assert precision.shape[1] == len(k)
