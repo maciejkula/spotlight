@@ -11,7 +11,6 @@ from spotlight.factorization.implicit import ImplicitFactorizationModel
 from spotlight.factorization.representations import BilinearNet
 from spotlight.layers import BloomEmbedding
 
-
 RANDOM_STATE = np.random.RandomState(42)
 CUDA = bool(os.environ.get('SPOTLIGHT_CUDA', False))
 
