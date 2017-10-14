@@ -234,6 +234,39 @@ affect the MRR.</li>
 </dd></dl>
 
 <dl class="function">
+<dt id="spotlight.evaluation.precision_recall_score">
+<code class="descclassname">spotlight.evaluation.</code><code class="descname">precision_recall_score</code><span class="sig-paren">(</span><em>model</em>, <em>test</em>, <em>train=None</em>, <em>k=10</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/spotlight/evaluation.html#precision_recall_score"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#spotlight.evaluation.precision_recall_score" title="Permalink to this definition">¶</a></dt>
+<dd><p>Compute Precision&#64;k and Recall&#64;k scores. One score
+is given for every user with interactions in the test
+set, representing the Precision&#64;k and Recall&#64;k of all their
+test items.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>model</strong> (<em>fitted instance of a recommender model</em>) – The model to evaluate.</li>
+<li><strong>test</strong> (<a class="reference internal" href="interactions.html#spotlight.interactions.Interactions" title="spotlight.interactions.Interactions"><code class="xref py py-class docutils literal"><span class="pre">spotlight.interactions.Interactions</span></code></a>) – Test interactions.</li>
+<li><strong>train</strong> (<a class="reference internal" href="interactions.html#spotlight.interactions.Interactions" title="spotlight.interactions.Interactions"><code class="xref py py-class docutils literal"><span class="pre">spotlight.interactions.Interactions</span></code></a>, optional) – Train interactions. If supplied, scores of known
+interactions will not affect the computed metrics.</li>
+<li><strong>k</strong> (<em>int</em><em> or </em><em>array of int</em><em>,</em>) – The maximum number of predicted items</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><strong>(Precision&#64;k, Recall&#64;k)</strong> – A tuple of Precisions&#64;k and Recalls&#64;k for each user in test.
+If k is a scalar, will return a tuple of vectors. If k is an
+array, will return a tuple of arrays, where each row corresponds
+to a user and each column corresponds to a value of k.</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">numpy array of shape (num_users, len(k))</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
 <dt id="spotlight.evaluation.rmse_score">
 <code class="descclassname">spotlight.evaluation.</code><code class="descname">rmse_score</code><span class="sig-paren">(</span><em>model</em>, <em>test</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/spotlight/evaluation.html#rmse_score"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#spotlight.evaluation.rmse_score" title="Permalink to this definition">¶</a></dt>
 <dd><p>Compute RMSE score for test interactions.</p>
