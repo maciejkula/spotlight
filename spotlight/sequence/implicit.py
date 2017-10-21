@@ -245,13 +245,17 @@ class ImplicitSequenceModel(object):
                 epoch_loss += loss.data[0]
 
                 loss.backward()
-                # assert False
+
                 self._optimizer.step()
 
             epoch_loss /= minibatch_num + 1
 
             if verbose:
                 print('Epoch {}: loss {}'.format(epoch_num, epoch_loss))
+
+            if np.isnan(epoch_loss) or epoch_loss == 0.0:
+                raise ValueError('Degenerate epoch loss: {}'
+                                 .format(epoch_loss))
 
     def _get_negative_prediction(self, shape, user_representation):
 

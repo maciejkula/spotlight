@@ -237,6 +237,10 @@ class ExplicitFactorizationModel(object):
             if verbose:
                 print('Epoch {}: loss {}'.format(epoch_num, epoch_loss))
 
+            if np.isnan(epoch_loss) or epoch_loss == 0.0:
+                raise ValueError('Degenerate epoch loss: {}'
+                                 .format(epoch_loss))
+
     def predict(self, user_ids, item_ids=None):
         """
         Make predictions: given a user id, compute the recommendation
