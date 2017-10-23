@@ -175,7 +175,7 @@ def regression_loss(observed_ratings, predicted_ratings):
 
     observed_ratings: tensor
         Tensor containing observed ratings.
-    negative_predictions: tensor
+    predicted_ratings: tensor
         Tensor containing rating predictions.
 
     Returns
@@ -199,7 +199,7 @@ def poisson_loss(observed_ratings, predicted_ratings):
 
     observed_ratings: tensor
         Tensor containing observed ratings.
-    negative_predictions: tensor
+    predicted_ratings: tensor
         Tensor containing rating predictions.
 
     Returns
@@ -212,3 +212,33 @@ def poisson_loss(observed_ratings, predicted_ratings):
     assert_no_grad(observed_ratings)
 
     return (predicted_ratings - observed_ratings * torch.log(predicted_ratings)).mean()
+
+
+def logistic_loss(observed_ratings, predicted_ratings):
+    """
+    Logistic loss for explicit data.
+
+    Parameters
+    ----------
+
+    observed_ratings: tensor
+        Tensor containing observed ratings which
+        should be +1 or -1 for this loss function.
+    predicted_ratings: tensor
+        Tensor containing rating predictions.
+
+    Returns
+    -------
+
+    loss, float
+        The mean value of the loss function.
+    """
+
+    assert_no_grad(observed_ratings)
+
+    # Convert target classes from (-1, 1) to (0, 1)
+    observed_ratings = (observed_ratings + 1) / 2
+
+    return F.binary_cross_entropy_with_logits(predicted_ratings,
+                                              observed_ratings,
+                                              size_average=True)

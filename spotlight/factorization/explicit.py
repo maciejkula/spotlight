@@ -14,7 +14,8 @@ from spotlight.helpers import _repr_model
 from spotlight.factorization._components import _predict_process_ids
 from spotlight.factorization.representations import BilinearNet
 from spotlight.losses import (poisson_loss,
-                              regression_loss)
+                              regression_loss,
+                              logistic_loss)
 
 from spotlight.torch_utils import cpu, gpu, minibatch, set_seed, shuffle
 
@@ -142,6 +143,8 @@ class ExplicitFactorizationModel(object):
             self._loss_func = regression_loss
         elif self._loss == 'poisson':
             self._loss_func = poisson_loss
+        elif self._loss == 'logistic':
+            self._loss_func = logistic_loss
         else:
             raise ValueError('Unknown loss: {}'.format(self._loss))
 
@@ -273,5 +276,7 @@ class ExplicitFactorizationModel(object):
 
         if self._loss == 'poisson':
             out = torch.exp(out)
+        elif self._loss == 'logistic':
+            out = torch.sigmoid(out)
 
         return cpu(out.data).numpy().flatten()
