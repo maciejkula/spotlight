@@ -237,7 +237,7 @@ def logistic_loss(observed_ratings, predicted_ratings):
     assert_no_grad(observed_ratings)
 
     # Convert target classes from (-1, 1) to (0, 1)
-    observed_ratings = (observed_ratings + 1) / 2
+    observed_ratings = torch.clamp(observed_ratings, 0, 1)
 
     return F.binary_cross_entropy_with_logits(predicted_ratings,
                                               observed_ratings,
