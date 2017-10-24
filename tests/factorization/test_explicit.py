@@ -67,7 +67,7 @@ def test_logistic():
     train, test = random_train_test_split(interactions,
                                           random_state=RANDOM_STATE)
 
-    model = ExplicitFactorizationModel(loss='poisson',
+    model = ExplicitFactorizationModel(loss='logistic',
                                        n_iter=10,
                                        batch_size=1024,
                                        learning_rate=1e-3,
@@ -77,7 +77,7 @@ def test_logistic():
 
     rmse = rmse_score(model, test)
 
-    assert rmse < 1.0
+    assert rmse < 1.05
 
 
 def test_check_input():
