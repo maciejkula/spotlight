@@ -38,7 +38,7 @@ class ExplicitFactorizationModel(object):
     ----------
 
     loss: string, optional
-        One of 'regression', 'poisson',
+        One of 'regression', 'poisson', 'logistic'
         corresponding to losses from :class:`spotlight.losses`.
     embedding_dim: int, optional
         Number of embedding dimensions to use for users and items.
@@ -81,7 +81,8 @@ class ExplicitFactorizationModel(object):
                  random_state=None):
 
         assert loss in ('regression',
-                        'poisson')
+                        'poisson',
+                        'logistic')
 
         self._loss = loss
         self._embedding_dim = embedding_dim
