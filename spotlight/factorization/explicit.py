@@ -14,7 +14,8 @@ from spotlight.helpers import _repr_model
 from spotlight.factorization._components import _predict_process_ids
 from spotlight.factorization.representations import BilinearNet
 from spotlight.losses import (poisson_loss,
-                              regression_loss)
+                              regression_loss,
+                              logistic_loss)
 
 from spotlight.torch_utils import cpu, gpu, minibatch, set_seed, shuffle
 
@@ -37,7 +38,7 @@ class ExplicitFactorizationModel(object):
     ----------
 
     loss: string, optional
-        One of 'regression', 'poisson',
+        One of 'regression', 'poisson', 'logistic'
         corresponding to losses from :class:`spotlight.losses`.
     embedding_dim: int, optional
         Number of embedding dimensions to use for users and items.
@@ -80,7 +81,8 @@ class ExplicitFactorizationModel(object):
                  random_state=None):
 
         assert loss in ('regression',
-                        'poisson')
+                        'poisson',
+                        'logistic')
 
         self._loss = loss
         self._embedding_dim = embedding_dim
@@ -142,6 +144,8 @@ class ExplicitFactorizationModel(object):
             self._loss_func = regression_loss
         elif self._loss == 'poisson':
             self._loss_func = poisson_loss
+        elif self._loss == 'logistic':
+            self._loss_func = logistic_loss
         else:
             raise ValueError('Unknown loss: {}'.format(self._loss))
 
@@ -273,5 +277,7 @@ class ExplicitFactorizationModel(object):
 
         if self._loss == 'poisson':
             out = torch.exp(out)
+        elif self._loss == 'logistic':
+            out = torch.sigmoid(out)
 
         return cpu(out.data).numpy().flatten()

@@ -55,6 +55,31 @@ def test_poisson():
     assert rmse < 1.0
 
 
+def test_logistic():
+
+    interactions = movielens.get_movielens_dataset('100K')
+
+    # Convert to binary
+    interactions.ratings = (interactions.ratings > 3).astype(np.float32)
+    # Convert from (0, 1) to (-1, 1)
+    interactions.ratings = interactions.ratings * 2 - 1
+
+    train, test = random_train_test_split(interactions,
+                                          random_state=RANDOM_STATE)
+
+    model = ExplicitFactorizationModel(loss='logistic',
+                                       n_iter=10,
+                                       batch_size=1024,
+                                       learning_rate=1e-3,
+                                       l2=1e-6,
+                                       use_cuda=CUDA)
+    model.fit(train)
+
+    rmse = rmse_score(model, test)
+
+    assert rmse < 1.05
+
+
 def test_check_input():
     # Train for single iter.
     interactions = movielens.get_movielens_dataset('100K')
