@@ -312,6 +312,31 @@ of the loss tensor.</li>
 </dd></dl>
 
 <dl class="function">
+<dt id="spotlight.losses.logistic_loss">
+<code class="descclassname">spotlight.losses.</code><code class="descname">logistic_loss</code><span class="sig-paren">(</span><em>observed_ratings</em>, <em>predicted_ratings</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/spotlight/losses.html#logistic_loss"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#spotlight.losses.logistic_loss" title="Permalink to this definition">¶</a></dt>
+<dd><p>Logistic loss for explicit data.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>observed_ratings</strong> (<em>tensor</em>) – Tensor containing observed ratings which
+should be +1 or -1 for this loss function.</li>
+<li><strong>predicted_ratings</strong> (<em>tensor</em>) – Tensor containing rating predictions.</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">The mean value of the loss function.</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">loss, float</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
 <dt id="spotlight.losses.pointwise_loss">
 <code class="descclassname">spotlight.losses.</code><code class="descname">pointwise_loss</code><span class="sig-paren">(</span><em>positive_predictions</em>, <em>negative_predictions</em>, <em>mask=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/spotlight/losses.html#pointwise_loss"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#spotlight.losses.pointwise_loss" title="Permalink to this definition">¶</a></dt>
 <dd><p>Logistic loss function.</p>
@@ -347,7 +372,7 @@ of the loss tensor.</li>
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
 <li><strong>observed_ratings</strong> (<em>tensor</em>) – Tensor containing observed ratings.</li>
-<li><strong>negative_predictions</strong> (<em>tensor</em>) – Tensor containing rating predictions.</li>
+<li><strong>predicted_ratings</strong> (<em>tensor</em>) – Tensor containing rating predictions.</li>
 </ul>
 </td>
 </tr>
@@ -371,7 +396,7 @@ of the loss tensor.</li>
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
 <li><strong>observed_ratings</strong> (<em>tensor</em>) – Tensor containing observed ratings.</li>
-<li><strong>negative_predictions</strong> (<em>tensor</em>) – Tensor containing rating predictions.</li>
+<li><strong>predicted_ratings</strong> (<em>tensor</em>) – Tensor containing rating predictions.</li>
 </ul>
 </td>
 </tr>

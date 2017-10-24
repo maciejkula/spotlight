@@ -217,7 +217,8 @@
 <span class="kn">from</span> <span class="nn">spotlight.factorization._components</span> <span class="k">import</span> <span class="n">_predict_process_ids</span>
 <span class="kn">from</span> <span class="nn">spotlight.factorization.representations</span> <span class="k">import</span> <span class="n">BilinearNet</span>
 <span class="kn">from</span> <span class="nn">spotlight.losses</span> <span class="k">import</span> <span class="p">(</span><span class="n">poisson_loss</span><span class="p">,</span>
-                              <span class="n">regression_loss</span><span class="p">)</span>
+                              <span class="n">regression_loss</span><span class="p">,</span>
+                              <span class="n">logistic_loss</span><span class="p">)</span>
 
 <span class="kn">from</span> <span class="nn">spotlight.torch_utils</span> <span class="k">import</span> <span class="n">cpu</span><span class="p">,</span> <span class="n">gpu</span><span class="p">,</span> <span class="n">minibatch</span><span class="p">,</span> <span class="n">set_seed</span><span class="p">,</span> <span class="n">shuffle</span>
 
@@ -240,7 +241,7 @@
 <span class="sd">    ----------</span>
 
 <span class="sd">    loss: string, optional</span>
-<span class="sd">        One of &#39;regression&#39;, &#39;poisson&#39;,</span>
+<span class="sd">        One of &#39;regression&#39;, &#39;poisson&#39;, &#39;logistic&#39;</span>
 <span class="sd">        corresponding to losses from :class:`spotlight.losses`.</span>
 <span class="sd">    embedding_dim: int, optional</span>
 <span class="sd">        Number of embedding dimensions to use for users and items.</span>
@@ -283,7 +284,8 @@
                  <span class="n">random_state</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
 
         <span class="k">assert</span> <span class="n">loss</span> <span class="ow">in</span> <span class="p">(</span><span class="s1">&#39;regression&#39;</span><span class="p">,</span>
-                        <span class="s1">&#39;poisson&#39;</span><span class="p">)</span>
+                        <span class="s1">&#39;poisson&#39;</span><span class="p">,</span>
+                        <span class="s1">&#39;logistic&#39;</span><span class="p">)</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">_loss</span> <span class="o">=</span> <span class="n">loss</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_embedding_dim</span> <span class="o">=</span> <span class="n">embedding_dim</span>
@@ -345,6 +347,8 @@
             <span class="bp">self</span><span class="o">.</span><span class="n">_loss_func</span> <span class="o">=</span> <span class="n">regression_loss</span>
         <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">_loss</span> <span class="o">==</span> <span class="s1">&#39;poisson&#39;</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_loss_func</span> <span class="o">=</span> <span class="n">poisson_loss</span>
+        <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">_loss</span> <span class="o">==</span> <span class="s1">&#39;logistic&#39;</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_loss_func</span> <span class="o">=</span> <span class="n">logistic_loss</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;Unknown loss: </span><span class="si">{}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_loss</span><span class="p">))</span>
 
@@ -476,6 +480,8 @@
 
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_loss</span> <span class="o">==</span> <span class="s1">&#39;poisson&#39;</span><span class="p">:</span>
             <span class="n">out</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="n">out</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">_loss</span> <span class="o">==</span> <span class="s1">&#39;logistic&#39;</span><span class="p">:</span>
+            <span class="n">out</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">sigmoid</span><span class="p">(</span><span class="n">out</span><span class="p">)</span>
 
         <span class="k">return</span> <span class="n">cpu</span><span class="p">(</span><span class="n">out</span><span class="o">.</span><span class="n">data</span><span class="p">)</span><span class="o">.</span><span class="n">numpy</span><span class="p">()</span><span class="o">.</span><span class="n">flatten</span><span class="p">()</span></div></div>
 </pre></div>

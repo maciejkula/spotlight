@@ -378,7 +378,7 @@
 
 <span class="sd">    observed_ratings: tensor</span>
 <span class="sd">        Tensor containing observed ratings.</span>
-<span class="sd">    negative_predictions: tensor</span>
+<span class="sd">    predicted_ratings: tensor</span>
 <span class="sd">        Tensor containing rating predictions.</span>
 
 <span class="sd">    Returns</span>
@@ -402,7 +402,7 @@
 
 <span class="sd">    observed_ratings: tensor</span>
 <span class="sd">        Tensor containing observed ratings.</span>
-<span class="sd">    negative_predictions: tensor</span>
+<span class="sd">    predicted_ratings: tensor</span>
 <span class="sd">        Tensor containing rating predictions.</span>
 
 <span class="sd">    Returns</span>
@@ -415,6 +415,36 @@
     <span class="n">assert_no_grad</span><span class="p">(</span><span class="n">observed_ratings</span><span class="p">)</span>
 
     <span class="k">return</span> <span class="p">(</span><span class="n">predicted_ratings</span> <span class="o">-</span> <span class="n">observed_ratings</span> <span class="o">*</span> <span class="n">torch</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="n">predicted_ratings</span><span class="p">))</span><span class="o">.</span><span class="n">mean</span><span class="p">()</span></div>
+
+
+<div class="viewcode-block" id="logistic_loss"><a class="viewcode-back" href="../../losses.html#spotlight.losses.logistic_loss">[docs]</a><span class="k">def</span> <span class="nf">logistic_loss</span><span class="p">(</span><span class="n">observed_ratings</span><span class="p">,</span> <span class="n">predicted_ratings</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Logistic loss for explicit data.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+
+<span class="sd">    observed_ratings: tensor</span>
+<span class="sd">        Tensor containing observed ratings which</span>
+<span class="sd">        should be +1 or -1 for this loss function.</span>
+<span class="sd">    predicted_ratings: tensor</span>
+<span class="sd">        Tensor containing rating predictions.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+
+<span class="sd">    loss, float</span>
+<span class="sd">        The mean value of the loss function.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">assert_no_grad</span><span class="p">(</span><span class="n">observed_ratings</span><span class="p">)</span>
+
+    <span class="c1"># Convert target classes from (-1, 1) to (0, 1)</span>
+    <span class="n">observed_ratings</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">clamp</span><span class="p">(</span><span class="n">observed_ratings</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">F</span><span class="o">.</span><span class="n">binary_cross_entropy_with_logits</span><span class="p">(</span><span class="n">predicted_ratings</span><span class="p">,</span>
+                                              <span class="n">observed_ratings</span><span class="p">,</span>
+                                              <span class="n">size_average</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span></div>
 </pre></div>
 
            </div>
