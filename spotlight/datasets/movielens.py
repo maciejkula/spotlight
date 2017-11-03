@@ -22,7 +22,7 @@ VARIANTS = ('100K',
 
 URL_PREFIX = ('https://github.com/maciejkula/recommender_datasets/'
               'releases/download/')
-VERSION = '0.1.0'
+VERSION = 'v0.2.0'
 
 
 def _get_movielens(dataset):
@@ -32,7 +32,7 @@ def _get_movielens(dataset):
     path = _transport.get_data(os.path.join(URL_PREFIX,
                                             VERSION,
                                             dataset + extension),
-                               'movielens',
+                               os.path.join('movielens', VERSION),
                                'movielens_{}{}'.format(dataset,
                                                        extension))
 
