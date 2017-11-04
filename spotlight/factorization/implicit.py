@@ -248,6 +248,10 @@ class ImplicitFactorizationModel(object):
             if verbose:
                 print('Epoch {}: loss {}'.format(epoch_num, epoch_loss))
 
+            if np.isnan(epoch_loss) or epoch_loss == 0.0:
+                raise ValueError('Degenerate epoch loss: {}'
+                                 .format(epoch_loss))
+
     def _get_negative_prediction(self, user_ids):
 
         negative_items = sample_items(
