@@ -127,11 +127,12 @@
 <li class="toctree-l1 current"><a class="current reference internal" href="#">Changelog</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="#unreleased-unreleased">unreleased (unreleased)</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="#added">Added</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#changed">Changed</a></li>
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="#v0-1-2-2017-09-10">v0.1.2 (2017-09-10)</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="#id1">Added</a></li>
-<li class="toctree-l3"><a class="reference internal" href="#changed">Changed</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#id2">Changed</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#fixed">Fixed</a></li>
 </ul>
 </li>
@@ -210,6 +211,12 @@
 <li>Goodbooks dataset.</li>
 </ul>
 </div>
+<div class="section" id="changed">
+<h3>Changed<a class="headerlink" href="#changed" title="Permalink to this headline">¶</a></h3>
+<ul class="simple">
+<li>Raise ValueError if loss becomes NaN or 0.</li>
+</ul>
+</div>
 </div>
 <div class="section" id="v0-1-2-2017-09-10">
 <h2>v0.1.2 (2017-09-10)<a class="headerlink" href="#v0-1-2-2017-09-10" title="Permalink to this headline">¶</a></h2>
@@ -223,8 +230,8 @@ embeddings for sparse binary input/output networks.”</li>
 <li><code class="docutils literal"><span class="pre">sequence_mrr_score</span></code> now accepts an option that excludes previously seen items from scoring.</li>
 </ul>
 </div>
-<div class="section" id="changed">
-<h3>Changed<a class="headerlink" href="#changed" title="Permalink to this headline">¶</a></h3>
+<div class="section" id="id2">
+<h3>Changed<a class="headerlink" href="#id2" title="Permalink to this headline">¶</a></h3>
 <ul class="simple">
 <li><code class="docutils literal"><span class="pre">optimizer</span></code> arguments is now <code class="docutils literal"><span class="pre">optimizer_func</span></code>. It accepts a function that takes a single argument (list of model parameters) and return a PyTorch optimizer (thanks to Ethan Rosenthal).</li>
 <li><code class="docutils literal"><span class="pre">fit</span></code> calls will resume from previous model state when called repeatedly (Ethan Rosenthal).</li>

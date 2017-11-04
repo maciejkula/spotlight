@@ -10,6 +10,11 @@ Added
 
 * Goodbooks dataset.
 
+Changed
+~~~~~~~
+
+* Raise ValueError if loss becomes NaN or 0.
+
 v0.1.2 (2017-09-10)
 -------------------
 
