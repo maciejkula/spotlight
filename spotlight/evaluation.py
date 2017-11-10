@@ -95,7 +95,7 @@ def map_score(model, test, train=None):
             predictions[train[user_id].indices] = FLOAT_MAX
 
         prec = []
-        ranking = st.rankdata(predictions)[row.indices]
+        ranking = np.sort(st.rankdata(predictions)[row.indices])
         for index, value in enumerate(ranking):
             prec.append((index + 1) / value)
         ap.append(sum(prec) / len(ranking))
