@@ -56,6 +56,53 @@ def mrr_score(model, test, train=None):
     return np.array(mrrs)
 
 
+def map_score(model, test, train=None):
+    """
+    Compute mean average precision (MAP) scores.
+    Calculates the average precision for each user's recommendation vector,
+    then computes the resultant mean for all users.
+
+    Parameters
+    ----------
+
+    model: fitted instance of a recommender model
+        The model to evaluate.
+    test: :class:`spotlight.interactions.Interactions`
+        Test interactions.
+    train: :class:`spotlight.interactions.Interactions`, optional
+        Train interactions. If supplied, scores of known
+        interactions will be set to very low values and so not
+        affect the MAP.
+
+    Returns
+    -------
+
+    map score: float
+        the MAP score
+    """
+
+    test = test.tocsr()
+    if train is not None:
+        train = train.tocsr()
+
+    ap = []
+
+    for user_id, row in enumerate(test):
+        if not len(row.indices):
+            continue
+        predictions = -model.predict(user_id)
+        if train is not None:
+            predictions[train[user_id].indices] = FLOAT_MAX
+
+        prec = []
+        ranking = st.rankdata(predictions)[row.indices]
+        for index, value in enumerate(ranking):
+            prec.append((index + 1) / value)
+        ap.append(sum(prec) / len(ranking))
+
+    return np.mean(ap)
+
+
 def sequence_mrr_score(model, test, exclude_preceding=False):
     """
     Compute mean reciprocal rank (MRR) scores. Each sequence
