@@ -238,7 +238,7 @@
 
 <span class="sd">    During training, representations for all timesteps of the sequence are</span>
 <span class="sd">    computed in one go. Loss functions using the outputs will therefore</span>
-<span class="sd">    be aggregating both across the minibatch and aross time in the sequence.</span>
+<span class="sd">    be aggregating both across the minibatch and across time in the sequence.</span>
 
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
@@ -356,7 +356,7 @@
 
 <span class="sd">    During training, representations for all timesteps of the sequence are</span>
 <span class="sd">    computed in one go. Loss functions using the outputs will therefore</span>
-<span class="sd">    be aggregating both across the minibatch and aross time in the sequence.</span>
+<span class="sd">    be aggregating both across the minibatch and across time in the sequence.</span>
 
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
@@ -468,7 +468,7 @@
 
 <span class="sd">    To represent a sequence, it runs a 1D convolution over the input sequence,</span>
 <span class="sd">    from left to right. At each timestep, the output of the convolution is</span>
-<span class="sd">    the representation of the sequence up to that point. The convoluion is causal</span>
+<span class="sd">    the representation of the sequence up to that point. The convolution is causal</span>
 <span class="sd">    because future states are never part of the convolution&#39;s receptive field;</span>
 <span class="sd">    this is achieved by left-padding the sequence.</span>
 
@@ -481,7 +481,7 @@
 
 <span class="sd">    During training, representations for all timesteps of the sequence are</span>
 <span class="sd">    computed in one go. Loss functions using the outputs will therefore</span>
-<span class="sd">    be aggregating both across the minibatch and aross time in the sequence.</span>
+<span class="sd">    be aggregating both across the minibatch and across time in the sequence.</span>
 
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
@@ -490,7 +490,7 @@
 <span class="sd">        Number of items to be represented.</span>
 <span class="sd">    embedding_dim: int, optional</span>
 <span class="sd">        Embedding dimension of the embedding layer, and the number of filters</span>
-<span class="sd">        in each convlutonal layer.</span>
+<span class="sd">        in each convolutional layer.</span>
 <span class="sd">    kernel_width: tuple or int, optional</span>
 <span class="sd">        The kernel width of the convolutional layers. If tuple, should contain</span>
 <span class="sd">        the kernel widths for all convolutional layers. If int, it will be</span>
@@ -508,7 +508,7 @@
 <span class="sd">        One of (&#39;tanh&#39;, &#39;relu&#39;). Denotes the type of non-linearity to apply</span>
 <span class="sd">        after each convolutional layer.</span>
 <span class="sd">    residual_connections: boolean, optional</span>
-<span class="sd">        Whether to use reisdual connections between convolutional layers.</span>
+<span class="sd">        Whether to use residual connections between convolutional layers.</span>
 <span class="sd">    item_embedding_layer: an embedding layer, optional</span>
 <span class="sd">        If supplied, will be used as the item embedding layer</span>
 <span class="sd">        of the network.</span>

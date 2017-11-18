@@ -215,7 +215,7 @@ as functions of the items they have interacted with in the past.</p>
 <dd><p>Module representing users through stacked causal atrous convolutions (<a class="footnote-reference" href="#id3" id="id1">[3]</a>, <a class="footnote-reference" href="#id4" id="id2">[4]</a>).</p>
 <p>To represent a sequence, it runs a 1D convolution over the input sequence,
 from left to right. At each timestep, the output of the convolution is
-the representation of the sequence up to that point. The convoluion is causal
+the representation of the sequence up to that point. The convolution is causal
 because future states are never part of the convolution’s receptive field;
 this is achieved by left-padding the sequence.</p>
 <p>In order to increase the receptive field (and the capacity to encode states
@@ -225,7 +225,7 @@ Input dimensionality is preserved from layer to layer.</p>
 <p>Residual connections can be added between all layers.</p>
 <p>During training, representations for all timesteps of the sequence are
 computed in one go. Loss functions using the outputs will therefore
-be aggregating both across the minibatch and aross time in the sequence.</p>
+be aggregating both across the minibatch and across time in the sequence.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
@@ -233,7 +233,7 @@ be aggregating both across the minibatch and aross time in the sequence.</p>
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
 <li><strong>num_items</strong> (<em>int</em>) – Number of items to be represented.</li>
 <li><strong>embedding_dim</strong> (<em>int</em><em>, </em><em>optional</em>) – Embedding dimension of the embedding layer, and the number of filters
-in each convlutonal layer.</li>
+in each convolutional layer.</li>
 <li><strong>kernel_width</strong> (<em>tuple</em><em> or </em><em>int</em><em>, </em><em>optional</em>) – The kernel width of the convolutional layers. If tuple, should contain
 the kernel widths for all convolutional layers. If int, it will be
 expanded into a tuple to match the number of layers.</li>
@@ -246,7 +246,7 @@ of layers.</li>
 <li><strong>num_layers</strong> (<em>int</em><em>, </em><em>optional</em>) – Number of stacked convolutional layers.</li>
 <li><strong>nonlinearity</strong> (<em>string</em><em>, </em><em>optional</em>) – One of (‘tanh’, ‘relu’). Denotes the type of non-linearity to apply
 after each convolutional layer.</li>
-<li><strong>residual_connections</strong> (<em>boolean</em><em>, </em><em>optional</em>) – Whether to use reisdual connections between convolutional layers.</li>
+<li><strong>residual_connections</strong> (<em>boolean</em><em>, </em><em>optional</em>) – Whether to use residual connections between convolutional layers.</li>
 <li><strong>item_embedding_layer</strong> (<em>an embedding layer</em><em>, </em><em>optional</em>) – If supplied, will be used as the item embedding layer
 of the network.</li>
 </ul>
@@ -324,7 +324,7 @@ over the sequence, using the hidden state at each timestep as the
 sequence representation, a’la <a class="footnote-reference" href="#id6" id="id5">[2]</a></p>
 <p>During training, representations for all timesteps of the sequence are
 computed in one go. Loss functions using the outputs will therefore
-be aggregating both across the minibatch and aross time in the sequence.</p>
+be aggregating both across the minibatch and across time in the sequence.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
@@ -404,7 +404,7 @@ they have interacted with, a’la <a class="footnote-reference" href="#id8" id="
 the items that occur in the sequence up to that point.</p>
 <p>During training, representations for all timesteps of the sequence are
 computed in one go. Loss functions using the outputs will therefore
-be aggregating both across the minibatch and aross time in the sequence.</p>
+be aggregating both across the minibatch and across time in the sequence.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
