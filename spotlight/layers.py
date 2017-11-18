@@ -26,7 +26,7 @@ class ScaledEmbedding(nn.Embedding):
     """
     Embedding layer that initialises its values
     to using a normal variable scaled by the inverse
-    of the emedding dimension.
+    of the embedding dimension.
     """
 
     def reset_parameters(self):
@@ -43,7 +43,7 @@ class ZeroEmbedding(nn.Embedding):
     """
     Embedding layer that initialises its values
     to using a normal variable scaled by the inverse
-    of the emedding dimension.
+    of the embedding dimension.
 
     Used for biases.
     """
@@ -62,7 +62,7 @@ class ScaledEmbeddingBag(nn.EmbeddingBag):
     """
     EmbeddingBag layer that initialises its values
     to using a normal variable scaled by the inverse
-    of the emedding dimension.
+    of the embedding dimension.
     """
 
     def reset_parameters(self):

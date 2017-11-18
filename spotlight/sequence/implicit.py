@@ -1,5 +1,5 @@
 """
-Models for recommending items given a sequece of previous items
+Models for recommending items given a sequence of previous items
 a user has interacted with.
 """
 
