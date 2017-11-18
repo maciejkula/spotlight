@@ -174,6 +174,33 @@ def test_implicit_cnn_dilation_synthetic(num_layers, dilation, expected_mrr):
     assert mrr.mean() > expected_mrr
 
 
+@pytest.mark.parametrize('randomness, expected_mrr', [
+    (1e-3, 0.3),
+    (1e2, 0.03),
+])
+def test_implicit_lstm_mixture_synthetic(randomness, expected_mrr):
+
+    random_state = np.random.RandomState(RANDOM_SEED)
+    train, test = _get_synthetic_data(randomness=randomness,
+                                      random_state=random_state)
+
+    model = ImplicitSequenceModel(loss=LOSS,
+                                  representation='mixture',
+                                  batch_size=BATCH_SIZE,
+                                  embedding_dim=EMBEDDING_DIM,
+                                  learning_rate=1e-2,
+                                  l2=1e-7,
+                                  n_iter=NUM_EPOCHS * 5,
+                                  random_state=random_state,
+                                  use_cuda=CUDA)
+
+    model.fit(train, verbose=VERBOSE)
+
+    mrr = _evaluate(model, test)
+
+    assert mrr.mean() > expected_mrr
+
+
 @pytest.mark.parametrize('loss, expected_mrr', [
     ('pointwise', 0.15),
     ('hinge', 0.16),

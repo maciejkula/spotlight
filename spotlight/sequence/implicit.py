@@ -16,7 +16,10 @@ from spotlight.losses import (adaptive_hinge_loss,
                               bpr_loss,
                               hinge_loss,
                               pointwise_loss)
-from spotlight.sequence.representations import PADDING_IDX, CNNNet, LSTMNet, PoolNet
+from spotlight.sequence.representations import (PADDING_IDX, CNNNet,
+                                                LSTMNet,
+                                                MixtureLSTMNet,
+                                                PoolNet)
 from spotlight.sampling import sample_items
 from spotlight.torch_utils import cpu, gpu, minibatch, set_seed, shuffle
 
@@ -34,7 +37,7 @@ class ImplicitSequenceModel(object):
         to losses from :class:`spotlight.losses`.
     representation: string or instance of :class:`spotlight.sequence.representations`, optional
         Sequence representation to use. If string, it must be one
-        of 'pooling', 'cnn', 'lstm'; otherwise must be one of the
+        of 'pooling', 'cnn', 'lstm', 'mixture'; otherwise must be one of the
         representations from :class:`spotlight.sequence.representations`
     embedding_dim: int, optional
         Number of embedding dimensions to use for representing items.
@@ -103,7 +106,8 @@ class ImplicitSequenceModel(object):
         if isinstance(representation, str):
             assert representation in ('pooling',
                                       'cnn',
-                                      'lstm')
+                                      'lstm',
+                                      'mixture')
 
         self._loss = loss
         self._representation = representation
@@ -150,6 +154,10 @@ class ImplicitSequenceModel(object):
             self._net = LSTMNet(self._num_items,
                                 self._embedding_dim,
                                 sparse=self._sparse)
+        elif self._representation == 'mixture':
+            self._net = MixtureLSTMNet(self._num_items,
+                                       self._embedding_dim,
+                                       sparse=self._sparse)
         else:
             self._net = self._representation
 
