@@ -34,7 +34,7 @@ class PoolNet(nn.Module):
 
     During training, representations for all timesteps of the sequence are
     computed in one go. Loss functions using the outputs will therefore
-    be aggregating both across the minibatch and aross time in the sequence.
+    be aggregating both across the minibatch and across time in the sequence.
 
     Parameters
     ----------
@@ -152,7 +152,7 @@ class LSTMNet(nn.Module):
 
     During training, representations for all timesteps of the sequence are
     computed in one go. Loss functions using the outputs will therefore
-    be aggregating both across the minibatch and aross time in the sequence.
+    be aggregating both across the minibatch and across time in the sequence.
 
     Parameters
     ----------
@@ -264,7 +264,7 @@ class CNNNet(nn.Module):
 
     To represent a sequence, it runs a 1D convolution over the input sequence,
     from left to right. At each timestep, the output of the convolution is
-    the representation of the sequence up to that point. The convoluion is causal
+    the representation of the sequence up to that point. The convolution is causal
     because future states are never part of the convolution's receptive field;
     this is achieved by left-padding the sequence.
 
@@ -277,7 +277,7 @@ class CNNNet(nn.Module):
 
     During training, representations for all timesteps of the sequence are
     computed in one go. Loss functions using the outputs will therefore
-    be aggregating both across the minibatch and aross time in the sequence.
+    be aggregating both across the minibatch and across time in the sequence.
 
     Parameters
     ----------
@@ -286,7 +286,7 @@ class CNNNet(nn.Module):
         Number of items to be represented.
     embedding_dim: int, optional
         Embedding dimension of the embedding layer, and the number of filters
-        in each convlutonal layer.
+        in each convolutional layer.
     kernel_width: tuple or int, optional
         The kernel width of the convolutional layers. If tuple, should contain
         the kernel widths for all convolutional layers. If int, it will be
@@ -304,7 +304,7 @@ class CNNNet(nn.Module):
         One of ('tanh', 'relu'). Denotes the type of non-linearity to apply
         after each convolutional layer.
     residual_connections: boolean, optional
-        Whether to use reisdual connections between convolutional layers.
+        Whether to use residual connections between convolutional layers.
     item_embedding_layer: an embedding layer, optional
         If supplied, will be used as the item embedding layer
         of the network.

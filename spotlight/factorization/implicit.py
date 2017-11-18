@@ -23,7 +23,7 @@ from spotlight.torch_utils import cpu, gpu, minibatch, set_seed, shuffle
 
 class ImplicitFactorizationModel(object):
     """
-    An implict feedback matrix factorization model. Uses a classic
+    An implicit feedback matrix factorization model. Uses a classic
     matrix factorization [1]_ approach, with latent vectors used
     to represent both users and items. Their dot product gives the
     predicted score for a user-item pair.
