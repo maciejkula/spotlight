@@ -199,25 +199,19 @@ class ImplicitSequenceModel(object):
             The input sequence dataset.
         """
 
-        sequences = interactions.sequences.astype(np.int64)
-
         if not self._initialized:
             self._initialize(interactions)
 
-        self._check_input(sequences)
+        # self._check_input(sequences)
 
         for epoch_num in range(self._n_iter):
 
-            sequences = shuffle(sequences,
-                                random_state=self._random_state)
-
-            sequences_tensor = gpu(torch.from_numpy(sequences),
-                                   self._use_cuda)
-
             epoch_loss = 0.0
 
-            for minibatch_num, batch_sequence in enumerate(minibatch(sequences_tensor,
-                                                                     batch_size=self._batch_size)):
+            for (minibatch_num,
+                 batch_sequence) in enumerate(interactions
+                                              .minibatch(batch_size=self._batch_size,
+                                                         random_state=self._random_state)):
 
                 sequence_var = Variable(batch_sequence)
 

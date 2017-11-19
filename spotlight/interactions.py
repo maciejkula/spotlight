@@ -7,11 +7,46 @@ import numpy as np
 
 import scipy.sparse as sp
 
+import torch
+
+from dynarray import DynamicArray
+
+from spotlight.torch_utils import cpu, gpu, minibatch, set_seed, shuffle
+
 
 def _sliding_window(tensor, window_size, step_size=1):
 
     for i in range(len(tensor), 0, -step_size):
         yield tensor[max(i - window_size, 0):i]
+
+
+def _generate_batched_sequences(item_ids,
+                                indices,
+                                max_sequence_length,
+                                step_size):
+
+    packed = {}
+
+    for i in range(len(indices)):
+        start_idx = indices[i]
+
+        if i >= len(indices) - 1:
+            stop_idx = len(item_ids)
+        else:
+            stop_idx = indices[i + 1]
+
+        for subsequence in _sliding_window(item_ids[start_idx:stop_idx],
+                                           max_sequence_length,
+                                           step_size=step_size):
+
+            (packed.setdefault(len(subsequence),
+                               DynamicArray((None, len(subsequence)), dtype=np.int64))
+             .append(subsequence))
+
+    for value in packed.values():
+        value.shrink_to_fit()
+
+    return {key: value[:] for (key, value) in packed.items()}
 
 
 def _generate_sequences(user_ids, item_ids,
@@ -241,28 +276,12 @@ class Interactions(object):
                                               return_index=True,
                                               return_counts=True)
 
-        num_subsequences = int(np.ceil(counts / float(step_size)).sum())
-
-        sequences = np.zeros((num_subsequences, max_sequence_length),
-                             dtype=np.int32)
-        sequence_users = np.empty(num_subsequences,
-                                  dtype=np.int32)
-        for i, (uid,
-                seq) in enumerate(_generate_sequences(user_ids,
-                                                      item_ids,
-                                                      indices,
-                                                      max_sequence_length,
-                                                      step_size)):
-            sequences[i][-len(seq):] = seq
-            sequence_users[i] = uid
-
-        if min_sequence_length is not None:
-            long_enough = sequences[:, -min_sequence_length] != 0
-            sequences = sequences[long_enough]
-            sequence_users = sequence_users[long_enough]
+        sequences = _generate_batched_sequences(item_ids,
+                                                indices,
+                                                max_sequence_length,
+                                                step_size)
 
         return (SequenceInteractions(sequences,
-                                     user_ids=sequence_users,
                                      num_items=self.num_items))
 
 
@@ -289,24 +308,40 @@ class SequenceInteractions(object):
 
     def __init__(self,
                  sequences,
-                 user_ids=None, num_items=None):
+                 num_items=None):
 
         self.sequences = sequences
-        self.user_ids = user_ids
-        self.max_sequence_length = sequences.shape[1]
+
+        self._num_sequences = sum(x.shape[0] for x in self.sequences.values())
+        self._max_sequence_length = max(x.shape[1] for x in self.sequences.values())
 
         if num_items is None:
-            self.num_items = sequences.max() + 1
+            self.num_items = max(x.max() + 1 for x in self.sequences.values())
         else:
             self.num_items = num_items
 
     def __repr__(self):
 
-        num_sequences, sequence_length = self.sequences.shape
-
         return ('<Sequence interactions dataset ({num_sequences} '
-                'sequences x {sequence_length} sequence length)>'
+                'sequences x {sequence_length} max sequence length)>'
                 .format(
-                    num_sequences=num_sequences,
-                    sequence_length=sequence_length,
+                    num_sequences=self._num_sequences,
+                    sequence_length=self._max_sequence_length,
                 ))
+
+    def minibatch(self, batch_size, random_state=None, use_cuda=False):
+
+        if random_state is None:
+            random_state = np.random.RandomState()
+
+        keys = np.array(list(self.sequences.keys()))
+        random_state.shuffle(keys)
+
+        for key in keys:
+
+            value = self.sequences[key]
+
+            value = gpu(torch.from_numpy(value), use_cuda)
+
+            for batch in minibatch(value, batch_size=batch_size):
+                yield batch
