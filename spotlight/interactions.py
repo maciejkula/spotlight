@@ -11,7 +11,7 @@ import torch
 
 from dynarray import DynamicArray
 
-from spotlight.torch_utils import cpu, gpu, minibatch, set_seed, shuffle
+from spotlight.torch_utils import gpu
 
 
 def _sliding_window(tensor, window_size, step_size=1):
@@ -23,6 +23,7 @@ def _sliding_window(tensor, window_size, step_size=1):
 def _generate_batched_sequences(item_ids,
                                 indices,
                                 max_sequence_length,
+                                min_sequence_length,
                                 step_size):
 
     packed = {}
@@ -39,6 +40,9 @@ def _generate_batched_sequences(item_ids,
                                            max_sequence_length,
                                            step_size=step_size):
 
+            if len(subsequence) < min_sequence_length:
+                continue
+
             (packed.setdefault(len(subsequence),
                                DynamicArray((None, len(subsequence)), dtype=np.int64))
              .append(subsequence))
@@ -47,27 +51,6 @@ def _generate_batched_sequences(item_ids,
         value.shrink_to_fit()
 
     return {key: value[:] for (key, value) in packed.items()}
-
-
-def _generate_sequences(user_ids, item_ids,
-                        indices,
-                        max_sequence_length,
-                        step_size):
-
-    for i in range(len(indices)):
-
-        start_idx = indices[i]
-
-        if i >= len(indices) - 1:
-            stop_idx = None
-        else:
-            stop_idx = indices[i + 1]
-
-        for seq in _sliding_window(item_ids[start_idx:stop_idx],
-                                   max_sequence_length,
-                                   step_size):
-
-            yield (user_ids[i], seq)
 
 
 class Interactions(object):
@@ -202,7 +185,7 @@ class Interactions(object):
 
         return self.tocoo().tocsr()
 
-    def to_sequence(self, max_sequence_length=10, min_sequence_length=None, step_size=None):
+    def to_sequence(self, max_sequence_length=10, min_sequence_length=1, step_size=None):
         """
         Transform to sequence form.
 
@@ -279,6 +262,7 @@ class Interactions(object):
         sequences = _generate_batched_sequences(item_ids,
                                                 indices,
                                                 max_sequence_length,
+                                                min_sequence_length,
                                                 step_size)
 
         return (SequenceInteractions(sequences,
@@ -329,19 +313,59 @@ class SequenceInteractions(object):
                     sequence_length=self._max_sequence_length,
                 ))
 
-    def minibatch(self, batch_size, random_state=None, use_cuda=False):
+    def __iter__(self):
+
+        for value in self.sequences.values():
+            for row in value:
+                yield row
+
+    def minibatch(self, batch_size, random_state=None, use_cuda=False, only_full_batches=True):
+        """
+        Iterate over minibatches of the dataset. Each minibatch has the same sequence length,
+        but the lengths of each minibatche can differ to avoid padding. Minibatch order as
+        well as sequences within a minibatch are shuffled on each epoch.
+
+        Parameters
+        ----------
+
+        batch_size: int
+            The size of each minibatch. Minibatches smaller than this will not be emitted
+            if `only_full_batches` is `True` (default).
+        random_state: instance of numpy.random.RandomState, optional
+            Random generator to use when returning the minibatches.
+        use_cida: bool, optional
+            Whether to send the minibatch data to the GPU.
+        only_full_batches: bool, optional
+            If `True`, minibatches smaller than `batch_size` are omitted. This is helpful
+            if loss values are averaged across minibatch. In that case, minibatches with
+            few examples would have a disproportionately large effect on the gradients.
+        """
 
         if random_state is None:
             random_state = np.random.RandomState()
 
-        keys = np.array(list(self.sequences.keys()))
-        random_state.shuffle(keys)
+        # Shuffle the sequences within blocks of same length.
+        for value in self.sequences.values():
+            random_state.shuffle(value)
 
-        for key in keys:
+        # Build a list of minibatches to execute that
+        # randomly alternates between the lengths.
+        minibatches = []
 
-            value = self.sequences[key]
+        for key, value in self.sequences.items():
+            for i in range(0, len(value), batch_size):
+                minibatches.append([key, i, i + batch_size])
 
-            value = gpu(torch.from_numpy(value), use_cuda)
+        minibatches = np.array(minibatches, dtype=np.int64)
+        random_state.shuffle(minibatches)
 
-            for batch in minibatch(value, batch_size=batch_size):
-                yield batch
+        # Convert to tensors (and possibly transfer to GPU).
+        tensor_data = {k: gpu(torch.from_numpy(v)) for (k, v) in self.sequences.items()}
+
+        for (key, start, stop) in minibatches:
+            btch = tensor_data[key][start:stop]
+
+            if len(btch) != batch_size:
+                continue
+
+            yield btch

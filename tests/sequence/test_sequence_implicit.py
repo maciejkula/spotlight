@@ -103,7 +103,7 @@ def test_implicit_lstm_synthetic(randomness, expected_mrr):
                                   embedding_dim=EMBEDDING_DIM,
                                   learning_rate=1e-2,
                                   l2=1e-7,
-                                  n_iter=NUM_EPOCHS * 5,
+                                  n_iter=NUM_EPOCHS * 10,
                                   random_state=random_state,
                                   use_cuda=CUDA)
 

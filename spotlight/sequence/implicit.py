@@ -12,13 +12,14 @@ import torch.optim as optim
 from torch.autograd import Variable
 
 from spotlight.helpers import _repr_model
+from spotlight.interactions import SequenceInteractions
 from spotlight.losses import (adaptive_hinge_loss,
                               bpr_loss,
                               hinge_loss,
                               pointwise_loss)
 from spotlight.sequence.representations import PADDING_IDX, CNNNet, LSTMNet, PoolNet
 from spotlight.sampling import sample_items
-from spotlight.torch_utils import cpu, gpu, minibatch, set_seed, shuffle
+from spotlight.torch_utils import cpu, gpu, set_seed
 
 
 class ImplicitSequenceModel(object):
@@ -175,7 +176,9 @@ class ImplicitSequenceModel(object):
 
     def _check_input(self, item_ids):
 
-        if isinstance(item_ids, int):
+        if isinstance(item_ids, SequenceInteractions):
+            item_id_max = item_ids.num_items - 1
+        elif isinstance(item_ids, int):
             item_id_max = item_ids
         else:
             item_id_max = item_ids.max()
@@ -202,7 +205,7 @@ class ImplicitSequenceModel(object):
         if not self._initialized:
             self._initialize(interactions)
 
-        # self._check_input(sequences)
+        self._check_input(interactions)
 
         for epoch_num in range(self._n_iter):
 
