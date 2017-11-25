@@ -204,7 +204,7 @@ def test_implicit_pooling_losses(loss, expected_mrr):
 @pytest.mark.parametrize('compression_ratio, expected_mrr', [
     (0.2, 0.14),
     (0.5, 0.30),
-    (1.0, 0.5),
+    (1.0, 0.48),
 ])
 def test_bloom_cnn(compression_ratio, expected_mrr):
 
