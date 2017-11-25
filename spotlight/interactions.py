@@ -20,32 +20,59 @@ def _sliding_window(tensor, window_size, step_size=1):
         yield tensor[max(i - window_size, 0):i]
 
 
-def _generate_batched_sequences(item_ids,
-                                indices,
-                                max_sequence_length,
-                                min_sequence_length,
-                                step_size):
+def _generate_sequences(interactions,
+                        max_sequence_length,
+                        min_sequence_length=1,
+                        step_size=1):
 
-    packed = {}
+    if interactions.timestamps is None:
+        raise ValueError('Cannot convert to sequences, '
+                         'timestamps not available.')
+
+    if step_size is None:
+        step_size = max_sequence_length
+
+    # Sort first by user id, then by timestamp
+    sort_indices = np.lexsort((interactions.timestamps,
+                               interactions.user_ids))
+
+    user_ids = interactions.user_ids[sort_indices]
+    item_ids = interactions.item_ids[sort_indices]
+
+    user_ids, indices, counts = np.unique(user_ids,
+                                          return_index=True,
+                                          return_counts=True)
 
     for i in range(len(indices)):
+
         start_idx = indices[i]
 
         if i >= len(indices) - 1:
-            stop_idx = len(item_ids)
+            stop_idx = None
         else:
             stop_idx = indices[i + 1]
 
-        for subsequence in _sliding_window(item_ids[start_idx:stop_idx],
-                                           max_sequence_length,
-                                           step_size=step_size):
+        for seq in _sliding_window(item_ids[start_idx:stop_idx],
+                                   max_sequence_length,
+                                   step_size):
 
-            if len(subsequence) < min_sequence_length:
+            if len(seq) < min_sequence_length:
                 continue
 
-            (packed.setdefault(len(subsequence),
-                               DynamicArray((None, len(subsequence)), dtype=np.int64))
-             .append(subsequence))
+            yield (user_ids[i], seq)
+
+
+def _pack_sequences(sequences):
+
+    packed = {}
+
+    for user_id, sequence in sequences:
+
+        (packed.setdefault(len(sequence),
+                           DynamicArray((None,
+                                         len(sequence)),
+                                        dtype=np.int64))
+         .append(sequence))
 
     for value in packed.values():
         value.shrink_to_fit()
@@ -237,33 +264,16 @@ class Interactions(object):
             The resulting sequence interactions.
         """
 
-        if self.timestamps is None:
-            raise ValueError('Cannot convert to sequences, '
-                             'timestamps not available.')
-
         if 0 in self.item_ids:
             raise ValueError('0 is used as an item id, conflicting '
                              'with the sequence padding value.')
 
-        if step_size is None:
-            step_size = max_sequence_length
-
-        # Sort first by user id, then by timestamp
-        sort_indices = np.lexsort((self.timestamps,
-                                   self.user_ids))
-
-        user_ids = self.user_ids[sort_indices]
-        item_ids = self.item_ids[sort_indices]
-
-        user_ids, indices, counts = np.unique(user_ids,
-                                              return_index=True,
-                                              return_counts=True)
-
-        sequences = _generate_batched_sequences(item_ids,
-                                                indices,
-                                                max_sequence_length,
-                                                min_sequence_length,
-                                                step_size)
+        sequences = _pack_sequences(
+            _generate_sequences(self,
+                                max_sequence_length,
+                                min_sequence_length,
+                                step_size)
+        )
 
         return (SequenceInteractions(sequences,
                                      num_items=self.num_items))
