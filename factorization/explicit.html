@@ -238,7 +238,7 @@ corresponding to losses from <a class="reference internal" href="../losses.html#
 <li><strong>l2</strong> (<em>float</em><em>, </em><em>optional</em>) – L2 loss penalty.</li>
 <li><strong>learning_rate</strong> (<em>float</em><em>, </em><em>optional</em>) – Initial learning rate.</li>
 <li><strong>optimizer_func</strong> (<em>function</em><em>, </em><em>optional</em>) – Function that takes in module parameters as the first argument and
-returns an instance of a Pytorch optimizer. Overrides l2 and learning
+returns an instance of a PyTorch optimizer. Overrides l2 and learning
 rate if supplied. If no optimizer supplied, then use ADAM by default.</li>
 <li><strong>use_cuda</strong> (<em>boolean</em><em>, </em><em>optional</em>) – Run the model on a GPU.</li>
 <li><strong>representation</strong> (<em>a representation module</em><em>, </em><em>optional</em>) – If supplied, will override default settings and be used as the
@@ -263,7 +263,11 @@ call.</p>
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>interactions</strong> (<a class="reference internal" href="../interactions.html#spotlight.interactions.Interactions" title="spotlight.interactions.Interactions"><code class="xref py py-class docutils literal"><span class="pre">spotlight.interactions.Interactions</span></code></a>) – The input dataset. Must have ratings.</td>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>interactions</strong> (<a class="reference internal" href="../interactions.html#spotlight.interactions.Interactions" title="spotlight.interactions.Interactions"><code class="xref py py-class docutils literal"><span class="pre">spotlight.interactions.Interactions</span></code></a>) – The input dataset. Must have ratings.</li>
+<li><strong>verbose</strong> (<em>bool</em>) – Output additional information about current epoch and loss.</li>
+</ul>
+</td>
 </tr>
 </tbody>
 </table>

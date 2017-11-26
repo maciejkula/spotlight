@@ -256,7 +256,7 @@
 <span class="sd">        Initial learning rate.</span>
 <span class="sd">    optimizer_func: function, optional</span>
 <span class="sd">        Function that takes in module parameters as the first argument and</span>
-<span class="sd">        returns an instance of a Pytorch optimizer. Overrides l2 and learning</span>
+<span class="sd">        returns an instance of a PyTorch optimizer. Overrides l2 and learning</span>
 <span class="sd">        rate if supplied. If no optimizer supplied, then use ADAM by default.</span>
 <span class="sd">    use_cuda: boolean, optional</span>
 <span class="sd">        Run the model on a GPU.</span>
@@ -389,6 +389,9 @@
 
 <span class="sd">        interactions: :class:`spotlight.interactions.Interactions`</span>
 <span class="sd">            The input dataset. Must have ratings.</span>
+
+<span class="sd">        verbose: bool</span>
+<span class="sd">            Output additional information about current epoch and loss.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
 
         <span class="n">user_ids</span> <span class="o">=</span> <span class="n">interactions</span><span class="o">.</span><span class="n">user_ids</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">int64</span><span class="p">)</span>
