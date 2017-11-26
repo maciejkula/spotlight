@@ -58,7 +58,7 @@ class ImplicitFactorizationModel(object):
         Initial learning rate.
     optimizer_func: function, optional
         Function that takes in module parameters as the first argument and
-        returns an instance of a Pytorch optimizer. Overrides l2 and learning
+        returns an instance of a PyTorch optimizer. Overrides l2 and learning
         rate if supplied. If no optimizer supplied, then use ADAM by default.
     use_cuda: boolean, optional
         Run the model on a GPU.
@@ -196,6 +196,9 @@ class ImplicitFactorizationModel(object):
 
         interactions: :class:`spotlight.interactions.Interactions`
             The input dataset.
+
+        verbose: bool
+            Output additional information about current epoch and loss.
         """
 
         user_ids = interactions.user_ids.astype(np.int64)

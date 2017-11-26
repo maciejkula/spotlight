@@ -38,7 +38,7 @@ class ImplicitSequenceModel(object):
         representations from :class:`spotlight.sequence.representations`
     embedding_dim: int, optional
         Number of embedding dimensions to use for representing items.
-        Overriden if representation is an instance of a representation class.
+        Overridden if representation is an instance of a representation class.
     n_iter: int, optional
         Number of iterations to run.
     batch_size: int, optional
@@ -49,7 +49,7 @@ class ImplicitSequenceModel(object):
         Initial learning rate.
     optimizer_func: function, optional
         Function that takes in module parameters as the first argument and
-        returns an instance of a Pytorch optimizer. Overrides l2 and learning
+        returns an instance of a PyTorch optimizer. Overrides l2 and learning
         rate if supplied. If no optimizer supplied, then use ADAM by default.
     use_cuda: boolean, optional
         Run the model on a GPU.
