@@ -218,39 +218,38 @@ class Interactions(object):
 
         User-item interaction pairs are sorted by their timestamps,
         and sequences of up to max_sequence_length events are arranged
-        into a (zero-padded from the left) matrix with dimensions
-        (num_sequences x max_sequence_length).
+        are returned. The returned sequences are not padded,
+        taking advatnage of PyTorch's flexibility.
 
         Valid subsequences of users' interactions are returned. For
         example, if a user interacted with items [1, 2, 3, 4, 5], the
-        returned interactions matrix at sequence length 5 and step size
+        returned interactions set at sequence length 5 and step size
         1 will be be given by:
 
         .. code-block:: python
 
            [[1, 2, 3, 4, 5],
-            [0, 1, 2, 3, 4],
-            [0, 0, 1, 2, 3],
-            [0, 0, 0, 1, 2],
-            [0, 0, 0, 0, 1]]
+            [1, 2, 3, 4],
+            [1, 2, 3],
+            [1, 2],
+            [1]]
 
         At step size 2:
 
         .. code-block:: python
 
            [[1, 2, 3, 4, 5],
-            [0, 0, 1, 2, 3],
-            [0, 0, 0, 0, 1]]
+            [1, 2, 3],
+            [1]]
 
         Parameters
         ----------
 
         max_sequence_length: int, optional
-            Maximum sequence length. Subsequences shorter than this
-            will be left-padded with zeros.
+            Maximum sequence length.
         min_sequence_length: int, optional
             If set, only sequences with at least min_sequence_length
-            non-padding elements will be returned.
+            elements will be returned.
         step-size: int, optional
             The returned subsequences are the effect of moving a
             a sliding window over the input. This parameter
@@ -281,14 +280,15 @@ class Interactions(object):
 
 class SequenceInteractions(object):
     """
-    Interactions encoded as a sequence matrix.
+    Interactions encoded as sequences. This object is not normally constructed
+    directly, but rather returned from :func:`~Interactions.to_sequence`.
 
     Parameters
     ----------
 
-    sequences: array of np.int32 of shape (num_sequences x max_sequence_length)
-        The interactions sequence matrix, as produced by
-        :func:`~Interactions.to_sequence`
+    sequences: dict of np.int64 arrays of shape (num_sequences x sequence_length)
+        The interactions sequence, dictionary grouping all
+        subsequences into matrices by their length.
     num_items: int, optional
         The number of distinct items in the data
 

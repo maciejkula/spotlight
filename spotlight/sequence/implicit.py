@@ -71,7 +71,7 @@ class ImplicitSequenceModel(object):
     .. code-block:: python
 
        [[1, 2, 3, 4, 5],
-        [0, 0, 7, 1, 4]]
+        [7, 1, 4]]
 
 
     In this case, the loss for the first example will be the mean loss

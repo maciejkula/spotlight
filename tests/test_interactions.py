@@ -7,25 +7,6 @@ from spotlight.datasets import movielens
 from spotlight.interactions import Interactions, _generate_sequences
 
 
-def _test_just_padding(sequences):
-    """
-    There should be no rows with only padding in them.
-    """
-
-    row_sum = sequences.sum(axis=1)
-
-    assert len(row_sum) == sequences.shape[0]
-    assert np.all(row_sum > 0)
-
-
-def _test_final_column_no_padding(sequences):
-    """
-    The final column should always have an interaction.
-    """
-
-    assert np.all(sequences[:, -1] > 0)
-
-
 def _test_shifted(sequences, step_size):
     """
     Unless there was a change of user, row i + 1's interactions
