@@ -270,7 +270,12 @@ class ImplicitFactorizationModel(object):
 
     def _get_multiple_negative_predictions(self, user_ids, n=5):
 
-        negative_prediction = self._get_negative_prediction(user_ids.repeat(n))
+        batch_size = user_ids.size(0)
+
+        negative_prediction = self._get_negative_prediction(user_ids
+                                                            .resize(batch_size, 1)
+                                                            .expand(batch_size, n)
+                                                            .resize(batch_size * n))
 
         return negative_prediction.view(n, len(user_ids))
 
