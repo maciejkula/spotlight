@@ -14,6 +14,7 @@ Changed
 ~~~~~~~
 
 * Raise ValueError if loss becomes NaN or 0.
+* Updated to work with PyTorch 0.3.0.
 
 v0.1.2 (2017-09-10)
 -------------------
