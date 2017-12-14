@@ -2,7 +2,7 @@
 Changelog
 =========
 
-unreleased (unreleased)
+v0.1.3 (2017-12-14)
 -----------------------
 
 Added
