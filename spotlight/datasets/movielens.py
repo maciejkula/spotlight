@@ -21,7 +21,7 @@ VARIANTS = ('100K',
 
 
 URL_PREFIX = ('https://github.com/maciejkula/recommender_datasets/'
-              'releases/download/')
+              'releases/download')
 VERSION = 'v0.2.0'
 
 
@@ -29,9 +29,9 @@ def _get_movielens(dataset):
 
     extension = '.hdf5'
 
-    path = _transport.get_data(os.path.join(URL_PREFIX,
-                                            VERSION,
-                                            dataset + extension),
+    path = _transport.get_data('/'.join((URL_PREFIX,
+                                         VERSION,
+                                         dataset + extension)),
                                os.path.join('movielens', VERSION),
                                'movielens_{}{}'.format(dataset,
                                                        extension))
