@@ -1,0 +1,25 @@
+build: false
+
+environment:
+  matrix:
+    - PYTHON_VERSION: 3.6
+      MINICONDA: C:\Miniconda-x64
+
+init:
+  - "ECHO %PYTHON_VERSION% %MINICONDA%"
+
+install:
+  - "set PATH=%MINICONDA%;%MINICONDA%\\Scripts;%PATH%"
+  - conda config --set always_yes yes --set changeps1 no
+  - conda update -q conda
+  - conda info -a
+  - conda create --name spotlight numpy scipy requests h5py scikit-learn pytest flake8
+  - activate spotlight
+  - conda install -y -q pytorch=0.3.0 -c peterjc123
+
+  # Install lightfm
+  - pip install -e .
+
+test_script:
+  # Run the project tests
+  - py.test tests/ -x

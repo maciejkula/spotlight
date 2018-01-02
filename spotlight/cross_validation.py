@@ -140,8 +140,8 @@ def user_based_train_test_split(interactions,
     if random_state is None:
         random_state = np.random.RandomState()
 
-    minint = np.iinfo(np.uint32).min
-    maxint = np.iinfo(np.uint32).max
+    minint = np.iinfo(np.int32).min
+    maxint = np.iinfo(np.int32).max
 
     seed = random_state.randint(minint, maxint)
 
