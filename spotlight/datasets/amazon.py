@@ -2,8 +2,6 @@
 Utilities for fetching Amazon datasets
 """
 
-import os
-
 import h5py
 
 import numpy as np
@@ -16,12 +14,12 @@ def _download_amazon():
 
     extension = '.hdf5'
     url = ('https://github.com/maciejkula/recommender_datasets/'
-           'releases/download/')
+           'releases/download')
     version = '0.1.0'
 
-    path = _transport.get_data(os.path.join(url,
-                                            version,
-                                            'amazon_co_purchasing' + extension),
+    path = _transport.get_data('/'.join((url,
+                                         version,
+                                         'amazon_co_purchasing' + extension)),
                                'amazon',
                                'amazon_co_purchasing{}'.format(extension))
 
