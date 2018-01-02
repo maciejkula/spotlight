@@ -2,7 +2,7 @@
 Classes defining user and item latent representations in
 factorization models.
 """
-
+import torch
 import torch.nn as nn
 
 from spotlight.layers import ScaledEmbedding, ZeroEmbedding
@@ -82,6 +82,14 @@ class BilinearNet(nn.Module):
 
         user_embedding = user_embedding.squeeze()
         item_embedding = item_embedding.squeeze()
+        
+        if isinstance(user_ids,
+                      (torch.IntTensor, torch.cuda.IntTensor)):
+            user_ids = user_ids.long()
+
+        if isinstance(item_ids,
+                      (torch.IntTensor, torch.cuda.IntTensor)):
+            item_ids = item_ids.long()
 
         user_bias = self.user_biases(user_ids).squeeze()
         item_bias = self.item_biases(item_ids).squeeze()

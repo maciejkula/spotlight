@@ -217,6 +217,13 @@ class BloomEmbedding(nn.Module):
         else:
             batch_size, seq_size = indices.size(0), 1
 
+
+        if not isinstance(indices,
+                          (torch.LongTensor, torch.cuda.LongTensor)):
+            # PyTorch embedding only supports LongTensor
+            indices = indices.long()
+        
+
         if not indices.is_contiguous():
             indices = indices.contiguous()
 
