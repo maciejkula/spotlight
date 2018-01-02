@@ -15,7 +15,7 @@ install:
   - conda info -a
   - conda create --name spotlight numpy scipy requests h5py scikit-learn pytest flake8
   - activate spotlight
-  - conda install -y -q pytorch=0.3.0 torchvision -c peterjc123
+  - conda install -y -q pytorch=0.3.0 -c peterjc123
 
   # Install lightfm
   - pip install -e .
