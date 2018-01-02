@@ -2,8 +2,6 @@
 Utilities for fetching Amazon datasets
 """
 
-import os
-
 import h5py
 
 import numpy as np
