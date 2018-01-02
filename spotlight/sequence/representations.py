@@ -132,11 +132,7 @@ class PoolNet(nn.Module):
         predictions: tensor
             of shape (minibatch_size, sequence_length)
         """
-        
-        if isinstance(targets.data,
-                      (torch.IntTensor, torch.cuda.IntTensor)):
-            targets = targets.long()
-            
+
         target_embedding = (self.item_embeddings(targets)
                             .permute(0, 2, 1)
                             .squeeze())
@@ -249,9 +245,6 @@ class LSTMNet(nn.Module):
         predictions: tensor
             of shape (minibatch_size, sequence_length)
         """
-        if isinstance(targets.data,
-                      (torch.IntTensor, torch.cuda.IntTensor)):
-            targets = targets.long()
 
         target_embedding = (self.item_embeddings(targets)
                             .permute(0, 2, 1)
@@ -447,10 +440,6 @@ class CNNNet(nn.Module):
         predictions: tensor
             Of shape (minibatch_size, sequence_length).
         """
-        
-        if isinstance(targets.data,
-                      (torch.IntTensor, torch.cuda.IntTensor)):
-            targets = targets.long()
 
         target_embedding = (self.item_embeddings(targets)
                             .permute(0, 2, 1)
