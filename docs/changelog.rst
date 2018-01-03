@@ -2,6 +2,18 @@
 Changelog
 =========
 
+Unreleased (unrelesed)
+
+Fixed
+~~~~~
+
+* Bugs due to use of int32s instead of int64s on Windows (thanks to Roman Yurchak).
+
+Other
+~~~~~
+
+* Added Appveyor for Windows CI (thanks to Roman Yurchak).
+
 v0.1.3 (2017-12-14)
 -----------------------
 
