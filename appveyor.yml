@@ -1,0 +1,26 @@
+build: false
+
+environment:
+  global:
+      REQUIREMENTS: "numpy scipy requests h5py scikit-learn pytest flake8 pytorch=0.3.0"
+
+  matrix:
+    - PYTHON_VERSION: 3.6
+      MINICONDA: C:\Miniconda3-x64
+
+
+init:
+  - "ECHO %PYTHON_VERSION% %MINICONDA%"
+
+install:
+  - "set PATH=%MINICONDA%;%MINICONDA%\\Scripts;%PATH%"
+  - conda config --set always_yes yes --set changeps1 no
+  - conda update -q conda
+  - conda create -n spotlight-env -c peterjc123 %REQUIREMENTS% python=%PYTHON_VERSION%
+  - activate spotlight-env
+  - pip install torchvision
+  - pip install -e .
+
+test_script:
+  - activate spotlight-env
+  - pytest tests/

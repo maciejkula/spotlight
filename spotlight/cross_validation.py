@@ -143,7 +143,7 @@ def user_based_train_test_split(interactions,
     minint = np.iinfo(np.uint32).min
     maxint = np.iinfo(np.uint32).max
 
-    seed = random_state.randint(minint, maxint)
+    seed = random_state.randint(minint, maxint, dtype=np.int64)
 
     in_test = ((murmurhash3_32(interactions.user_ids,
                                seed=seed,
