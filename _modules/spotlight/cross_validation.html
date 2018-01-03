@@ -347,7 +347,7 @@
     <span class="n">minint</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">iinfo</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">uint32</span><span class="p">)</span><span class="o">.</span><span class="n">min</span>
     <span class="n">maxint</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">iinfo</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">uint32</span><span class="p">)</span><span class="o">.</span><span class="n">max</span>
 
-    <span class="n">seed</span> <span class="o">=</span> <span class="n">random_state</span><span class="o">.</span><span class="n">randint</span><span class="p">(</span><span class="n">minint</span><span class="p">,</span> <span class="n">maxint</span><span class="p">)</span>
+    <span class="n">seed</span> <span class="o">=</span> <span class="n">random_state</span><span class="o">.</span><span class="n">randint</span><span class="p">(</span><span class="n">minint</span><span class="p">,</span> <span class="n">maxint</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">int64</span><span class="p">)</span>
 
     <span class="n">in_test</span> <span class="o">=</span> <span class="p">((</span><span class="n">murmurhash3_32</span><span class="p">(</span><span class="n">interactions</span><span class="o">.</span><span class="n">user_ids</span><span class="p">,</span>
                                <span class="n">seed</span><span class="o">=</span><span class="n">seed</span><span class="p">,</span>
