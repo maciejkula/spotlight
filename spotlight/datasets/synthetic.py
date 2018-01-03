@@ -47,7 +47,8 @@ def _generate_sequences(num_steps,
                                   axis=1)
 
     rvs = random_state.rand(num_steps)
-    state = random_state.randint(transition_matrix.shape[0], size=order)
+    state = random_state.randint(transition_matrix.shape[0], size=order,
+                                 dtype=np.int64)
 
     for rv in rvs:
 
