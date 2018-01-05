@@ -343,7 +343,7 @@ class SequenceInteractions(object):
             if `only_full_batches` is `True` (default).
         random_state: instance of numpy.random.RandomState, optional
             Random generator to use when returning the minibatches.
-        use_cida: bool, optional
+        use_cuda: bool, optional
             Whether to send the minibatch data to the GPU.
         only_full_batches: bool, optional
             If `True`, minibatches smaller than `batch_size` are omitted. This is helpful
@@ -370,7 +370,7 @@ class SequenceInteractions(object):
         random_state.shuffle(minibatches)
 
         # Convert to tensors (and possibly transfer to GPU).
-        tensor_data = {k: gpu(torch.from_numpy(v)) for (k, v) in self.sequences.items()}
+        tensor_data = {k: gpu(torch.from_numpy(v), use_cuda) for (k, v) in self.sequences.items()}
 
         for (key, start, stop) in minibatches:
             btch = tensor_data[key][start:stop]
