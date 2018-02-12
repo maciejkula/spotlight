@@ -38,7 +38,7 @@ Installation
 
 .. code-block:: python
 
-   conda install -c maciejkula -c pytorch spotlight=0.1.3
+   conda install -c maciejkula -c pytorch spotlight=0.1.4
 
 
 Usage
