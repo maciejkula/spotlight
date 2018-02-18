@@ -2,7 +2,8 @@
 Changelog
 =========
 
-Unreleased (unrelesed)
+v0.1.4 (2018-02-18)
+-------------------
 
 Fixed
 ~~~~~
@@ -15,7 +16,7 @@ Other
 * Added Appveyor for Windows CI (thanks to Roman Yurchak).
 
 v0.1.3 (2017-12-14)
------------------------
+-------------------
 
 Added
 ~~~~~

@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>Changelog &mdash; Spotlight v0.1.3 documentation</title>
+  <title>Changelog &mdash; Spotlight v0.1.4 documentation</title>
   
 
   
@@ -37,7 +37,7 @@
         <link rel="index" title="Index"
               href="genindex.html"/>
         <link rel="search" title="Search" href="search.html"/>
-    <link rel="top" title="Spotlight v0.1.3 documentation" href="index.html"/>
+    <link rel="top" title="Spotlight v0.1.4 documentation" href="index.html"/>
         <link rel="prev" title="Model serialization" href="serialization.html"/> 
 
   
@@ -70,7 +70,7 @@
             
             
               <div class="version">
-                v0.1.3
+                v0.1.4
               </div>
             
           
@@ -125,19 +125,22 @@
 </ul>
 <ul class="current">
 <li class="toctree-l1 current"><a class="current reference internal" href="#">Changelog</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="#fixed">Fixed</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#other">Other</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="#v0-1-3-2017-12-14">v0.1.3 (2017-12-14)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#v0-1-4-2018-02-18">v0.1.4 (2018-02-18)</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#fixed">Fixed</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#other">Other</a></li>
 </ul>
 </li>
-<li class="toctree-l2"><a class="reference internal" href="#added">Added</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#changed">Changed</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="#v0-1-2-2017-09-10">v0.1.2 (2017-09-10)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#v0-1-3-2017-12-14">v0.1.3 (2017-12-14)</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#added">Added</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#changed">Changed</a></li>
 </ul>
 </li>
-<li class="toctree-l2"><a class="reference internal" href="#id1">Added</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#id2">Changed</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#id3">Fixed</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#v0-1-2-2017-09-10">v0.1.2 (2017-09-10)</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#id1">Added</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#id2">Changed</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#id3">Fixed</a></li>
+</ul>
+</li>
 </ul>
 </li>
 </ul>
@@ -205,41 +208,42 @@
             
   <div class="section" id="changelog">
 <h1>Changelog<a class="headerlink" href="#changelog" title="Permalink to this headline">¶</a></h1>
-<p>Unreleased (unrelesed)</p>
+<div class="section" id="v0-1-4-2018-02-18">
+<h2>v0.1.4 (2018-02-18)<a class="headerlink" href="#v0-1-4-2018-02-18" title="Permalink to this headline">¶</a></h2>
 <div class="section" id="fixed">
-<h2>Fixed<a class="headerlink" href="#fixed" title="Permalink to this headline">¶</a></h2>
+<h3>Fixed<a class="headerlink" href="#fixed" title="Permalink to this headline">¶</a></h3>
 <ul class="simple">
 <li>Bugs due to use of int32s instead of int64s on Windows (thanks to Roman Yurchak).</li>
 </ul>
 </div>
 <div class="section" id="other">
-<h2>Other<a class="headerlink" href="#other" title="Permalink to this headline">¶</a></h2>
+<h3>Other<a class="headerlink" href="#other" title="Permalink to this headline">¶</a></h3>
 <ul class="simple">
 <li>Added Appveyor for Windows CI (thanks to Roman Yurchak).</li>
 </ul>
+</div>
+</div>
 <div class="section" id="v0-1-3-2017-12-14">
-<h3>v0.1.3 (2017-12-14)<a class="headerlink" href="#v0-1-3-2017-12-14" title="Permalink to this headline">¶</a></h3>
-</div>
-</div>
+<h2>v0.1.3 (2017-12-14)<a class="headerlink" href="#v0-1-3-2017-12-14" title="Permalink to this headline">¶</a></h2>
 <div class="section" id="added">
-<h2>Added<a class="headerlink" href="#added" title="Permalink to this headline">¶</a></h2>
+<h3>Added<a class="headerlink" href="#added" title="Permalink to this headline">¶</a></h3>
 <ul class="simple">
 <li>Goodbooks dataset.</li>
 <li>Mixture-of-tastes representations.</li>
 </ul>
 </div>
 <div class="section" id="changed">
-<h2>Changed<a class="headerlink" href="#changed" title="Permalink to this headline">¶</a></h2>
+<h3>Changed<a class="headerlink" href="#changed" title="Permalink to this headline">¶</a></h3>
 <ul class="simple">
 <li>Raise ValueError if loss becomes NaN or 0.</li>
 <li>Updated to work with PyTorch 0.3.0.</li>
 </ul>
+</div>
+</div>
 <div class="section" id="v0-1-2-2017-09-10">
-<h3>v0.1.2 (2017-09-10)<a class="headerlink" href="#v0-1-2-2017-09-10" title="Permalink to this headline">¶</a></h3>
-</div>
-</div>
+<h2>v0.1.2 (2017-09-10)<a class="headerlink" href="#v0-1-2-2017-09-10" title="Permalink to this headline">¶</a></h2>
 <div class="section" id="id1">
-<h2>Added<a class="headerlink" href="#id1" title="Permalink to this headline">¶</a></h2>
+<h3>Added<a class="headerlink" href="#id1" title="Permalink to this headline">¶</a></h3>
 <ul class="simple">
 <li><a class="reference internal" href="layers.html#spotlight.layers.BloomEmbedding" title="spotlight.layers.BloomEmbedding"><code class="xref py py-class docutils literal"><span class="pre">spotlight.layers.BloomEmbedding</span></code></a>: bloom embedding layers that reduce the number of
 parameters required by hashing embedding indices into some fixed smaller dimensionality,
@@ -249,7 +253,7 @@ embeddings for sparse binary input/output networks.”</li>
 </ul>
 </div>
 <div class="section" id="id2">
-<h2>Changed<a class="headerlink" href="#id2" title="Permalink to this headline">¶</a></h2>
+<h3>Changed<a class="headerlink" href="#id2" title="Permalink to this headline">¶</a></h3>
 <ul class="simple">
 <li><code class="docutils literal"><span class="pre">optimizer</span></code> arguments is now <code class="docutils literal"><span class="pre">optimizer_func</span></code>. It accepts a function that takes a single argument (list of model parameters) and return a PyTorch optimizer (thanks to Ethan Rosenthal).</li>
 <li><code class="docutils literal"><span class="pre">fit</span></code> calls will resume from previous model state when called repeatedly (Ethan Rosenthal).</li>
@@ -257,10 +261,11 @@ embeddings for sparse binary input/output networks.”</li>
 </ul>
 </div>
 <div class="section" id="id3">
-<h2>Fixed<a class="headerlink" href="#id3" title="Permalink to this headline">¶</a></h2>
+<h3>Fixed<a class="headerlink" href="#id3" title="Permalink to this headline">¶</a></h3>
 <ul class="simple">
 <li>Factorization predict APIs now work as advertised in the documentation.</li>
 </ul>
+</div>
 </div>
 </div>
 
@@ -306,7 +311,7 @@ embeddings for sparse binary input/output networks.”</li>
     <script type="text/javascript">
         var DOCUMENTATION_OPTIONS = {
             URL_ROOT:'./',
-            VERSION:'v0.1.3',
+            VERSION:'v0.1.4',
             COLLAPSE_INDEX:false,
             FILE_SUFFIX:'.html',
             HAS_SOURCE:  true,
