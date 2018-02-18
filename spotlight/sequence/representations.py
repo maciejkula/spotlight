@@ -24,14 +24,6 @@ def _to_iterable(val, num):
         return (val,) * num
 
 
-def _softmax(x, dim):
-
-    numerator = torch.exp(x)
-    denominator = numerator.sum(dim, keepdim=True).expand_as(numerator)
-
-    return numerator / denominator
-
-
 class PoolNet(nn.Module):
     """
     Module representing users through averaging the representations of items
@@ -592,7 +584,7 @@ class MixtureLSTMNet(nn.Module):
         mixture_weights = (mixture_vectors * target_embedding
                            .unsqueeze(1)
                            .expand_as(user_components))
-        mixture_weights = (_softmax(mixture_weights.sum(2), 1)
+        mixture_weights = (F.softmax(mixture_weights.sum(2), 1)
                            .unsqueeze(2)
                            .expand_as(user_components))
         weighted_user_representations = (mixture_weights * user_components).sum(1)
