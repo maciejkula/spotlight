@@ -657,6 +657,149 @@
                <span class="o">.</span><span class="n">squeeze</span><span class="p">())</span>
 
         <span class="k">return</span> <span class="n">target_bias</span> <span class="o">+</span> <span class="n">dot</span></div></div>
+
+
+<div class="viewcode-block" id="MixtureLSTMNet"><a class="viewcode-back" href="../../../sequence/representations.html#spotlight.sequence.representations.MixtureLSTMNet">[docs]</a><span class="k">class</span> <span class="nc">MixtureLSTMNet</span><span class="p">(</span><span class="n">nn</span><span class="o">.</span><span class="n">Module</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    A representation that models users as mixtures-of-tastes.</span>
+
+<span class="sd">    This is accomplished via an LSTM with a layer on top that</span>
+<span class="sd">    projects the last hidden state taste vectors and</span>
+<span class="sd">    taste attention vectors that match items with the taste</span>
+<span class="sd">    vectors that are best for evaluating them.</span>
+
+<span class="sd">    For a full description of the model, see [5]_.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+
+<span class="sd">    num_items: int</span>
+<span class="sd">        Number of items to be represented.</span>
+<span class="sd">    embedding_dim: int, optional</span>
+<span class="sd">        Embedding dimension of the embedding layer, and the number of hidden</span>
+<span class="sd">        units in the LSTM layer.</span>
+<span class="sd">    num_mixtures: int, optional</span>
+<span class="sd">        Number of mixture components (distinct user tastes) that</span>
+<span class="sd">        the network should model.</span>
+<span class="sd">    item_embedding_layer: an embedding layer, optional</span>
+<span class="sd">        If supplied, will be used as the item embedding layer</span>
+<span class="sd">        of the network.</span>
+
+<span class="sd">    References</span>
+<span class="sd">    ----------</span>
+
+<span class="sd">    .. [5] Kula, Maciej. &quot;Mixture-of-tastes Models for Representing</span>
+<span class="sd">       Users with Diverse Interests&quot; https://github.com/maciejkula/mixture (2017)</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">num_items</span><span class="p">,</span>
+                 <span class="n">embedding_dim</span><span class="o">=</span><span class="mi">32</span><span class="p">,</span>
+                 <span class="n">num_mixtures</span><span class="o">=</span><span class="mi">4</span><span class="p">,</span>
+                 <span class="n">item_embedding_layer</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                 <span class="n">sparse</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+
+        <span class="nb">super</span><span class="p">(</span><span class="n">MixtureLSTMNet</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">embedding_dim</span> <span class="o">=</span> <span class="n">embedding_dim</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">num_mixtures</span> <span class="o">=</span> <span class="n">num_mixtures</span>
+
+        <span class="k">if</span> <span class="n">item_embedding_layer</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">item_embeddings</span> <span class="o">=</span> <span class="n">item_embedding_layer</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">item_embeddings</span> <span class="o">=</span> <span class="n">ScaledEmbedding</span><span class="p">(</span><span class="n">num_items</span><span class="p">,</span> <span class="n">embedding_dim</span><span class="p">,</span>
+                                                   <span class="n">padding_idx</span><span class="o">=</span><span class="n">PADDING_IDX</span><span class="p">,</span>
+                                                   <span class="n">sparse</span><span class="o">=</span><span class="n">sparse</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">item_biases</span> <span class="o">=</span> <span class="n">ZeroEmbedding</span><span class="p">(</span><span class="n">num_items</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="n">sparse</span><span class="o">=</span><span class="n">sparse</span><span class="p">,</span>
+                                         <span class="n">padding_idx</span><span class="o">=</span><span class="n">PADDING_IDX</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">lstm</span> <span class="o">=</span> <span class="n">nn</span><span class="o">.</span><span class="n">LSTM</span><span class="p">(</span><span class="n">batch_first</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+                            <span class="n">input_size</span><span class="o">=</span><span class="n">embedding_dim</span><span class="p">,</span>
+                            <span class="n">hidden_size</span><span class="o">=</span><span class="n">embedding_dim</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">projection</span> <span class="o">=</span> <span class="n">nn</span><span class="o">.</span><span class="n">Conv1d</span><span class="p">(</span><span class="n">embedding_dim</span><span class="p">,</span>
+                                    <span class="n">embedding_dim</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">num_mixtures</span> <span class="o">*</span> <span class="mi">2</span><span class="p">,</span>
+                                    <span class="n">kernel_size</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+
+<div class="viewcode-block" id="MixtureLSTMNet.user_representation"><a class="viewcode-back" href="../../../sequence/representations.html#spotlight.sequence.representations.MixtureLSTMNet.user_representation">[docs]</a>    <span class="k">def</span> <span class="nf">user_representation</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">item_sequences</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Compute user representation from a given sequence.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+
+<span class="sd">        tuple (all_representations, final_representation)</span>
+<span class="sd">            The first element contains all representations from step</span>
+<span class="sd">            -1 (no items seen) to t - 1 (all but the last items seen).</span>
+<span class="sd">            The second element contains the final representation</span>
+<span class="sd">            at step t (all items seen). This final state can be used</span>
+<span class="sd">            for prediction or evaluation.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="n">batch_size</span><span class="p">,</span> <span class="n">sequence_length</span> <span class="o">=</span> <span class="n">item_sequences</span><span class="o">.</span><span class="n">size</span><span class="p">()</span>
+
+        <span class="c1"># Make the embedding dimension the channel dimension</span>
+        <span class="n">sequence_embeddings</span> <span class="o">=</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">item_embeddings</span><span class="p">(</span><span class="n">item_sequences</span><span class="p">)</span>
+                               <span class="o">.</span><span class="n">permute</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">1</span><span class="p">))</span>
+        <span class="c1"># Add a trailing dimension of 1</span>
+        <span class="n">sequence_embeddings</span> <span class="o">=</span> <span class="p">(</span><span class="n">sequence_embeddings</span>
+                               <span class="o">.</span><span class="n">unsqueeze</span><span class="p">(</span><span class="mi">3</span><span class="p">))</span>
+        <span class="c1"># Pad it with zeros from left</span>
+        <span class="n">sequence_embeddings</span> <span class="o">=</span> <span class="p">(</span><span class="n">F</span><span class="o">.</span><span class="n">pad</span><span class="p">(</span><span class="n">sequence_embeddings</span><span class="p">,</span>
+                                     <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">))</span>
+                               <span class="o">.</span><span class="n">squeeze</span><span class="p">(</span><span class="mi">3</span><span class="p">))</span>
+        <span class="n">sequence_embeddings</span> <span class="o">=</span> <span class="n">sequence_embeddings</span>
+        <span class="n">sequence_embeddings</span> <span class="o">=</span> <span class="n">sequence_embeddings</span><span class="o">.</span><span class="n">permute</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+
+        <span class="n">user_representations</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">lstm</span><span class="p">(</span><span class="n">sequence_embeddings</span><span class="p">)</span>
+        <span class="n">user_representations</span> <span class="o">=</span> <span class="n">user_representations</span><span class="o">.</span><span class="n">permute</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+        <span class="n">user_representations</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">projection</span><span class="p">(</span><span class="n">user_representations</span><span class="p">)</span>
+        <span class="n">user_representations</span> <span class="o">=</span> <span class="n">user_representations</span><span class="o">.</span><span class="n">resize</span><span class="p">(</span><span class="n">batch_size</span><span class="p">,</span>
+                                                           <span class="bp">self</span><span class="o">.</span><span class="n">num_mixtures</span> <span class="o">*</span> <span class="mi">2</span><span class="p">,</span>
+                                                           <span class="bp">self</span><span class="o">.</span><span class="n">embedding_dim</span><span class="p">,</span>
+                                                           <span class="n">sequence_length</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">user_representations</span><span class="p">[:,</span> <span class="p">:,</span> <span class="p">:,</span> <span class="p">:</span><span class="o">-</span><span class="mi">1</span><span class="p">],</span> <span class="n">user_representations</span><span class="p">[:,</span> <span class="p">:,</span> <span class="p">:,</span> <span class="o">-</span><span class="mi">1</span><span class="p">:]</span></div>
+
+<div class="viewcode-block" id="MixtureLSTMNet.forward"><a class="viewcode-back" href="../../../sequence/representations.html#spotlight.sequence.representations.MixtureLSTMNet.forward">[docs]</a>    <span class="k">def</span> <span class="nf">forward</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">user_representations</span><span class="p">,</span> <span class="n">targets</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Compute predictions for target items given user representations.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+
+<span class="sd">        user_representations: tensor</span>
+<span class="sd">            Result of the user_representation_method.</span>
+<span class="sd">        targets: tensor</span>
+<span class="sd">            A minibatch of item sequences of shape</span>
+<span class="sd">            (minibatch_size, sequence_length).</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+
+<span class="sd">        predictions: tensor</span>
+<span class="sd">            of shape (minibatch_size, sequence_length)</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="n">user_components</span> <span class="o">=</span> <span class="n">user_representations</span><span class="p">[:,</span> <span class="p">:</span><span class="bp">self</span><span class="o">.</span><span class="n">num_mixtures</span><span class="p">,</span> <span class="p">:,</span> <span class="p">:]</span>
+        <span class="n">mixture_vectors</span> <span class="o">=</span> <span class="n">user_representations</span><span class="p">[:,</span> <span class="bp">self</span><span class="o">.</span><span class="n">num_mixtures</span><span class="p">:,</span> <span class="p">:,</span> <span class="p">:]</span>
+
+        <span class="n">target_embedding</span> <span class="o">=</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">item_embeddings</span><span class="p">(</span><span class="n">targets</span><span class="p">)</span>
+                            <span class="o">.</span><span class="n">permute</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">1</span><span class="p">))</span>
+        <span class="n">target_bias</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">item_biases</span><span class="p">(</span><span class="n">targets</span><span class="p">)</span><span class="o">.</span><span class="n">squeeze</span><span class="p">()</span>
+
+        <span class="n">mixture_weights</span> <span class="o">=</span> <span class="p">(</span><span class="n">mixture_vectors</span> <span class="o">*</span> <span class="n">target_embedding</span>
+                           <span class="o">.</span><span class="n">unsqueeze</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+                           <span class="o">.</span><span class="n">expand_as</span><span class="p">(</span><span class="n">user_components</span><span class="p">))</span>
+        <span class="n">mixture_weights</span> <span class="o">=</span> <span class="p">(</span><span class="n">F</span><span class="o">.</span><span class="n">softmax</span><span class="p">(</span><span class="n">mixture_weights</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="mi">2</span><span class="p">),</span> <span class="mi">1</span><span class="p">)</span>
+                           <span class="o">.</span><span class="n">unsqueeze</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span>
+                           <span class="o">.</span><span class="n">expand_as</span><span class="p">(</span><span class="n">user_components</span><span class="p">))</span>
+        <span class="n">weighted_user_representations</span> <span class="o">=</span> <span class="p">(</span><span class="n">mixture_weights</span> <span class="o">*</span> <span class="n">user_components</span><span class="p">)</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+
+        <span class="n">dot</span> <span class="o">=</span> <span class="p">((</span><span class="n">weighted_user_representations</span> <span class="o">*</span> <span class="n">target_embedding</span><span class="p">)</span>
+               <span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+               <span class="o">.</span><span class="n">squeeze</span><span class="p">())</span>
+
+        <span class="k">return</span> <span class="n">target_bias</span> <span class="o">+</span> <span class="n">dot</span></div></div>
 </pre></div>
 
            </div>

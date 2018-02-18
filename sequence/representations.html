@@ -398,10 +398,91 @@ for prediction or evaluation.</td>
 </dd></dl>
 
 <dl class="class">
+<dt id="spotlight.sequence.representations.MixtureLSTMNet">
+<em class="property">class </em><code class="descclassname">spotlight.sequence.representations.</code><code class="descname">MixtureLSTMNet</code><span class="sig-paren">(</span><em>num_items</em>, <em>embedding_dim=32</em>, <em>num_mixtures=4</em>, <em>item_embedding_layer=None</em>, <em>sparse=False</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/spotlight/sequence/representations.html#MixtureLSTMNet"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#spotlight.sequence.representations.MixtureLSTMNet" title="Permalink to this definition">¶</a></dt>
+<dd><p>A representation that models users as mixtures-of-tastes.</p>
+<p>This is accomplished via an LSTM with a layer on top that
+projects the last hidden state taste vectors and
+taste attention vectors that match items with the taste
+vectors that are best for evaluating them.</p>
+<p>For a full description of the model, see <a class="footnote-reference" href="#id8" id="id7">[5]</a>.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>num_items</strong> (<em>int</em>) – Number of items to be represented.</li>
+<li><strong>embedding_dim</strong> (<em>int</em><em>, </em><em>optional</em>) – Embedding dimension of the embedding layer, and the number of hidden
+units in the LSTM layer.</li>
+<li><strong>num_mixtures</strong> (<em>int</em><em>, </em><em>optional</em>) – Number of mixture components (distinct user tastes) that
+the network should model.</li>
+<li><strong>item_embedding_layer</strong> (<em>an embedding layer</em><em>, </em><em>optional</em>) – If supplied, will be used as the item embedding layer
+of the network.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+<p class="rubric">References</p>
+<table class="docutils footnote" frame="void" id="id8" rules="none">
+<colgroup><col class="label" /><col /></colgroup>
+<tbody valign="top">
+<tr><td class="label"><a class="fn-backref" href="#id7">[5]</a></td><td>Kula, Maciej. “Mixture-of-tastes Models for Representing
+Users with Diverse Interests” <a class="reference external" href="https://github.com/maciejkula/mixture">https://github.com/maciejkula/mixture</a> (2017)</td></tr>
+</tbody>
+</table>
+<dl class="method">
+<dt id="spotlight.sequence.representations.MixtureLSTMNet.forward">
+<code class="descname">forward</code><span class="sig-paren">(</span><em>user_representations</em>, <em>targets</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/spotlight/sequence/representations.html#MixtureLSTMNet.forward"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#spotlight.sequence.representations.MixtureLSTMNet.forward" title="Permalink to this definition">¶</a></dt>
+<dd><p>Compute predictions for target items given user representations.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>user_representations</strong> (<em>tensor</em>) – Result of the user_representation_method.</li>
+<li><strong>targets</strong> (<em>tensor</em>) – A minibatch of item sequences of shape
+(minibatch_size, sequence_length).</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><strong>predictions</strong> – of shape (minibatch_size, sequence_length)</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">tensor</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="spotlight.sequence.representations.MixtureLSTMNet.user_representation">
+<code class="descname">user_representation</code><span class="sig-paren">(</span><em>item_sequences</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/spotlight/sequence/representations.html#MixtureLSTMNet.user_representation"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#spotlight.sequence.representations.MixtureLSTMNet.user_representation" title="Permalink to this definition">¶</a></dt>
+<dd><p>Compute user representation from a given sequence.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">The first element contains all representations from step
+-1 (no items seen) to t - 1 (all but the last items seen).
+The second element contains the final representation
+at step t (all items seen). This final state can be used
+for prediction or evaluation.</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body">tuple (all_representations, final_representation)</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
 <dt id="spotlight.sequence.representations.PoolNet">
 <em class="property">class </em><code class="descclassname">spotlight.sequence.representations.</code><code class="descname">PoolNet</code><span class="sig-paren">(</span><em>num_items</em>, <em>embedding_dim=32</em>, <em>item_embedding_layer=None</em>, <em>sparse=False</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/spotlight/sequence/representations.html#PoolNet"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#spotlight.sequence.representations.PoolNet" title="Permalink to this definition">¶</a></dt>
 <dd><p>Module representing users through averaging the representations of items
-they have interacted with, a’la <a class="footnote-reference" href="#id8" id="id7">[1]</a>.</p>
+they have interacted with, a’la <a class="footnote-reference" href="#id10" id="id9">[1]</a>.</p>
 <p>To represent a sequence, it simply averages the representations of all
 the items that occur in the sequence up to that point.</p>
 <p>During training, representations for all timesteps of the sequence are
@@ -422,10 +503,10 @@ of the network.</li>
 </tbody>
 </table>
 <p class="rubric">References</p>
-<table class="docutils footnote" frame="void" id="id8" rules="none">
+<table class="docutils footnote" frame="void" id="id10" rules="none">
 <colgroup><col class="label" /><col /></colgroup>
 <tbody valign="top">
-<tr><td class="label"><a class="fn-backref" href="#id7">[1]</a></td><td>Covington, Paul, Jay Adams, and Emre Sargin. “Deep neural networks for
+<tr><td class="label"><a class="fn-backref" href="#id9">[1]</a></td><td>Covington, Paul, Jay Adams, and Emre Sargin. “Deep neural networks for
 youtube recommendations.” Proceedings of the 10th ACM Conference
 on Recommender Systems. ACM, 2016.</td></tr>
 </tbody>

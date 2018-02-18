@@ -222,7 +222,10 @@
                               <span class="n">bpr_loss</span><span class="p">,</span>
                               <span class="n">hinge_loss</span><span class="p">,</span>
                               <span class="n">pointwise_loss</span><span class="p">)</span>
-<span class="kn">from</span> <span class="nn">spotlight.sequence.representations</span> <span class="k">import</span> <span class="n">PADDING_IDX</span><span class="p">,</span> <span class="n">CNNNet</span><span class="p">,</span> <span class="n">LSTMNet</span><span class="p">,</span> <span class="n">PoolNet</span>
+<span class="kn">from</span> <span class="nn">spotlight.sequence.representations</span> <span class="k">import</span> <span class="p">(</span><span class="n">PADDING_IDX</span><span class="p">,</span> <span class="n">CNNNet</span><span class="p">,</span>
+                                                <span class="n">LSTMNet</span><span class="p">,</span>
+                                                <span class="n">MixtureLSTMNet</span><span class="p">,</span>
+                                                <span class="n">PoolNet</span><span class="p">)</span>
 <span class="kn">from</span> <span class="nn">spotlight.sampling</span> <span class="k">import</span> <span class="n">sample_items</span>
 <span class="kn">from</span> <span class="nn">spotlight.torch_utils</span> <span class="k">import</span> <span class="n">cpu</span><span class="p">,</span> <span class="n">gpu</span><span class="p">,</span> <span class="n">minibatch</span><span class="p">,</span> <span class="n">set_seed</span><span class="p">,</span> <span class="n">shuffle</span>
 
@@ -240,7 +243,7 @@
 <span class="sd">        to losses from :class:`spotlight.losses`.</span>
 <span class="sd">    representation: string or instance of :class:`spotlight.sequence.representations`, optional</span>
 <span class="sd">        Sequence representation to use. If string, it must be one</span>
-<span class="sd">        of &#39;pooling&#39;, &#39;cnn&#39;, &#39;lstm&#39;; otherwise must be one of the</span>
+<span class="sd">        of &#39;pooling&#39;, &#39;cnn&#39;, &#39;lstm&#39;, &#39;mixture&#39;; otherwise must be one of the</span>
 <span class="sd">        representations from :class:`spotlight.sequence.representations`</span>
 <span class="sd">    embedding_dim: int, optional</span>
 <span class="sd">        Number of embedding dimensions to use for representing items.</span>
@@ -309,7 +312,8 @@
         <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">representation</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
             <span class="k">assert</span> <span class="n">representation</span> <span class="ow">in</span> <span class="p">(</span><span class="s1">&#39;pooling&#39;</span><span class="p">,</span>
                                       <span class="s1">&#39;cnn&#39;</span><span class="p">,</span>
-                                      <span class="s1">&#39;lstm&#39;</span><span class="p">)</span>
+                                      <span class="s1">&#39;lstm&#39;</span><span class="p">,</span>
+                                      <span class="s1">&#39;mixture&#39;</span><span class="p">)</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">_loss</span> <span class="o">=</span> <span class="n">loss</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_representation</span> <span class="o">=</span> <span class="n">representation</span>
@@ -356,6 +360,10 @@
             <span class="bp">self</span><span class="o">.</span><span class="n">_net</span> <span class="o">=</span> <span class="n">LSTMNet</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_num_items</span><span class="p">,</span>
                                 <span class="bp">self</span><span class="o">.</span><span class="n">_embedding_dim</span><span class="p">,</span>
                                 <span class="n">sparse</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_sparse</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">_representation</span> <span class="o">==</span> <span class="s1">&#39;mixture&#39;</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_net</span> <span class="o">=</span> <span class="n">MixtureLSTMNet</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_num_items</span><span class="p">,</span>
+                                       <span class="bp">self</span><span class="o">.</span><span class="n">_embedding_dim</span><span class="p">,</span>
+                                       <span class="n">sparse</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_sparse</span><span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_net</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_representation</span>
 
