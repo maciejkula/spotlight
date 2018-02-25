@@ -2,7 +2,7 @@ build: false
 
 environment:
   global:
-      REQUIREMENTS: "numpy scipy requests h5py scikit-learn pytest flake8 pytorch=0.3.0"
+      REQUIREMENTS: "numpy scipy requests h5py scikit-learn pytest flake8 pytorch-cpu=0.3.1"
 
   matrix:
     - PYTHON_VERSION: 3.6
