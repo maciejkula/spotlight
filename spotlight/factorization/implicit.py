@@ -4,6 +4,8 @@ Factorization models for implicit feedback problems.
 
 import numpy as np
 
+from sklearn.utils import check_random_state
+
 import torch
 
 import torch.optim as optim
@@ -104,7 +106,7 @@ class ImplicitFactorizationModel(object):
         self._representation = representation
         self._sparse = sparse
         self._optimizer_func = optimizer_func
-        self._random_state = random_state or np.random.RandomState()
+        self._random_state = check_random_state(random_state)
         self._num_negative_samples = num_negative_samples
 
         self._num_users = None

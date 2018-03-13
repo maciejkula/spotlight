@@ -1,5 +1,7 @@
 import numpy as np
 
+from sklearn.utils import check_random_state, gen_batches
+
 import torch
 
 
@@ -20,16 +22,15 @@ def cpu(tensor):
 
 
 def minibatch(*tensors, **kwargs):
-
     batch_size = kwargs.get('batch_size', 128)
 
     if len(tensors) == 1:
         tensor = tensors[0]
-        for i in range(0, len(tensor), batch_size):
-            yield tensor[i:i + batch_size]
+        for minibatch_indices in gen_batches(len(tensor), batch_size):
+            yield tensor[minibatch_indices]
     else:
-        for i in range(0, len(tensors[0]), batch_size):
-            yield tuple(x[i:i + batch_size] for x in tensors)
+        for minibatch_indices in gen_batches(len(tensors[0]), batch_size):
+            yield tuple(x[minibatch_indices] for x in tensors)
 
 
 def shuffle(*arrays, **kwargs):
@@ -40,8 +41,7 @@ def shuffle(*arrays, **kwargs):
         raise ValueError('All inputs to shuffle must have '
                          'the same length.')
 
-    if random_state is None:
-        random_state = np.random.RandomState()
+    random_state = check_random_state(random_state)
 
     shuffle_indices = np.arange(len(arrays[0]))
     random_state.shuffle(shuffle_indices)

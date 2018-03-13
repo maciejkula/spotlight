@@ -6,6 +6,8 @@ experimentation.
 
 import numpy as np
 
+from sklearn.utils import check_random_state
+
 from spotlight.interactions import Interactions
 
 
@@ -108,8 +110,7 @@ def generate_sequential(num_users=100,
         instance of the interactions class
     """
 
-    if random_state is None:
-        random_state = np.random.RandomState()
+    random_state = check_random_state(random_state)
 
     transition_matrix = _build_transition_matrix(
         num_items - 1,
