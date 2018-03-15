@@ -1,6 +1,9 @@
 #!/bin/bash
 set -e
 
+export PATH="$HOME/miniconda/bin:$PATH"
+source activate conda_env
+
 SOURCE_BRANCH="master"
 TARGET_BRANCH="gh-pages"
 
