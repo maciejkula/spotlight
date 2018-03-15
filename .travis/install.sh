@@ -15,7 +15,8 @@ rm ~/miniconda.sh
 
 # Set up the right Python version
 echo "Installing Python $PYTHON_VERSION"
-conda install -y -q python=$PYTHON_VERSION
+conda create -y -n conda_env python=$PYTHON_VERSION
+source activate conda_env
 
 # Install dependencies
 echo "Installing dependencies."
