@@ -269,7 +269,7 @@ into a (zero-padded from the left) matrix with dimensions
 example, if a user interacted with items [1, 2, 3, 4, 5], the
 returned interactions matrix at sequence length 5 and step size
 1 will be be given by:</p>
-<div class="highlight-python"><div class="highlight"><pre><span></span><span class="p">[[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">4</span><span class="p">,</span> <span class="mi">5</span><span class="p">],</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="p">[[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">4</span><span class="p">,</span> <span class="mi">5</span><span class="p">],</span>
  <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">4</span><span class="p">],</span>
  <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">],</span>
  <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">],</span>
@@ -277,7 +277,7 @@ returned interactions matrix at sequence length 5 and step size
 </pre></div>
 </div>
 <p>At step size 2:</p>
-<div class="highlight-python"><div class="highlight"><pre><span></span><span class="p">[[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">4</span><span class="p">,</span> <span class="mi">5</span><span class="p">],</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="p">[[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">4</span><span class="p">,</span> <span class="mi">5</span><span class="p">],</span>
  <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">],</span>
  <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">]]</span>
 </pre></div>
@@ -301,7 +301,7 @@ result in fewer subsequences being returned.</li>
 <tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><strong>sequence interactions</strong> – The resulting sequence interactions.</p>
 </td>
 </tr>
-<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last"><a class="reference internal" href="#spotlight.interactions.SequenceInteractions" title="spotlight.interactions.SequenceInteractions"><code class="xref py py-class docutils literal"><span class="pre">SequenceInteractions</span></code></a></p>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last"><a class="reference internal" href="#spotlight.interactions.SequenceInteractions" title="spotlight.interactions.SequenceInteractions"><code class="xref py py-class docutils literal notranslate"><span class="pre">SequenceInteractions</span></code></a></p>
 </td>
 </tr>
 </tbody>
@@ -332,13 +332,13 @@ result in fewer subsequences being returned.</li>
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
 <li><strong>sequences</strong> (<em>array of np.int32 of shape</em><em> (</em><em>num_sequences x max_sequence_length</em><em>)</em>) – The interactions sequence matrix, as produced by
-<a class="reference internal" href="#spotlight.interactions.Interactions.to_sequence" title="spotlight.interactions.Interactions.to_sequence"><code class="xref py py-func docutils literal"><span class="pre">to_sequence()</span></code></a></li>
+<a class="reference internal" href="#spotlight.interactions.Interactions.to_sequence" title="spotlight.interactions.Interactions.to_sequence"><code class="xref py py-func docutils literal notranslate"><span class="pre">to_sequence()</span></code></a></li>
 <li><strong>num_items</strong> (<em>int</em><em>, </em><em>optional</em>) – The number of distinct items in the data</li>
 </ul>
 </td>
 </tr>
 <tr class="field-even field"><th class="field-name">Variables:</th><td class="field-body"><p class="first last"><strong>sequences</strong> (<em>array of np.int32 of shape</em><em> (</em><em>num_sequences x max_sequence_length</em><em>)</em>) – The interactions sequence matrix, as produced by
-<a class="reference internal" href="#spotlight.interactions.Interactions.to_sequence" title="spotlight.interactions.Interactions.to_sequence"><code class="xref py py-func docutils literal"><span class="pre">to_sequence()</span></code></a></p>
+<a class="reference internal" href="#spotlight.interactions.Interactions.to_sequence" title="spotlight.interactions.Interactions.to_sequence"><code class="xref py py-func docutils literal notranslate"><span class="pre">to_sequence()</span></code></a></p>
 </td>
 </tr>
 </tbody>

@@ -226,7 +226,7 @@ and prototyping of new recommender models.</p>
 <p>See the full <a class="reference external" href="https://maciejkula.github.io/spotlight/">documentation</a> for details.</p>
 <div class="section" id="installation">
 <h1>Installation<a class="headerlink" href="#installation" title="Permalink to this headline">¶</a></h1>
-<div class="highlight-python"><div class="highlight"><pre><span></span><span class="n">conda</span> <span class="n">install</span> <span class="o">-</span><span class="n">c</span> <span class="n">maciejkula</span> <span class="o">-</span><span class="n">c</span> <span class="n">pytorch</span> <span class="n">spotlight</span><span class="o">=</span><span class="mf">0.1</span><span class="o">.</span><span class="mi">4</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">conda</span> <span class="n">install</span> <span class="o">-</span><span class="n">c</span> <span class="n">maciejkula</span> <span class="o">-</span><span class="n">c</span> <span class="n">pytorch</span> <span class="n">spotlight</span><span class="o">=</span><span class="mf">0.1</span><span class="o">.</span><span class="mi">4</span>
 </pre></div>
 </div>
 </div>
@@ -235,10 +235,10 @@ and prototyping of new recommender models.</p>
 <div class="section" id="factorization-models">
 <h2>Factorization models<a class="headerlink" href="#factorization-models" title="Permalink to this headline">¶</a></h2>
 <p>To fit an explicit feedback model on the MovieLens dataset:</p>
-<div class="highlight-default"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">spotlight.cross_validation</span> <span class="k">import</span> <span class="n">random_train_test_split</span>
-<span class="kn">from</span> <span class="nn">spotlight.datasets.movielens</span> <span class="k">import</span> <span class="n">get_movielens_dataset</span>
-<span class="kn">from</span> <span class="nn">spotlight.evaluation</span> <span class="k">import</span> <span class="n">rmse_score</span>
-<span class="kn">from</span> <span class="nn">spotlight.factorization.explicit</span> <span class="k">import</span> <span class="n">ExplicitFactorizationModel</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">spotlight.cross_validation</span> <span class="kn">import</span> <span class="n">random_train_test_split</span>
+<span class="kn">from</span> <span class="nn">spotlight.datasets.movielens</span> <span class="kn">import</span> <span class="n">get_movielens_dataset</span>
+<span class="kn">from</span> <span class="nn">spotlight.evaluation</span> <span class="kn">import</span> <span class="n">rmse_score</span>
+<span class="kn">from</span> <span class="nn">spotlight.factorization.explicit</span> <span class="kn">import</span> <span class="n">ExplicitFactorizationModel</span>
 
 <span class="n">dataset</span> <span class="o">=</span> <span class="n">get_movielens_dataset</span><span class="p">(</span><span class="n">variant</span><span class="o">=</span><span class="s1">&#39;100K&#39;</span><span class="p">)</span>
 
@@ -251,10 +251,10 @@ and prototyping of new recommender models.</p>
 </pre></div>
 </div>
 <p>To fit an implicit ranking model with a BPR pairwise loss on the MovieLens dataset:</p>
-<div class="highlight-default"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">spotlight.cross_validation</span> <span class="k">import</span> <span class="n">random_train_test_split</span>
-<span class="kn">from</span> <span class="nn">spotlight.datasets.movielens</span> <span class="k">import</span> <span class="n">get_movielens_dataset</span>
-<span class="kn">from</span> <span class="nn">spotlight.evaluation</span> <span class="k">import</span> <span class="n">mrr_score</span>
-<span class="kn">from</span> <span class="nn">spotlight.factorization.implicit</span> <span class="k">import</span> <span class="n">ImplicitFactorizationModel</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">spotlight.cross_validation</span> <span class="kn">import</span> <span class="n">random_train_test_split</span>
+<span class="kn">from</span> <span class="nn">spotlight.datasets.movielens</span> <span class="kn">import</span> <span class="n">get_movielens_dataset</span>
+<span class="kn">from</span> <span class="nn">spotlight.evaluation</span> <span class="kn">import</span> <span class="n">mrr_score</span>
+<span class="kn">from</span> <span class="nn">spotlight.factorization.implicit</span> <span class="kn">import</span> <span class="n">ImplicitFactorizationModel</span>
 
 <span class="n">dataset</span> <span class="o">=</span> <span class="n">get_movielens_dataset</span><span class="p">(</span><span class="n">variant</span><span class="o">=</span><span class="s1">&#39;100K&#39;</span><span class="p">)</span>
 
@@ -279,10 +279,10 @@ recommendation models, including</p>
 <li>LSTM models, as in <a class="reference external" href="https://arxiv.org/pdf/1511.06939">Session-based recommendations…</a>, and</li>
 <li>causal convolution models, as in <a class="reference external" href="https://arxiv.org/pdf/1609.03499">WaveNet</a>.</li>
 </ul>
-<div class="highlight-default"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">spotlight.cross_validation</span> <span class="k">import</span> <span class="n">user_based_train_test_split</span>
-<span class="kn">from</span> <span class="nn">spotlight.datasets.synthetic</span> <span class="k">import</span> <span class="n">generate_sequential</span>
-<span class="kn">from</span> <span class="nn">spotlight.evaluation</span> <span class="k">import</span> <span class="n">sequence_mrr_score</span>
-<span class="kn">from</span> <span class="nn">spotlight.sequence.implicit</span> <span class="k">import</span> <span class="n">ImplicitSequenceModel</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">spotlight.cross_validation</span> <span class="kn">import</span> <span class="n">user_based_train_test_split</span>
+<span class="kn">from</span> <span class="nn">spotlight.datasets.synthetic</span> <span class="kn">import</span> <span class="n">generate_sequential</span>
+<span class="kn">from</span> <span class="nn">spotlight.evaluation</span> <span class="kn">import</span> <span class="n">sequence_mrr_score</span>
+<span class="kn">from</span> <span class="nn">spotlight.sequence.implicit</span> <span class="kn">import</span> <span class="n">ImplicitSequenceModel</span>
 
 <span class="n">dataset</span> <span class="o">=</span> <span class="n">generate_sequential</span><span class="p">(</span><span class="n">num_users</span><span class="o">=</span><span class="mi">100</span><span class="p">,</span>
                               <span class="n">num_items</span><span class="o">=</span><span class="mi">1000</span><span class="p">,</span>
@@ -310,7 +310,7 @@ recommendation models, including</p>
 It also incorporates utilities for creating synthetic datasets. For example, <cite>generate_sequential</cite>
 generates a Markov-chain-derived interaction dataset, where the next item a user chooses is
 a function of their previous interactions:</p>
-<div class="highlight-default"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">spotlight.datasets.synthetic</span> <span class="k">import</span> <span class="n">generate_sequential</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">spotlight.datasets.synthetic</span> <span class="kn">import</span> <span class="n">generate_sequential</span>
 
 <span class="c1"># Concentration parameter governs how predictable the chain is;</span>
 <span class="c1"># order determins the order of the Markov chain.</span>

@@ -261,8 +261,8 @@
         <span class="n">mrr</span> <span class="o">=</span> <span class="p">(</span><span class="mf">1.0</span> <span class="o">/</span> <span class="n">st</span><span class="o">.</span><span class="n">rankdata</span><span class="p">(</span><span class="n">predictions</span><span class="p">)[</span><span class="n">row</span><span class="o">.</span><span class="n">indices</span><span class="p">])</span><span class="o">.</span><span class="n">mean</span><span class="p">()</span>
 
         <span class="n">mrrs</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">mrr</span><span class="p">)</span>
-
-    <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">mrrs</span><span class="p">)</span></div>
+</div>
+    <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">mrrs</span><span class="p">)</span>
 
 
 <div class="viewcode-block" id="sequence_mrr_score"><a class="viewcode-back" href="../../evaluation.html#spotlight.evaluation.sequence_mrr_score">[docs]</a><span class="k">def</span> <span class="nf">sequence_mrr_score</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="n">test</span><span class="p">,</span> <span class="n">exclude_preceding</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
@@ -307,8 +307,8 @@
         <span class="n">mrr</span> <span class="o">=</span> <span class="p">(</span><span class="mf">1.0</span> <span class="o">/</span> <span class="n">st</span><span class="o">.</span><span class="n">rankdata</span><span class="p">(</span><span class="n">predictions</span><span class="p">)[</span><span class="n">targets</span><span class="p">[</span><span class="n">i</span><span class="p">]])</span><span class="o">.</span><span class="n">mean</span><span class="p">()</span>
 
         <span class="n">mrrs</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">mrr</span><span class="p">)</span>
-
-    <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">mrrs</span><span class="p">)</span></div>
+</div>
+    <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">mrrs</span><span class="p">)</span>
 
 
 <span class="k">def</span> <span class="nf">_get_precision_recall</span><span class="p">(</span><span class="n">predictions</span><span class="p">,</span> <span class="n">targets</span><span class="p">,</span> <span class="n">k</span><span class="p">):</span>
@@ -384,8 +384,8 @@
 
     <span class="n">precision</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">precision</span><span class="p">)</span><span class="o">.</span><span class="n">squeeze</span><span class="p">()</span>
     <span class="n">recall</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">recall</span><span class="p">)</span><span class="o">.</span><span class="n">squeeze</span><span class="p">()</span>
-
-    <span class="k">return</span> <span class="n">precision</span><span class="p">,</span> <span class="n">recall</span></div>
+</div>
+    <span class="k">return</span> <span class="n">precision</span><span class="p">,</span> <span class="n">recall</span>
 
 
 <div class="viewcode-block" id="rmse_score"><a class="viewcode-back" href="../../evaluation.html#spotlight.evaluation.rmse_score">[docs]</a><span class="k">def</span> <span class="nf">rmse_score</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="n">test</span><span class="p">):</span>
@@ -408,8 +408,8 @@
 <span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="n">predictions</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">predict</span><span class="p">(</span><span class="n">test</span><span class="o">.</span><span class="n">user_ids</span><span class="p">,</span> <span class="n">test</span><span class="o">.</span><span class="n">item_ids</span><span class="p">)</span>
-
-    <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(((</span><span class="n">test</span><span class="o">.</span><span class="n">ratings</span> <span class="o">-</span> <span class="n">predictions</span><span class="p">)</span> <span class="o">**</span> <span class="mi">2</span><span class="p">)</span><span class="o">.</span><span class="n">mean</span><span class="p">())</span></div>
+</div>
+    <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(((</span><span class="n">test</span><span class="o">.</span><span class="n">ratings</span> <span class="o">-</span> <span class="n">predictions</span><span class="p">)</span> <span class="o">**</span> <span class="mi">2</span><span class="p">)</span><span class="o">.</span><span class="n">mean</span><span class="p">())</span>
 </pre></div>
 
            </div>

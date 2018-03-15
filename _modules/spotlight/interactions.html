@@ -366,15 +366,15 @@
         <span class="n">col</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">item_ids</span>
         <span class="n">data</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">ratings</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">ratings</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">np</span><span class="o">.</span><span class="n">ones</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="p">))</span>
 
-        <span class="k">return</span> <span class="n">sp</span><span class="o">.</span><span class="n">coo_matrix</span><span class="p">((</span><span class="n">data</span><span class="p">,</span> <span class="p">(</span><span class="n">row</span><span class="p">,</span> <span class="n">col</span><span class="p">)),</span>
-                             <span class="n">shape</span><span class="o">=</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">num_users</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">num_items</span><span class="p">))</span></div>
+        <span class="k">return</span> <span class="n">sp</span><span class="o">.</span><span class="n">coo_matrix</span><span class="p">((</span><span class="n">data</span><span class="p">,</span> <span class="p">(</span><span class="n">row</span><span class="p">,</span> <span class="n">col</span><span class="p">)),</span></div>
+                             <span class="n">shape</span><span class="o">=</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">num_users</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">num_items</span><span class="p">))</span>
 
 <div class="viewcode-block" id="Interactions.tocsr"><a class="viewcode-back" href="../../interactions.html#spotlight.interactions.Interactions.tocsr">[docs]</a>    <span class="k">def</span> <span class="nf">tocsr</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Transform to a scipy.sparse CSR matrix.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">tocoo</span><span class="p">()</span><span class="o">.</span><span class="n">tocsr</span><span class="p">()</span></div>
+</div>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">tocoo</span><span class="p">()</span><span class="o">.</span><span class="n">tocsr</span><span class="p">()</span>
 
 <div class="viewcode-block" id="Interactions.to_sequence"><a class="viewcode-back" href="../../interactions.html#spotlight.interactions.Interactions.to_sequence">[docs]</a>    <span class="k">def</span> <span class="nf">to_sequence</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">max_sequence_length</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span> <span class="n">min_sequence_length</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">step_size</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
@@ -471,8 +471,8 @@
             <span class="n">sequence_users</span> <span class="o">=</span> <span class="n">sequence_users</span><span class="p">[</span><span class="n">long_enough</span><span class="p">]</span>
 
         <span class="k">return</span> <span class="p">(</span><span class="n">SequenceInteractions</span><span class="p">(</span><span class="n">sequences</span><span class="p">,</span>
-                                     <span class="n">user_ids</span><span class="o">=</span><span class="n">sequence_users</span><span class="p">,</span>
-                                     <span class="n">num_items</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">num_items</span><span class="p">))</span></div></div>
+                                     <span class="n">user_ids</span><span class="o">=</span><span class="n">sequence_users</span><span class="p">,</span></div></div>
+                                     <span class="n">num_items</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">num_items</span><span class="p">))</span>
 
 
 <div class="viewcode-block" id="SequenceInteractions"><a class="viewcode-back" href="../../interactions.html#spotlight.interactions.SequenceInteractions">[docs]</a><span class="k">class</span> <span class="nc">SequenceInteractions</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
@@ -517,8 +517,8 @@
                 <span class="s1">&#39;sequences x </span><span class="si">{sequence_length}</span><span class="s1"> sequence length)&gt;&#39;</span>
                 <span class="o">.</span><span class="n">format</span><span class="p">(</span>
                     <span class="n">num_sequences</span><span class="o">=</span><span class="n">num_sequences</span><span class="p">,</span>
-                    <span class="n">sequence_length</span><span class="o">=</span><span class="n">sequence_length</span><span class="p">,</span>
-                <span class="p">))</span></div>
+                    <span class="n">sequence_length</span><span class="o">=</span><span class="n">sequence_length</span><span class="p">,</span></div>
+                <span class="p">))</span>
 </pre></div>
 
            </div>

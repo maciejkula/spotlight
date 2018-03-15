@@ -245,18 +245,18 @@
 <div class="section" id="id1">
 <h3>Added<a class="headerlink" href="#id1" title="Permalink to this headline">¶</a></h3>
 <ul class="simple">
-<li><a class="reference internal" href="layers.html#spotlight.layers.BloomEmbedding" title="spotlight.layers.BloomEmbedding"><code class="xref py py-class docutils literal"><span class="pre">spotlight.layers.BloomEmbedding</span></code></a>: bloom embedding layers that reduce the number of
+<li><a class="reference internal" href="layers.html#spotlight.layers.BloomEmbedding" title="spotlight.layers.BloomEmbedding"><code class="xref py py-class docutils literal notranslate"><span class="pre">spotlight.layers.BloomEmbedding</span></code></a>: bloom embedding layers that reduce the number of
 parameters required by hashing embedding indices into some fixed smaller dimensionality,
 following Serrà, Joan, and Alexandros Karatzoglou. “Getting deep recommenders fit: Bloom
 embeddings for sparse binary input/output networks.”</li>
-<li><code class="docutils literal"><span class="pre">sequence_mrr_score</span></code> now accepts an option that excludes previously seen items from scoring.</li>
+<li><code class="docutils literal notranslate"><span class="pre">sequence_mrr_score</span></code> now accepts an option that excludes previously seen items from scoring.</li>
 </ul>
 </div>
 <div class="section" id="id2">
 <h3>Changed<a class="headerlink" href="#id2" title="Permalink to this headline">¶</a></h3>
 <ul class="simple">
-<li><code class="docutils literal"><span class="pre">optimizer</span></code> arguments is now <code class="docutils literal"><span class="pre">optimizer_func</span></code>. It accepts a function that takes a single argument (list of model parameters) and return a PyTorch optimizer (thanks to Ethan Rosenthal).</li>
-<li><code class="docutils literal"><span class="pre">fit</span></code> calls will resume from previous model state when called repeatedly (Ethan Rosenthal).</li>
+<li><code class="docutils literal notranslate"><span class="pre">optimizer</span></code> arguments is now <code class="docutils literal notranslate"><span class="pre">optimizer_func</span></code>. It accepts a function that takes a single argument (list of model parameters) and return a PyTorch optimizer (thanks to Ethan Rosenthal).</li>
+<li><code class="docutils literal notranslate"><span class="pre">fit</span></code> calls will resume from previous model state when called repeatedly (Ethan Rosenthal).</li>
 <li>Updated to work with PyTorch v0.2.0.</li>
 </ul>
 </div>

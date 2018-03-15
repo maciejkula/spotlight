@@ -211,12 +211,12 @@
 <h1>Model serialization<a class="headerlink" href="#model-serialization" title="Permalink to this headline">¶</a></h1>
 <div class="section" id="saving-and-loading-the-model">
 <h2>Saving and loading the model<a class="headerlink" href="#saving-and-loading-the-model" title="Permalink to this headline">¶</a></h2>
-<p>To save a <code class="docutils literal"><span class="pre">spotlight</span></code> model, you can simply use <code class="docutils literal"><span class="pre">torch</span></code> serialization utilities:</p>
-<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">torch</span><span class="o">.</span><span class="n">save</span><span class="p">(</span><span class="n">spotlight_model</span><span class="p">,</span> <span class="n">PATH</span><span class="p">)</span>
+<p>To save a <code class="docutils literal notranslate"><span class="pre">spotlight</span></code> model, you can simply use <code class="docutils literal notranslate"><span class="pre">torch</span></code> serialization utilities:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">torch</span><span class="o">.</span><span class="n">save</span><span class="p">(</span><span class="n">spotlight_model</span><span class="p">,</span> <span class="n">PATH</span><span class="p">)</span>
 </pre></div>
 </div>
 <p>and then:</p>
-<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">spotlight_model</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">PATH</span><span class="p">)</span>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">spotlight_model</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">PATH</span><span class="p">)</span>
 </pre></div>
 </div>
 </div>
