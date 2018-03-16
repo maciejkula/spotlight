@@ -269,7 +269,7 @@ def intra_distance_score(model, test, train, k=10,
             f_distance(_get_item_vector(first_item, train, cache),
                        _get_item_vector(second_item, train, cache))
             for i, first_item in enumerate(rec_list)
-            for second_item in rec_list[(i+1):]
+            for second_item in rec_list[(i + 1):]
         ]
         distances.append(distance)
     return distances
@@ -288,4 +288,3 @@ def _get_item_vector(item_id, train, cache):
                 first_item_vector[users[k]] = x
         cache[item_id] = first_item_vector
     return first_item_vector
-
