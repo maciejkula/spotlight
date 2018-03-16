@@ -59,4 +59,4 @@ def test_intra_distance(data):
     k = 5
     distances = intra_distance_score(model, test, train, k=k, percentage=0.5)
     assert len(distances) > 0
-    assert len(distances[0]) == (k * (k-1)) / 2
+    assert len(distances[0]) == (k * (k - 1)) / 2
