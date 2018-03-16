@@ -4,7 +4,7 @@ import numpy as np
 
 import pytest
 
-from spotlight.evaluation import precision_recall_score
+from spotlight.evaluation import precision_recall_score, intra_distance_score
 from spotlight.cross_validation import random_train_test_split
 from spotlight.datasets import movielens
 from spotlight.factorization.implicit import ImplicitFactorizationModel
@@ -42,10 +42,6 @@ def test_precision_recall(data, k):
 
     (train, test, model) = data
 
-    interactions = movielens.get_movielens_dataset('100K')
-    train, test = random_train_test_split(interactions,
-                                          random_state=RANDOM_STATE)
-
     precision, recall = precision_recall_score(model, test, train, k=k)
 
     assert precision.shape == recall.shape
@@ -54,3 +50,13 @@ def test_precision_recall(data, k):
         assert len(precision.shape) == 1
     else:
         assert precision.shape[1] == len(k)
+
+
+def test_intra_distance(data):
+
+    (train, test, model) = data
+
+    k = 5
+    distances = intra_distance_score(model, test, train, k=k, percentage=0.5)
+    assert len(distances) > 0
+    assert len(distances[0]) == (k * (k-1)) / 2
