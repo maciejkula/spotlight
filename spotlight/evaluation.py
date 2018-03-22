@@ -207,24 +207,24 @@ def rmse_score(model, test):
     return np.sqrt(((test.ratings - predictions) ** 2).mean())
 
 
-def intra_distance_score(model, test, train, k=10,
-                         f_distance=lambda x, y: 1 - cosine_similarity([x, y])[0][1],
-                         percentage=1):
+def intra_distance_score(model, test, train, k=10):
     """
-    Compute IntraDistance@k score aka individual diversity.
-    The intra-list diversity of a set of recommended items is defined
+    Compute IntraDistance@k diversity of a set of recommended items which is defined
     as the average pairwise distance of the items in the set.
 
-    Each item is represented as a vector with length of # of users in train set.
-    Values of the vectors are ratings from the users to the particular items.
-    For instance; in the following data set (user_id, item_id, rating)
-    1, 1, 4
-    2, 1, 3
-    3, 2, 5
-    the item vector for item = 1 is;
-    [4, 3, 0]
+    In early definitions, it's called average dissimilarity [2]
+    It's best known as average intra-list distance [1]
 
-    Item vectors are cached.
+    .. [1] Castells, P., Hurley, N.J. and Vargas, S., 2015.
+    Novelty and diversity in recommender systems. In Recommender Systems Handbook (pp. 881-918).
+    Springer, Boston, MA.
+
+    .. [2] Hurley, N. and Zhang, M., 2011.
+        Novelty and diversity in top-n recommendation--analysis and evaluation.
+        ACM Transactions on Internet Technology (TOIT), 10(4), p.14.
+
+    Distance between items i,j is calculated as;
+    1 - intersection(i,j) / length(i) * length(j)
 
     Parameters
     ----------
@@ -238,53 +238,32 @@ def intra_distance_score(model, test, train, k=10,
         interactions will not affect the computed metrics.
     k: int or array of int,
         The maximum number of predicted items
-    f_distance: distance function. it measures distance between
-        two items. Default value is 1 - cosine similarity
-    percentage: Percentage of users to be evaluated.
-        Values between >0 and 1 are applicable.
-        Default value is 1.
     Returns
     -------
 
-    (IntraDistance@k): numpy array of shape (#evaluated_users, len(k * (k-1) / 2)
+    (IntraDistance@k): numpy array of shape (len(users), len(k * (k-1) / 2)
         A list of distances between each item in recommendation
-        list with length k for each user.
+        list with length k for each test user.
     """
 
     distances = []
     test = test.tocsr()
-    train = train.tocoo()
-    cache = {}
+    mat = train.tocoo().T.tocsr()
+    lengths = mat.getnnz(axis=1)
     for user_id, row in enumerate(test):
-
-        if not len(row.indices):
-            continue
-
-        if random.uniform(0, 1) > percentage:
-            continue
-
         predictions = -model.predict(user_id)
         rec_list = predictions.argsort()[:k]
         distance = [
-            f_distance(_get_item_vector(first_item, train, cache),
-                       _get_item_vector(second_item, train, cache))
+            _get_distance(mat, lengths, first_item, second_item)
             for i, first_item in enumerate(rec_list)
             for second_item in rec_list[(i + 1):]
         ]
         distances.append(distance)
-    return distances
+    return np.array(distances)
 
 
-def _get_item_vector(item_id, train, cache):
-    users = train.row
-    items = train.col
-    data = train.data
-    if item_id in cache:
-        first_item_vector = cache[item_id]
-    else:
-        first_item_vector = np.zeros(max(users) + 1)
-        for k, x in enumerate(data):
-            if items[k] == item_id:
-                first_item_vector[users[k]] = x
-        cache[item_id] = first_item_vector
-    return first_item_vector
+def _get_distance(mat, lengths, first_item, second_item):
+    numerator = np.in1d(mat[first_item].indices, mat[second_item].indices, assume_unique=True).sum()
+    denominator = lengths[first_item] * lengths[second_item]
+    distance = numerator / denominator
+    return 1 - distance
