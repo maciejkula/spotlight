@@ -42,6 +42,10 @@ def test_precision_recall(data, k):
 
     (train, test, model) = data
 
+    interactions = movielens.get_movielens_dataset('100K')
+    train, test = random_train_test_split(interactions,
+                                          random_state=RANDOM_STATE)
+
     precision, recall = precision_recall_score(model, test, train, k=k)
 
     assert precision.shape == recall.shape
