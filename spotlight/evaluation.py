@@ -2,10 +2,6 @@ import numpy as np
 
 import scipy.stats as st
 
-from sklearn.metrics.pairwise import cosine_similarity
-
-import random
-
 
 FLOAT_MAX = np.finfo(np.float32).max
 
