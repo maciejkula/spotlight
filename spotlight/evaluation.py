@@ -212,8 +212,8 @@ def intra_distance_score(model, test, train, k=10):
     It's best known as average intra-list distance [1]
 
     .. [1] Castells, P., Hurley, N.J. and Vargas, S., 2015.
-    Novelty and diversity in recommender systems. In Recommender Systems Handbook (pp. 881-918).
-    Springer, Boston, MA.
+        Novelty and diversity in recommender systems.
+        In Recommender Systems Handbook (pp. 881-918). Springer, Boston, MA.
 
     .. [2] Hurley, N. and Zhang, M., 2011.
         Novelty and diversity in top-n recommendation--analysis and evaluation.
