@@ -25,27 +25,18 @@
   
 
   
-  
     <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
-  
-
-  
-    <link rel="stylesheet" href="../../_static/css/spotlight_theme.css" type="text/css" />
-  
-
-  
-        <link rel="index" title="Index"
-              href="../../genindex.html"/>
-        <link rel="search" title="Search" href="../../search.html"/>
-    <link rel="top" title="Spotlight v0.1.4 documentation" href="../../index.html"/>
-        <link rel="up" title="Module code" href="../index.html"/> 
+  <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="../../_static/css/spotlight_theme.css" type="text/css" />
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" /> 
 
   
   <script src="../../_static/js/modernizr.min.js"></script>
 
 </head>
 
-<body class="wy-body-for-nav" role="document">
+<body class="wy-body-for-nav">
 
    
   <div class="wy-grid-for-nav">
@@ -62,7 +53,7 @@
 
           
             
-            <img src="../../_static/spotlight.svg" class="logo" />
+            <img src="../../_static/spotlight.svg" class="logo" alt="Logo"/>
           
           </a>
 
@@ -154,7 +145,7 @@
     <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
 
       
-      <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
+      <nav class="wy-nav-top" aria-label="top navigation">
         
           <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
           <a href="../../index.html">Spotlight</a>
@@ -162,9 +153,10 @@
       </nav>
 
 
-      
       <div class="wy-nav-content">
+        
         <div class="rst-content">
+        
           
 
 
@@ -193,8 +185,6 @@
     
     
       <li class="wy-breadcrumbs-aside">
-        
-            
         
       </li>
     
@@ -366,15 +356,15 @@
         <span class="n">col</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">item_ids</span>
         <span class="n">data</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">ratings</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">ratings</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">np</span><span class="o">.</span><span class="n">ones</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="p">))</span>
 
-        <span class="k">return</span> <span class="n">sp</span><span class="o">.</span><span class="n">coo_matrix</span><span class="p">((</span><span class="n">data</span><span class="p">,</span> <span class="p">(</span><span class="n">row</span><span class="p">,</span> <span class="n">col</span><span class="p">)),</span></div>
-                             <span class="n">shape</span><span class="o">=</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">num_users</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">num_items</span><span class="p">))</span>
+        <span class="k">return</span> <span class="n">sp</span><span class="o">.</span><span class="n">coo_matrix</span><span class="p">((</span><span class="n">data</span><span class="p">,</span> <span class="p">(</span><span class="n">row</span><span class="p">,</span> <span class="n">col</span><span class="p">)),</span>
+                             <span class="n">shape</span><span class="o">=</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">num_users</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">num_items</span><span class="p">))</span></div>
 
 <div class="viewcode-block" id="Interactions.tocsr"><a class="viewcode-back" href="../../interactions.html#spotlight.interactions.Interactions.tocsr">[docs]</a>    <span class="k">def</span> <span class="nf">tocsr</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Transform to a scipy.sparse CSR matrix.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-</div>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">tocoo</span><span class="p">()</span><span class="o">.</span><span class="n">tocsr</span><span class="p">()</span>
+
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">tocoo</span><span class="p">()</span><span class="o">.</span><span class="n">tocsr</span><span class="p">()</span></div>
 
 <div class="viewcode-block" id="Interactions.to_sequence"><a class="viewcode-back" href="../../interactions.html#spotlight.interactions.Interactions.to_sequence">[docs]</a>    <span class="k">def</span> <span class="nf">to_sequence</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">max_sequence_length</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span> <span class="n">min_sequence_length</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">step_size</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
@@ -471,8 +461,8 @@
             <span class="n">sequence_users</span> <span class="o">=</span> <span class="n">sequence_users</span><span class="p">[</span><span class="n">long_enough</span><span class="p">]</span>
 
         <span class="k">return</span> <span class="p">(</span><span class="n">SequenceInteractions</span><span class="p">(</span><span class="n">sequences</span><span class="p">,</span>
-                                     <span class="n">user_ids</span><span class="o">=</span><span class="n">sequence_users</span><span class="p">,</span></div></div>
-                                     <span class="n">num_items</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">num_items</span><span class="p">))</span>
+                                     <span class="n">user_ids</span><span class="o">=</span><span class="n">sequence_users</span><span class="p">,</span>
+                                     <span class="n">num_items</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">num_items</span><span class="p">))</span></div></div>
 
 
 <div class="viewcode-block" id="SequenceInteractions"><a class="viewcode-back" href="../../interactions.html#spotlight.interactions.SequenceInteractions">[docs]</a><span class="k">class</span> <span class="nc">SequenceInteractions</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
@@ -517,14 +507,12 @@
                 <span class="s1">&#39;sequences x </span><span class="si">{sequence_length}</span><span class="s1"> sequence length)&gt;&#39;</span>
                 <span class="o">.</span><span class="n">format</span><span class="p">(</span>
                     <span class="n">num_sequences</span><span class="o">=</span><span class="n">num_sequences</span><span class="p">,</span>
-                    <span class="n">sequence_length</span><span class="o">=</span><span class="n">sequence_length</span><span class="p">,</span></div>
-                <span class="p">))</span>
+                    <span class="n">sequence_length</span><span class="o">=</span><span class="n">sequence_length</span><span class="p">,</span>
+                <span class="p">))</span></div>
 </pre></div>
 
            </div>
-           <div class="articleComments">
-            
-           </div>
+           
           </div>
           <footer>
   
@@ -537,7 +525,7 @@
 
     </p>
   </div>
-  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/snide/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
 
 </footer>
 
@@ -556,6 +544,7 @@
         var DOCUMENTATION_OPTIONS = {
             URL_ROOT:'../../',
             VERSION:'v0.1.4',
+            LANGUAGE:'None',
             COLLAPSE_INDEX:false,
             FILE_SUFFIX:'.html',
             HAS_SOURCE:  true,
@@ -573,14 +562,13 @@
     <script type="text/javascript" src="../../_static/js/theme.js"></script>
   
 
-  
-  
   <script type="text/javascript">
       jQuery(function () {
-          SphinxRtdTheme.StickyNav.enable();
+          
+          SphinxRtdTheme.Navigation.enableSticky();
+          
       });
-  </script>
-   
+  </script> 
 
 </body>
 </html>

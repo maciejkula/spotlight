@@ -25,27 +25,18 @@
   
 
   
-  
     <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
-  
-
-  
-    <link rel="stylesheet" href="../../_static/css/spotlight_theme.css" type="text/css" />
-  
-
-  
-        <link rel="index" title="Index"
-              href="../../genindex.html"/>
-        <link rel="search" title="Search" href="../../search.html"/>
-    <link rel="top" title="Spotlight v0.1.4 documentation" href="../../index.html"/>
-        <link rel="up" title="Module code" href="../index.html"/> 
+  <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="../../_static/css/spotlight_theme.css" type="text/css" />
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" /> 
 
   
   <script src="../../_static/js/modernizr.min.js"></script>
 
 </head>
 
-<body class="wy-body-for-nav" role="document">
+<body class="wy-body-for-nav">
 
    
   <div class="wy-grid-for-nav">
@@ -62,7 +53,7 @@
 
           
             
-            <img src="../../_static/spotlight.svg" class="logo" />
+            <img src="../../_static/spotlight.svg" class="logo" alt="Logo"/>
           
           </a>
 
@@ -154,7 +145,7 @@
     <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
 
       
-      <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
+      <nav class="wy-nav-top" aria-label="top navigation">
         
           <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
           <a href="../../index.html">Spotlight</a>
@@ -162,9 +153,10 @@
       </nav>
 
 
-      
       <div class="wy-nav-content">
+        
         <div class="rst-content">
+        
           
 
 
@@ -193,8 +185,6 @@
     
     
       <li class="wy-breadcrumbs-aside">
-        
-            
         
       </li>
     
@@ -260,8 +250,8 @@
                                                   <span class="n">shuffle_indices</span><span class="p">),</span>
                         <span class="n">weights</span><span class="o">=</span><span class="n">_index_or_none</span><span class="p">(</span><span class="n">interactions</span><span class="o">.</span><span class="n">weights</span><span class="p">,</span>
                                                <span class="n">shuffle_indices</span><span class="p">),</span>
-                        <span class="n">num_users</span><span class="o">=</span><span class="n">interactions</span><span class="o">.</span><span class="n">num_users</span><span class="p">,</span></div>
-                        <span class="n">num_items</span><span class="o">=</span><span class="n">interactions</span><span class="o">.</span><span class="n">num_items</span><span class="p">)</span>
+                        <span class="n">num_users</span><span class="o">=</span><span class="n">interactions</span><span class="o">.</span><span class="n">num_users</span><span class="p">,</span>
+                        <span class="n">num_items</span><span class="o">=</span><span class="n">interactions</span><span class="o">.</span><span class="n">num_items</span><span class="p">)</span></div>
 
 
 <div class="viewcode-block" id="random_train_test_split"><a class="viewcode-back" href="../../cross_validation.html#spotlight.cross_validation.random_train_test_split">[docs]</a><span class="k">def</span> <span class="nf">random_train_test_split</span><span class="p">(</span><span class="n">interactions</span><span class="p">,</span>
@@ -316,8 +306,8 @@
                                                <span class="n">test_idx</span><span class="p">),</span>
                         <span class="n">num_users</span><span class="o">=</span><span class="n">interactions</span><span class="o">.</span><span class="n">num_users</span><span class="p">,</span>
                         <span class="n">num_items</span><span class="o">=</span><span class="n">interactions</span><span class="o">.</span><span class="n">num_items</span><span class="p">)</span>
-</div>
-    <span class="k">return</span> <span class="n">train</span><span class="p">,</span> <span class="n">test</span>
+
+    <span class="k">return</span> <span class="n">train</span><span class="p">,</span> <span class="n">test</span></div>
 
 
 <div class="viewcode-block" id="user_based_train_test_split"><a class="viewcode-back" href="../../cross_validation.html#spotlight.cross_validation.user_based_train_test_split">[docs]</a><span class="k">def</span> <span class="nf">user_based_train_test_split</span><span class="p">(</span><span class="n">interactions</span><span class="p">,</span>
@@ -381,14 +371,12 @@
                                                <span class="n">in_test</span><span class="p">),</span>
                         <span class="n">num_users</span><span class="o">=</span><span class="n">interactions</span><span class="o">.</span><span class="n">num_users</span><span class="p">,</span>
                         <span class="n">num_items</span><span class="o">=</span><span class="n">interactions</span><span class="o">.</span><span class="n">num_items</span><span class="p">)</span>
-</div>
-    <span class="k">return</span> <span class="n">train</span><span class="p">,</span> <span class="n">test</span>
+
+    <span class="k">return</span> <span class="n">train</span><span class="p">,</span> <span class="n">test</span></div>
 </pre></div>
 
            </div>
-           <div class="articleComments">
-            
-           </div>
+           
           </div>
           <footer>
   
@@ -401,7 +389,7 @@
 
     </p>
   </div>
-  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/snide/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
 
 </footer>
 
@@ -420,6 +408,7 @@
         var DOCUMENTATION_OPTIONS = {
             URL_ROOT:'../../',
             VERSION:'v0.1.4',
+            LANGUAGE:'None',
             COLLAPSE_INDEX:false,
             FILE_SUFFIX:'.html',
             HAS_SOURCE:  true,
@@ -437,14 +426,13 @@
     <script type="text/javascript" src="../../_static/js/theme.js"></script>
   
 
-  
-  
   <script type="text/javascript">
       jQuery(function () {
-          SphinxRtdTheme.StickyNav.enable();
+          
+          SphinxRtdTheme.Navigation.enableSticky();
+          
       });
-  </script>
-   
+  </script> 
 
 </body>
 </html>

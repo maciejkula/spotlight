@@ -25,27 +25,18 @@
   
 
   
-  
     <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
-  
-
-  
-    <link rel="stylesheet" href="../../../_static/css/spotlight_theme.css" type="text/css" />
-  
-
-  
-        <link rel="index" title="Index"
-              href="../../../genindex.html"/>
-        <link rel="search" title="Search" href="../../../search.html"/>
-    <link rel="top" title="Spotlight v0.1.4 documentation" href="../../../index.html"/>
-        <link rel="up" title="Module code" href="../../index.html"/> 
+  <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="../../../_static/css/spotlight_theme.css" type="text/css" />
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" /> 
 
   
   <script src="../../../_static/js/modernizr.min.js"></script>
 
 </head>
 
-<body class="wy-body-for-nav" role="document">
+<body class="wy-body-for-nav">
 
    
   <div class="wy-grid-for-nav">
@@ -62,7 +53,7 @@
 
           
             
-            <img src="../../../_static/spotlight.svg" class="logo" />
+            <img src="../../../_static/spotlight.svg" class="logo" alt="Logo"/>
           
           </a>
 
@@ -154,7 +145,7 @@
     <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
 
       
-      <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
+      <nav class="wy-nav-top" aria-label="top navigation">
         
           <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
           <a href="../../../index.html">Spotlight</a>
@@ -162,9 +153,10 @@
       </nav>
 
 
-      
       <div class="wy-nav-content">
+        
         <div class="rst-content">
+        
           
 
 
@@ -193,8 +185,6 @@
     
     
       <li class="wy-breadcrumbs-aside">
-        
-            
         
       </li>
     
@@ -319,8 +309,8 @@
         <span class="n">user_representations</span> <span class="o">=</span> <span class="p">(</span>
             <span class="n">sequence_embedding_sum</span> <span class="o">/</span> <span class="p">(</span><span class="n">non_padding_entries</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span>
         <span class="p">)</span><span class="o">.</span><span class="n">squeeze</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span>
-</div>
-        <span class="k">return</span> <span class="n">user_representations</span><span class="p">[:,</span> <span class="p">:,</span> <span class="p">:</span><span class="o">-</span><span class="mi">1</span><span class="p">],</span> <span class="n">user_representations</span><span class="p">[:,</span> <span class="p">:,</span> <span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+
+        <span class="k">return</span> <span class="n">user_representations</span><span class="p">[:,</span> <span class="p">:,</span> <span class="p">:</span><span class="o">-</span><span class="mi">1</span><span class="p">],</span> <span class="n">user_representations</span><span class="p">[:,</span> <span class="p">:,</span> <span class="o">-</span><span class="mi">1</span><span class="p">]</span></div>
 
 <div class="viewcode-block" id="PoolNet.forward"><a class="viewcode-back" href="../../../sequence/representations.html#spotlight.sequence.representations.PoolNet.forward">[docs]</a>    <span class="k">def</span> <span class="nf">forward</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">user_representations</span><span class="p">,</span> <span class="n">targets</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
@@ -349,8 +339,8 @@
 
         <span class="n">dot</span> <span class="o">=</span> <span class="p">((</span><span class="n">user_representations</span> <span class="o">*</span> <span class="n">target_embedding</span><span class="p">)</span>
                <span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="mi">1</span><span class="p">))</span>
-</div></div>
-        <span class="k">return</span> <span class="n">target_bias</span> <span class="o">+</span> <span class="n">dot</span>
+
+        <span class="k">return</span> <span class="n">target_bias</span> <span class="o">+</span> <span class="n">dot</span></div></div>
 
 
 <div class="viewcode-block" id="LSTMNet"><a class="viewcode-back" href="../../../sequence/representations.html#spotlight.sequence.representations.LSTMNet">[docs]</a><span class="k">class</span> <span class="nc">LSTMNet</span><span class="p">(</span><span class="n">nn</span><span class="o">.</span><span class="n">Module</span><span class="p">):</span>
@@ -432,8 +422,8 @@
 
         <span class="n">user_representations</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">lstm</span><span class="p">(</span><span class="n">sequence_embeddings</span><span class="p">)</span>
         <span class="n">user_representations</span> <span class="o">=</span> <span class="n">user_representations</span><span class="o">.</span><span class="n">permute</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
-</div>
-        <span class="k">return</span> <span class="n">user_representations</span><span class="p">[:,</span> <span class="p">:,</span> <span class="p">:</span><span class="o">-</span><span class="mi">1</span><span class="p">],</span> <span class="n">user_representations</span><span class="p">[:,</span> <span class="p">:,</span> <span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+
+        <span class="k">return</span> <span class="n">user_representations</span><span class="p">[:,</span> <span class="p">:,</span> <span class="p">:</span><span class="o">-</span><span class="mi">1</span><span class="p">],</span> <span class="n">user_representations</span><span class="p">[:,</span> <span class="p">:,</span> <span class="o">-</span><span class="mi">1</span><span class="p">]</span></div>
 
 <div class="viewcode-block" id="LSTMNet.forward"><a class="viewcode-back" href="../../../sequence/representations.html#spotlight.sequence.representations.LSTMNet.forward">[docs]</a>    <span class="k">def</span> <span class="nf">forward</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">user_representations</span><span class="p">,</span> <span class="n">targets</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
@@ -463,8 +453,8 @@
         <span class="n">dot</span> <span class="o">=</span> <span class="p">((</span><span class="n">user_representations</span> <span class="o">*</span> <span class="n">target_embedding</span><span class="p">)</span>
                <span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
                <span class="o">.</span><span class="n">squeeze</span><span class="p">())</span>
-</div></div>
-        <span class="k">return</span> <span class="n">target_bias</span> <span class="o">+</span> <span class="n">dot</span>
+
+        <span class="k">return</span> <span class="n">target_bias</span> <span class="o">+</span> <span class="n">dot</span></div></div>
 
 
 <div class="viewcode-block" id="CNNNet"><a class="viewcode-back" href="../../../sequence/representations.html#spotlight.sequence.representations.CNNNet">[docs]</a><span class="k">class</span> <span class="nc">CNNNet</span><span class="p">(</span><span class="n">nn</span><span class="o">.</span><span class="n">Module</span><span class="p">):</span>
@@ -627,8 +617,8 @@
                 <span class="n">x</span> <span class="o">=</span> <span class="n">x</span> <span class="o">+</span> <span class="n">residual</span>
 
         <span class="n">x</span> <span class="o">=</span> <span class="n">x</span><span class="o">.</span><span class="n">squeeze</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span>
-</div>
-        <span class="k">return</span> <span class="n">x</span><span class="p">[:,</span> <span class="p">:,</span> <span class="p">:</span><span class="o">-</span><span class="mi">1</span><span class="p">],</span> <span class="n">x</span><span class="p">[:,</span> <span class="p">:,</span> <span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+
+        <span class="k">return</span> <span class="n">x</span><span class="p">[:,</span> <span class="p">:,</span> <span class="p">:</span><span class="o">-</span><span class="mi">1</span><span class="p">],</span> <span class="n">x</span><span class="p">[:,</span> <span class="p">:,</span> <span class="o">-</span><span class="mi">1</span><span class="p">]</span></div>
 
 <div class="viewcode-block" id="CNNNet.forward"><a class="viewcode-back" href="../../../sequence/representations.html#spotlight.sequence.representations.CNNNet.forward">[docs]</a>    <span class="k">def</span> <span class="nf">forward</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">user_representations</span><span class="p">,</span> <span class="n">targets</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
@@ -658,8 +648,8 @@
         <span class="n">dot</span> <span class="o">=</span> <span class="p">((</span><span class="n">user_representations</span> <span class="o">*</span> <span class="n">target_embedding</span><span class="p">)</span>
                <span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
                <span class="o">.</span><span class="n">squeeze</span><span class="p">())</span>
-</div></div>
-        <span class="k">return</span> <span class="n">target_bias</span> <span class="o">+</span> <span class="n">dot</span>
+
+        <span class="k">return</span> <span class="n">target_bias</span> <span class="o">+</span> <span class="n">dot</span></div></div>
 
 
 <div class="viewcode-block" id="MixtureLSTMNet"><a class="viewcode-back" href="../../../sequence/representations.html#spotlight.sequence.representations.MixtureLSTMNet">[docs]</a><span class="k">class</span> <span class="nc">MixtureLSTMNet</span><span class="p">(</span><span class="n">nn</span><span class="o">.</span><span class="n">Module</span><span class="p">):</span>
@@ -760,8 +750,8 @@
                                                            <span class="bp">self</span><span class="o">.</span><span class="n">num_mixtures</span> <span class="o">*</span> <span class="mi">2</span><span class="p">,</span>
                                                            <span class="bp">self</span><span class="o">.</span><span class="n">embedding_dim</span><span class="p">,</span>
                                                            <span class="n">sequence_length</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span>
-</div>
-        <span class="k">return</span> <span class="n">user_representations</span><span class="p">[:,</span> <span class="p">:,</span> <span class="p">:,</span> <span class="p">:</span><span class="o">-</span><span class="mi">1</span><span class="p">],</span> <span class="n">user_representations</span><span class="p">[:,</span> <span class="p">:,</span> <span class="p">:,</span> <span class="o">-</span><span class="mi">1</span><span class="p">:]</span>
+
+        <span class="k">return</span> <span class="n">user_representations</span><span class="p">[:,</span> <span class="p">:,</span> <span class="p">:,</span> <span class="p">:</span><span class="o">-</span><span class="mi">1</span><span class="p">],</span> <span class="n">user_representations</span><span class="p">[:,</span> <span class="p">:,</span> <span class="p">:,</span> <span class="o">-</span><span class="mi">1</span><span class="p">:]</span></div>
 
 <div class="viewcode-block" id="MixtureLSTMNet.forward"><a class="viewcode-back" href="../../../sequence/representations.html#spotlight.sequence.representations.MixtureLSTMNet.forward">[docs]</a>    <span class="k">def</span> <span class="nf">forward</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">user_representations</span><span class="p">,</span> <span class="n">targets</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
@@ -801,14 +791,12 @@
         <span class="n">dot</span> <span class="o">=</span> <span class="p">((</span><span class="n">weighted_user_representations</span> <span class="o">*</span> <span class="n">target_embedding</span><span class="p">)</span>
                <span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
                <span class="o">.</span><span class="n">squeeze</span><span class="p">())</span>
-</div></div>
-        <span class="k">return</span> <span class="n">target_bias</span> <span class="o">+</span> <span class="n">dot</span>
+
+        <span class="k">return</span> <span class="n">target_bias</span> <span class="o">+</span> <span class="n">dot</span></div></div>
 </pre></div>
 
            </div>
-           <div class="articleComments">
-            
-           </div>
+           
           </div>
           <footer>
   
@@ -821,7 +809,7 @@
 
     </p>
   </div>
-  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/snide/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
 
 </footer>
 
@@ -840,6 +828,7 @@
         var DOCUMENTATION_OPTIONS = {
             URL_ROOT:'../../../',
             VERSION:'v0.1.4',
+            LANGUAGE:'None',
             COLLAPSE_INDEX:false,
             FILE_SUFFIX:'.html',
             HAS_SOURCE:  true,
@@ -857,14 +846,13 @@
     <script type="text/javascript" src="../../../_static/js/theme.js"></script>
   
 
-  
-  
   <script type="text/javascript">
       jQuery(function () {
-          SphinxRtdTheme.StickyNav.enable();
+          
+          SphinxRtdTheme.Navigation.enableSticky();
+          
       });
-  </script>
-   
+  </script> 
 
 </body>
 </html>
