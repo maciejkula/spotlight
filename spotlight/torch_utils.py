@@ -32,6 +32,19 @@ def minibatch(*tensors, **kwargs):
             yield tuple(x[i:i + batch_size] for x in tensors)
 
 
+def minibatch_indices(*tensors, **kwargs):
+
+    batch_size = kwargs.get('batch_size', 128)
+
+    if len(tensors) == 1:
+        tensor = tensors[0]
+        for i in range(0, len(tensor), batch_size):
+            yield tensor[i:i + batch_size]
+    else:
+        for i in range(0, len(tensors[0]), batch_size):
+            yield tuple(x[i:i + batch_size] for x in tensors)
+
+
 def shuffle(*arrays, **kwargs):
 
     random_state = kwargs.get('random_state')

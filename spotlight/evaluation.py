@@ -83,19 +83,22 @@ def sequence_mrr_score(model, test, exclude_preceding=False):
         Array of MRR scores for each sequence in test.
     """
 
-    sequences = test.sequences[:, :-1]
-    targets = test.sequences[:, -1:]
-
     mrrs = []
 
-    for i in range(len(sequences)):
+    for sequence in test:
 
-        predictions = -model.predict(sequences[i])
+        subsequence = sequence[:-1]
+        target = sequence[-1:]
+
+        if not len(subsequence):
+            continue
+
+        predictions = -model.predict(subsequence)
 
         if exclude_preceding:
-            predictions[sequences[i]] = FLOAT_MAX
+            predictions[subsequence] = FLOAT_MAX
 
-        mrr = (1.0 / st.rankdata(predictions)[targets[i]]).mean()
+        mrr = (1.0 / st.rankdata(predictions)[target]).mean()
 
         mrrs.append(mrr)
 

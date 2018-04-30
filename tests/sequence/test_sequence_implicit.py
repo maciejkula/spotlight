@@ -103,7 +103,7 @@ def test_implicit_lstm_synthetic(randomness, expected_mrr):
                                   embedding_dim=EMBEDDING_DIM,
                                   learning_rate=1e-2,
                                   l2=1e-7,
-                                  n_iter=NUM_EPOCHS * 5,
+                                  n_iter=NUM_EPOCHS * 10,
                                   random_state=random_state,
                                   use_cuda=CUDA)
 
@@ -231,7 +231,7 @@ def test_implicit_pooling_losses(loss, expected_mrr):
 @pytest.mark.parametrize('compression_ratio, expected_mrr', [
     (0.2, 0.14),
     (0.5, 0.30),
-    (1.0, 0.5),
+    (1.0, 0.48),
 ])
 def test_bloom_cnn(compression_ratio, expected_mrr):
 

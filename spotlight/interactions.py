@@ -7,6 +7,12 @@ import numpy as np
 
 import scipy.sparse as sp
 
+import torch
+
+from dynarray import DynamicArray
+
+from spotlight.torch_utils import gpu
+
 
 def _sliding_window(tensor, window_size, step_size=1):
 
@@ -14,10 +20,28 @@ def _sliding_window(tensor, window_size, step_size=1):
         yield tensor[max(i - window_size, 0):i]
 
 
-def _generate_sequences(user_ids, item_ids,
-                        indices,
+def _generate_sequences(interactions,
                         max_sequence_length,
-                        step_size):
+                        min_sequence_length=1,
+                        step_size=1):
+
+    if interactions.timestamps is None:
+        raise ValueError('Cannot convert to sequences, '
+                         'timestamps not available.')
+
+    if step_size is None:
+        step_size = max_sequence_length
+
+    # Sort first by user id, then by timestamp
+    sort_indices = np.lexsort((interactions.timestamps,
+                               interactions.user_ids))
+
+    user_ids = interactions.user_ids[sort_indices]
+    item_ids = interactions.item_ids[sort_indices]
+
+    user_ids, indices, counts = np.unique(user_ids,
+                                          return_index=True,
+                                          return_counts=True)
 
     for i in range(len(indices)):
 
@@ -32,7 +56,28 @@ def _generate_sequences(user_ids, item_ids,
                                    max_sequence_length,
                                    step_size):
 
+            if len(seq) < min_sequence_length:
+                continue
+
             yield (user_ids[i], seq)
+
+
+def _pack_sequences(sequences):
+
+    packed = {}
+
+    for user_id, sequence in sequences:
+
+        (packed.setdefault(len(sequence),
+                           DynamicArray((None,
+                                         len(sequence)),
+                                        dtype=np.int64))
+         .append(sequence))
+
+    for value in packed.values():
+        value.shrink_to_fit()
+
+    return {key: value[:] for (key, value) in packed.items()}
 
 
 class Interactions(object):
@@ -167,45 +212,44 @@ class Interactions(object):
 
         return self.tocoo().tocsr()
 
-    def to_sequence(self, max_sequence_length=10, min_sequence_length=None, step_size=None):
+    def to_sequence(self, max_sequence_length=10, min_sequence_length=1, step_size=None):
         """
         Transform to sequence form.
 
         User-item interaction pairs are sorted by their timestamps,
         and sequences of up to max_sequence_length events are arranged
-        into a (zero-padded from the left) matrix with dimensions
-        (num_sequences x max_sequence_length).
+        are returned. The returned sequences are not padded,
+        taking advatnage of PyTorch's flexibility.
 
         Valid subsequences of users' interactions are returned. For
         example, if a user interacted with items [1, 2, 3, 4, 5], the
-        returned interactions matrix at sequence length 5 and step size
+        returned interactions set at sequence length 5 and step size
         1 will be be given by:
 
         .. code-block:: python
 
            [[1, 2, 3, 4, 5],
-            [0, 1, 2, 3, 4],
-            [0, 0, 1, 2, 3],
-            [0, 0, 0, 1, 2],
-            [0, 0, 0, 0, 1]]
+            [1, 2, 3, 4],
+            [1, 2, 3],
+            [1, 2],
+            [1]]
 
         At step size 2:
 
         .. code-block:: python
 
            [[1, 2, 3, 4, 5],
-            [0, 0, 1, 2, 3],
-            [0, 0, 0, 0, 1]]
+            [1, 2, 3],
+            [1]]
 
         Parameters
         ----------
 
         max_sequence_length: int, optional
-            Maximum sequence length. Subsequences shorter than this
-            will be left-padded with zeros.
+            Maximum sequence length.
         min_sequence_length: int, optional
             If set, only sequences with at least min_sequence_length
-            non-padding elements will be returned.
+            elements will be returned.
         step-size: int, optional
             The returned subsequences are the effect of moving a
             a sliding window over the input. This parameter
@@ -219,63 +263,32 @@ class Interactions(object):
             The resulting sequence interactions.
         """
 
-        if self.timestamps is None:
-            raise ValueError('Cannot convert to sequences, '
-                             'timestamps not available.')
-
         if 0 in self.item_ids:
             raise ValueError('0 is used as an item id, conflicting '
                              'with the sequence padding value.')
 
-        if step_size is None:
-            step_size = max_sequence_length
-
-        # Sort first by user id, then by timestamp
-        sort_indices = np.lexsort((self.timestamps,
-                                   self.user_ids))
-
-        user_ids = self.user_ids[sort_indices]
-        item_ids = self.item_ids[sort_indices]
-
-        user_ids, indices, counts = np.unique(user_ids,
-                                              return_index=True,
-                                              return_counts=True)
-
-        num_subsequences = int(np.ceil(counts / float(step_size)).sum())
-
-        sequences = np.zeros((num_subsequences, max_sequence_length),
-                             dtype=np.int32)
-        sequence_users = np.empty(num_subsequences,
-                                  dtype=np.int32)
-        for i, (uid,
-                seq) in enumerate(_generate_sequences(user_ids,
-                                                      item_ids,
-                                                      indices,
-                                                      max_sequence_length,
-                                                      step_size)):
-            sequences[i][-len(seq):] = seq
-            sequence_users[i] = uid
-
-        if min_sequence_length is not None:
-            long_enough = sequences[:, -min_sequence_length] != 0
-            sequences = sequences[long_enough]
-            sequence_users = sequence_users[long_enough]
+        sequences = _pack_sequences(
+            _generate_sequences(self,
+                                max_sequence_length,
+                                min_sequence_length,
+                                step_size)
+        )
 
         return (SequenceInteractions(sequences,
-                                     user_ids=sequence_users,
                                      num_items=self.num_items))
 
 
 class SequenceInteractions(object):
     """
-    Interactions encoded as a sequence matrix.
+    Interactions encoded as sequences. This object is not normally constructed
+    directly, but rather returned from :func:`~Interactions.to_sequence`.
 
     Parameters
     ----------
 
-    sequences: array of np.int32 of shape (num_sequences x max_sequence_length)
-        The interactions sequence matrix, as produced by
-        :func:`~Interactions.to_sequence`
+    sequences: dict of np.int64 arrays of shape (num_sequences x sequence_length)
+        The interactions sequence, dictionary grouping all
+        subsequences into matrices by their length.
     num_items: int, optional
         The number of distinct items in the data
 
@@ -289,24 +302,80 @@ class SequenceInteractions(object):
 
     def __init__(self,
                  sequences,
-                 user_ids=None, num_items=None):
+                 num_items=None):
 
         self.sequences = sequences
-        self.user_ids = user_ids
-        self.max_sequence_length = sequences.shape[1]
+
+        self._num_sequences = sum(x.shape[0] for x in self.sequences.values())
+        self._max_sequence_length = max(x.shape[1] for x in self.sequences.values())
 
         if num_items is None:
-            self.num_items = sequences.max() + 1
+            self.num_items = max(x.max() + 1 for x in self.sequences.values())
         else:
             self.num_items = num_items
 
     def __repr__(self):
 
-        num_sequences, sequence_length = self.sequences.shape
-
         return ('<Sequence interactions dataset ({num_sequences} '
-                'sequences x {sequence_length} sequence length)>'
+                'sequences x {sequence_length} max sequence length)>'
                 .format(
-                    num_sequences=num_sequences,
-                    sequence_length=sequence_length,
+                    num_sequences=self._num_sequences,
+                    sequence_length=self._max_sequence_length,
                 ))
+
+    def __iter__(self):
+
+        for value in self.sequences.values():
+            for row in value:
+                yield row
+
+    def minibatch(self, batch_size, random_state=None, use_cuda=False, only_full_batches=True):
+        """
+        Iterate over minibatches of the dataset. Each minibatch has the same sequence length,
+        but the lengths of each minibatche can differ to avoid padding. Minibatch order as
+        well as sequences within a minibatch are shuffled on each epoch.
+
+        Parameters
+        ----------
+
+        batch_size: int
+            The size of each minibatch. Minibatches smaller than this will not be emitted
+            if `only_full_batches` is `True` (default).
+        random_state: instance of numpy.random.RandomState, optional
+            Random generator to use when returning the minibatches.
+        use_cuda: bool, optional
+            Whether to send the minibatch data to the GPU.
+        only_full_batches: bool, optional
+            If `True`, minibatches smaller than `batch_size` are omitted. This is helpful
+            if loss values are averaged across minibatch. In that case, minibatches with
+            few examples would have a disproportionately large effect on the gradients.
+        """
+
+        if random_state is None:
+            random_state = np.random.RandomState()
+
+        # Shuffle the sequences within blocks of same length.
+        for value in self.sequences.values():
+            random_state.shuffle(value)
+
+        # Build a list of minibatches to execute that
+        # randomly alternates between the lengths.
+        minibatches = []
+
+        for key, value in self.sequences.items():
+            for i in range(0, len(value), batch_size):
+                minibatches.append([key, i, i + batch_size])
+
+        minibatches = np.array(minibatches, dtype=np.int64)
+        random_state.shuffle(minibatches)
+
+        # Convert to tensors (and possibly transfer to GPU).
+        tensor_data = {k: gpu(torch.from_numpy(v), use_cuda) for (k, v) in self.sequences.items()}
+
+        for (key, start, stop) in minibatches:
+            btch = tensor_data[key][start:stop]
+
+            if len(btch) != batch_size:
+                continue
+
+            yield btch

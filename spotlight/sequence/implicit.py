@@ -12,6 +12,7 @@ import torch.optim as optim
 from torch.autograd import Variable
 
 from spotlight.helpers import _repr_model
+from spotlight.interactions import SequenceInteractions
 from spotlight.losses import (adaptive_hinge_loss,
                               bpr_loss,
                               hinge_loss,
@@ -21,7 +22,7 @@ from spotlight.sequence.representations import (PADDING_IDX, CNNNet,
                                                 MixtureLSTMNet,
                                                 PoolNet)
 from spotlight.sampling import sample_items
-from spotlight.torch_utils import cpu, gpu, minibatch, set_seed, shuffle
+from spotlight.torch_utils import cpu, gpu, set_seed
 
 
 class ImplicitSequenceModel(object):
@@ -73,7 +74,7 @@ class ImplicitSequenceModel(object):
     .. code-block:: python
 
        [[1, 2, 3, 4, 5],
-        [0, 0, 7, 1, 4]]
+        [7, 1, 4]]
 
 
     In this case, the loss for the first example will be the mean loss
@@ -183,7 +184,9 @@ class ImplicitSequenceModel(object):
 
     def _check_input(self, item_ids):
 
-        if isinstance(item_ids, int):
+        if isinstance(item_ids, SequenceInteractions):
+            item_id_max = item_ids.num_items - 1
+        elif isinstance(item_ids, int):
             item_id_max = item_ids
         else:
             item_id_max = item_ids.max()
@@ -207,25 +210,19 @@ class ImplicitSequenceModel(object):
             The input sequence dataset.
         """
 
-        sequences = interactions.sequences.astype(np.int64)
-
         if not self._initialized:
             self._initialize(interactions)
 
-        self._check_input(sequences)
+        self._check_input(interactions)
 
         for epoch_num in range(self._n_iter):
 
-            sequences = shuffle(sequences,
-                                random_state=self._random_state)
-
-            sequences_tensor = gpu(torch.from_numpy(sequences),
-                                   self._use_cuda)
-
             epoch_loss = 0.0
 
-            for minibatch_num, batch_sequence in enumerate(minibatch(sequences_tensor,
-                                                                     batch_size=self._batch_size)):
+            for (minibatch_num,
+                 batch_sequence) in enumerate(interactions
+                                              .minibatch(batch_size=self._batch_size,
+                                                         random_state=self._random_state)):
 
                 sequence_var = Variable(batch_sequence)
 
