@@ -241,7 +241,7 @@ class ImplicitFactorizationModel(object):
                 self._optimizer.zero_grad()
 
                 loss = self._loss_func(positive_prediction, negative_prediction)
-                epoch_loss += loss.data[0]
+                epoch_loss += loss.item()
 
                 loss.backward()
                 self._optimizer.step()
