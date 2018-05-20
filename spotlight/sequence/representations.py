@@ -548,9 +548,9 @@ class MixtureLSTMNet(nn.Module):
         user_representations = user_representations.permute(0, 2, 1)
         user_representations = self.projection(user_representations)
         user_representations = user_representations.view(batch_size,
-                                                           self.num_mixtures * 2,
-                                                           self.embedding_dim,
-                                                           sequence_length + 1)
+                                                         self.num_mixtures * 2,
+                                                         self.embedding_dim,
+                                                         sequence_length + 1)
 
         return user_representations[:, :, :, :-1], user_representations[:, :, :, -1:]
 
