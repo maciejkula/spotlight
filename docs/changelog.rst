@@ -2,6 +2,14 @@
 Changelog
 =========
 
+Unreleased (unreleased)
+-----------------------
+
+Other
+~~~~~
+
+* Migration to PyTorch v0.4.0.
+
 v0.1.4 (2018-02-18)
 -------------------
 

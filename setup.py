@@ -10,6 +10,7 @@ setup(
     name='spotlight',
     version=version,
     packages=find_packages(),
+    install_requires=['torch>=0.4.0'],
     license='MIT',
     classifiers=['Development Status :: 3 - Alpha',
                  'License :: OSI Approved :: MIT License',
