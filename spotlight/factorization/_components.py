@@ -1,7 +1,6 @@
 import numpy as np
 
 import torch
-from torch.autograd import Variable
 
 from spotlight.torch_utils import gpu
 
@@ -20,7 +19,7 @@ def _predict_process_ids(user_ids, item_ids, num_items, use_cuda):
     if item_ids.size()[0] != user_ids.size(0):
         user_ids = user_ids.expand(item_ids.size())
 
-    user_var = Variable(gpu(user_ids, use_cuda))
-    item_var = Variable(gpu(item_ids, use_cuda))
+    user_var = gpu(user_ids, use_cuda)
+    item_var = gpu(item_ids, use_cuda)
 
     return user_var.squeeze(), item_var.squeeze()
