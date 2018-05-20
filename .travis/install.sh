@@ -22,7 +22,7 @@ source activate conda_env
 echo "Installing dependencies."
 conda install -y -q numpy scipy requests h5py scikit-learn pytest flake8
 echo "Installing PyTorch."
-conda install -y -q -c pytorch pytorch-cpu=0.3.1
+conda install -y -q -c pytorch pytorch=0.4.0
 
 # Pushing docs
 echo "Installing Sphinx."

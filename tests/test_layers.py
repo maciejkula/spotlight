@@ -3,7 +3,6 @@ import pytest
 import torch
 
 import torch.nn as nn
-from torch.autograd import Variable
 
 from spotlight.layers import BloomEmbedding, ScaledEmbedding
 
@@ -25,15 +24,15 @@ def test_embeddings(embedding_class):
                             embedding_dim)
 
     # Test 1-d inputs (minibatch)
-    indices = Variable(torch.from_numpy(
-        np.random.randint(0, num_embeddings, size=batch_size, dtype=np.int64)))
+    indices = torch.from_numpy(
+        np.random.randint(0, num_embeddings, size=batch_size, dtype=np.int64))
     representation = layer(indices)
     assert representation.size()[0] == batch_size
     assert representation.size()[-1] == embedding_dim
 
     # Test 2-d inputs (minibatch x sequence_length)
-    indices = Variable(torch.from_numpy(
+    indices = torch.from_numpy(
         np.random.randint(0, num_embeddings,
-                          size=(batch_size, sequence_length), dtype=np.int64)))
+                          size=(batch_size, sequence_length), dtype=np.int64))
     representation = layer(indices)
     assert representation.size() == (batch_size, sequence_length, embedding_dim)

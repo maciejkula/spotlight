@@ -9,8 +9,6 @@ import torch
 
 import torch.optim as optim
 
-from torch.autograd import Variable
-
 from spotlight.helpers import _repr_model
 from spotlight.losses import (adaptive_hinge_loss,
                               bpr_loss,
@@ -227,7 +225,7 @@ class ImplicitSequenceModel(object):
             for minibatch_num, batch_sequence in enumerate(minibatch(sequences_tensor,
                                                                      batch_size=self._batch_size)):
 
-                sequence_var = Variable(batch_sequence)
+                sequence_var = batch_sequence
 
                 user_representation, _ = self._net.user_representation(
                     sequence_var
@@ -250,7 +248,7 @@ class ImplicitSequenceModel(object):
                 loss = self._loss_func(positive_prediction,
                                        negative_prediction,
                                        mask=(sequence_var != PADDING_IDX))
-                epoch_loss += loss.data[0]
+                epoch_loss += loss.item()
 
                 loss.backward()
 
@@ -271,9 +269,8 @@ class ImplicitSequenceModel(object):
             self._num_items,
             shape,
             random_state=self._random_state)
-        negative_var = Variable(
-            gpu(torch.from_numpy(negative_items), self._use_cuda)
-        )
+        negative_var = gpu(torch.from_numpy(negative_items), self._use_cuda)
+
         negative_prediction = self._net(user_representation, negative_var)
 
         return negative_prediction
@@ -323,12 +320,12 @@ class ImplicitSequenceModel(object):
         sequences = torch.from_numpy(sequences.astype(np.int64).reshape(1, -1))
         item_ids = torch.from_numpy(item_ids.astype(np.int64))
 
-        sequence_var = Variable(gpu(sequences, self._use_cuda))
-        item_var = Variable(gpu(item_ids, self._use_cuda))
+        sequence_var = gpu(sequences, self._use_cuda)
+        item_var = gpu(item_ids, self._use_cuda)
 
         _, sequence_representations = self._net.user_representation(sequence_var)
         size = (len(item_var),) + sequence_representations.size()[1:]
         out = self._net(sequence_representations.expand(*size),
                         item_var)
 
-        return cpu(out.data).numpy().flatten()
+        return cpu(out).detach().numpy().flatten()

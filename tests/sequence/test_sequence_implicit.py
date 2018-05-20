@@ -88,7 +88,7 @@ def test_implicit_pooling_synthetic(randomness, expected_mrr):
 
 
 @pytest.mark.parametrize('randomness, expected_mrr', [
-    (1e-3, 0.65),
+    (1e-3, 0.61),
     (1e2, 0.03),
 ])
 def test_implicit_lstm_synthetic(randomness, expected_mrr):

@@ -9,8 +9,6 @@ from sklearn.utils import murmurhash3_32
 import torch
 import torch.nn as nn
 
-from torch.autograd import Variable
-
 
 SEEDS = [
     179424941, 179425457, 179425907, 179426369,
@@ -226,18 +224,18 @@ class BloomEmbedding(nn.Module):
             if (self._offsets is None or
                     self._offsets.size(0) != (batch_size * seq_size)):
 
-                self._offsets = Variable(torch.arange(0,
-                                                      indices.numel(),
-                                                      indices.size(1)).long())
+                self._offsets = torch.arange(0,
+                                             indices.numel(),
+                                             indices.size(1)).long()
 
                 if indices.is_cuda:
                     self._offsets = self._offsets.cuda()
 
-            hashed_indices = Variable(self._get_hashed_indices(indices))
+            hashed_indices = self._get_hashed_indices(indices)
             embedding = self.embeddings(hashed_indices.view(-1), self._offsets)
             embedding = embedding.view(batch_size, seq_size, -1)
         else:
-            hashed_indices = Variable(self._get_hashed_indices(indices))
+            hashed_indices = self._get_hashed_indices(indices)
 
             embedding = self.embeddings(hashed_indices)
             embedding = embedding.sum(1)
