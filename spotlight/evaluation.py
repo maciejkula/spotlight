@@ -6,7 +6,17 @@ import scipy.stats as st
 FLOAT_MAX = np.finfo(np.float32).max
 
 
-def mrr_score(model, test, train=None):
+def _check_mrr_mode(mode):
+
+    if mode not in {'mean', 'min'}:
+        raise ValueError("mode has to be one of ['mean', 'min'], "
+                         "but got {} instead".format(mode))
+
+    # return max here, since it will be called on (1 / ranks)
+    return np.mean if (mode == 'mean') else np.max
+
+
+def mrr_score(model, test, train=None, mode='mean'):
     """
     Compute mean reciprocal rank (MRR) scores. One score
     is given for every user with interactions in the test
@@ -24,6 +34,13 @@ def mrr_score(model, test, train=None):
         Train interactions. If supplied, scores of known
         interactions will be set to very low values and so not
         affect the MRR.
+    mode: str
+        One of ['mean', 'min']
+        Given ranks `R` of all positive items,
+        for mode `mean` the score is given as `mean(1 / R)`,
+        while for mode `min` it is given as `1 / min(R)`.
+        Intuitively, `min(R)` returns the rank of the first
+        correct answer.
 
     Returns
     -------
@@ -32,6 +49,7 @@ def mrr_score(model, test, train=None):
         Array of MRR scores for each user in test.
     """
 
+    fn = _check_mrr_mode(mode)
     test = test.tocsr()
 
     if train is not None:
@@ -49,14 +67,14 @@ def mrr_score(model, test, train=None):
         if train is not None:
             predictions[train[user_id].indices] = FLOAT_MAX
 
-        mrr = (1.0 / st.rankdata(predictions)[row.indices]).mean()
+        mrr = fn(1.0 / st.rankdata(predictions)[row.indices])
 
         mrrs.append(mrr)
 
     return np.array(mrrs)
 
 
-def sequence_mrr_score(model, test, exclude_preceding=False):
+def sequence_mrr_score(model, test, exclude_preceding=False, mode='mean'):
     """
     Compute mean reciprocal rank (MRR) scores. Each sequence
     in test is split into two parts: the first part, containing
@@ -75,6 +93,13 @@ def sequence_mrr_score(model, test, exclude_preceding=False):
     exclude_preceding: boolean, optional
         When true, items already present in the sequence will
         be excluded from evaluation.
+    mode: str
+        One of ['mean', 'min']
+        Given ranks `R` of all positive items,
+        for mode `mean` the score is given as `mean(1 / R)`,
+        while for mode `min` it is given as `1 / min(R)`.
+        Intuitively, `min(R)` returns the rank of the first
+        correct answer.
 
     Returns
     -------
@@ -82,6 +107,8 @@ def sequence_mrr_score(model, test, exclude_preceding=False):
     mrr scores: numpy array of shape (num_users,)
         Array of MRR scores for each sequence in test.
     """
+
+    fn = _check_mrr_mode(mode)
 
     sequences = test.sequences[:, :-1]
     targets = test.sequences[:, -1:]
@@ -95,7 +122,7 @@ def sequence_mrr_score(model, test, exclude_preceding=False):
         if exclude_preceding:
             predictions[sequences[i]] = FLOAT_MAX
 
-        mrr = (1.0 / st.rankdata(predictions)[targets[i]]).mean()
+        mrr = fn(1.0 / st.rankdata(predictions)[targets[i]])
 
         mrrs.append(mrr)
 
