@@ -227,7 +227,9 @@ class ExplicitFactorizationModel(object):
 
                 self._optimizer.zero_grad()
 
+
                 loss = self._loss_func(batch_ratings, predictions)
+
                 epoch_loss += loss.item()
 
                 loss.backward()
