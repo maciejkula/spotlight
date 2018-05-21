@@ -8,8 +8,6 @@ import torch
 
 import torch.optim as optim
 
-from torch.autograd import Variable
-
 from spotlight.helpers import _repr_model
 from spotlight.factorization._components import _predict_process_ids
 from spotlight.factorization.representations import BilinearNet
@@ -222,18 +220,16 @@ class ExplicitFactorizationModel(object):
                                                          ratings_tensor,
                                                          batch_size=self._batch_size)):
 
-                user_var = Variable(batch_user)
-                item_var = Variable(batch_item)
-                ratings_var = Variable(batch_ratings)
-
-                predictions = self._net(user_var, item_var)
+                predictions = self._net(batch_user, batch_item)
 
                 if self._loss == 'poisson':
                     predictions = torch.exp(predictions)
 
                 self._optimizer.zero_grad()
 
-                loss = self._loss_func(ratings_var, predictions)
+
+                loss = self._loss_func(batch_ratings, predictions)
+
                 epoch_loss += loss.item()
 
                 loss.backward()
@@ -287,4 +283,4 @@ class ExplicitFactorizationModel(object):
         elif self._loss == 'logistic':
             out = torch.sigmoid(out)
 
-        return cpu(out.data).numpy().flatten()
+        return cpu(out).detach().numpy().flatten()
