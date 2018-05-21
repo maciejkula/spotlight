@@ -102,6 +102,47 @@ def sequence_mrr_score(model, test, exclude_preceding=False):
     return np.array(mrrs)
 
 
+def sequence_precision_recall_score(model, test, k=10, exclude_preceding=False):
+    """
+    Compute sequence precision and recall scores. Each sequence
+    in test is split into two parts: the first part, containing
+    all but the last k elements, is used to predict the last k
+    elements.
+
+    Parameters
+    ----------
+
+    model: fitted instance of a recommender model
+        The model to evaluate.
+    test: :class:`spotlight.interactions.SequenceInteractions`
+        Test interactions.
+    exclude_preceding: boolean, optional
+        When true, items already present in the sequence will
+        be excluded from evaluation.
+
+    Returns
+    -------
+
+    mrr scores: numpy array of shape (num_users,)
+        Array of MRR scores for each sequence in test.
+    """
+    sequences = test.sequences[:, :-k]
+    targets = test.sequences[:, -k:]
+    precision_recalls = []
+    for i in range(len(sequences)):
+        predictions = -model.predict(sequences[i])
+        if exclude_preceding:
+            predictions[sequences[i]] = FLOAT_MAX
+
+        predictions = predictions.argsort()[:10]
+        precision_recall = _get_precision_recall(predictions, targets[i], k)
+        precision_recalls.append(precision_recall)
+
+    precision_avg = np.array(precision_recalls)[:, 0].mean()
+    recall_avg = np.array(precision_recalls)[:, 1].mean()
+    return precision_avg, recall_avg
+
+
 def _get_precision_recall(predictions, targets, k):
 
     predictions = predictions[:k]
