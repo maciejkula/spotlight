@@ -8,7 +8,7 @@ from spotlight.evaluation import precision_recall_score, sequence_precision_reca
 from spotlight.cross_validation import random_train_test_split
 from spotlight.datasets import movielens
 from spotlight.factorization.implicit import ImplicitFactorizationModel
-from spotlight.sequence import ImplicitSequenceModel
+from spotlight.sequence.implicit import ImplicitSequenceModel
 
 
 RANDOM_STATE = np.random.RandomState(42)
