@@ -134,7 +134,7 @@ def sequence_precision_recall_score(model, test, k=10, exclude_preceding=False):
         if exclude_preceding:
             predictions[sequences[i]] = FLOAT_MAX
 
-        predictions = predictions.argsort()[:10]
+        predictions = predictions.argsort()[:k]
         precision_recall = _get_precision_recall(predictions, targets[i], k)
         precision_recalls.append(precision_recall)
 
