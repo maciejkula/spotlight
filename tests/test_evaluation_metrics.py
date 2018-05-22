@@ -8,6 +8,8 @@ from spotlight.evaluation import precision_recall_score, sequence_precision_reca
 from spotlight.cross_validation import random_train_test_split
 from spotlight.datasets import movielens
 from spotlight.factorization.implicit import ImplicitFactorizationModel
+from spotlight.sequence import ImplicitSequenceModel
+
 
 RANDOM_STATE = np.random.RandomState(42)
 CUDA = bool(os.environ.get('SPOTLIGHT_CUDA', False))
@@ -41,8 +43,6 @@ def data_implicit_sequence():
     train, test = random_train_test_split(interactions,
                                           random_state=RANDOM_STATE)
 
-    h = hyperparameters
-
     model = ImplicitSequenceModel(loss='adaptive_hinge',
                                   representation='lstm',
                                   batch_size=[8, 16, 32, 256],
@@ -50,7 +50,7 @@ def data_implicit_sequence():
                                   l2=[1e-6, 1e-5, 1e-4, 1e-3, 1e-2, 0.0],
                                   n_iter=list(range(1, 2)),
                                   use_cuda=CUDA,
-                                  random_state=random_state)
+                                  random_state=RANDOM_STATE)
 
     model.fit(train, verbose=True)
 
@@ -58,7 +58,7 @@ def data_implicit_sequence():
 
 
 @pytest.mark.parametrize('k', 10)
-def test_precision_recall(data_implicit_sequence, k):
+def test_sequence_precision_recall(data_implicit_sequence, k):
 
     (train, test, model) = data_implicit_sequence
 
