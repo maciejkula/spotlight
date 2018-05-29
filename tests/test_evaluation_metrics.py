@@ -57,7 +57,7 @@ def data_implicit_sequence():
     return train, test, model
 
 
-@pytest.mark.parametrize('k', 10)
+@pytest.mark.parametrize('k', [10])
 def test_sequence_precision_recall(data_implicit_sequence, k):
 
     (train, test, model) = data_implicit_sequence
