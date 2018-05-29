@@ -5,7 +5,7 @@ import numpy as np
 import pytest
 
 from spotlight.evaluation import precision_recall_score, sequence_precision_recall_score
-from spotlight.cross_validation import random_train_test_split
+from spotlight.cross_validation import random_train_test_split, user_based_train_test_split
 from spotlight.datasets import movielens
 from spotlight.factorization.implicit import ImplicitFactorizationModel
 from spotlight.sequence.implicit import ImplicitSequenceModel
@@ -63,8 +63,9 @@ def test_sequence_precision_recall(data_implicit_sequence, k):
     (train, test, model) = data_implicit_sequence
 
     interactions = movielens.get_movielens_dataset('100K')
-    train, test = random_train_test_split(interactions,
-                                          random_state=RANDOM_STATE)
+
+    train, test = user_based_train_test_split(interactions,
+                                              random_state=RANDOM_STATE)
 
     precision, recall = sequence_precision_recall_score(model, test, train, k=k)
 
