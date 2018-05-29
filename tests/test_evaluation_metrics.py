@@ -79,7 +79,7 @@ def test_sequence_precision_recall(data_implicit_sequence, k):
     # with respect to the hyper-parameters specified in data_implicit_sequence
     expected_precision = 0.059
     expected_recall = 0.059
-    epsilon = .001
+    epsilon = .005
 
     # true_pos/(true_pos + false_pos) == true_pos/(true_pos + false_neg)
     # because num_predictions is set equal to num_targets in sequence_precision_recall_score
