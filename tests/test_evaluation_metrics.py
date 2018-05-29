@@ -38,17 +38,29 @@ def data_implicit_factorization():
 @pytest.fixture(scope='module')
 def data_implicit_sequence():
 
+    max_sequence_length = 200
+    min_sequence_length = 20
+    step_size = 200
+
     interactions = movielens.get_movielens_dataset('100K')
 
-    train, test = random_train_test_split(interactions,
-                                          random_state=RANDOM_STATE)
+    train, test = user_based_train_test_split(interactions,
+                                              random_state=RANDOM_STATE)
+
+    train = train.to_sequence(max_sequence_length=max_sequence_length,
+                              min_sequence_length=min_sequence_length,
+                              step_size=step_size)
+
+    test = test.to_sequence(max_sequence_length=max_sequence_length,
+                            min_sequence_length=min_sequence_length,
+                            step_size=step_size)
 
     model = ImplicitSequenceModel(loss='adaptive_hinge',
                                   representation='lstm',
-                                  batch_size=[8, 16, 32, 256],
-                                  learning_rate=[1e-3, 1e-2, 5 * 1e-2, 1e-1],
-                                  l2=[1e-6, 1e-5, 1e-4, 1e-3, 1e-2, 0.0],
-                                  n_iter=list(range(1, 2)),
+                                  batch_size=8,
+                                  learning_rate=1e-2,
+                                  l2=1e-3,
+                                  n_iter=2,
                                   use_cuda=CUDA,
                                   random_state=RANDOM_STATE)
 
@@ -62,19 +74,18 @@ def test_sequence_precision_recall(data_implicit_sequence, k):
 
     (train, test, model) = data_implicit_sequence
 
-    interactions = movielens.get_movielens_dataset('100K')
+    precision, recall = sequence_precision_recall_score(model, test, k)
 
-    train, test = user_based_train_test_split(interactions,
-                                              random_state=RANDOM_STATE)
+    # with respect to the hyper-parameters specified in data_implicit_sequence
+    expected_precision = 0.059
+    expected_recall = 0.059
+    epsilon = .001
 
-    precision, recall = sequence_precision_recall_score(model, test, train, k=k)
-
-    assert precision.shape == recall.shape
-
-    if not isinstance(k, list):
-        assert len(precision.shape) == 1
-    else:
-        assert precision.shape[1] == len(k)
+    # true_pos/(true_pos + false_pos) == true_pos/(true_pos + false_neg)
+    # because num_predictions is set equal to num_targets in sequence_precision_recall_score
+    assert precision == recall
+    assert expected_precision - epsilon < precision and precision < expected_precision + epsilon
+    assert expected_recall - epsilon < recall and recall < expected_recall + epsilon
 
 
 @pytest.mark.parametrize('k', [
