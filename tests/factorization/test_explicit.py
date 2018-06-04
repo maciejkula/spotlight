@@ -9,8 +9,7 @@ from spotlight.evaluation import rmse_score
 from spotlight.factorization.explicit import ExplicitFactorizationModel
 from spotlight.factorization.representations import BilinearNet
 from spotlight.layers import BloomEmbedding
-
-from ..test_config import EPSILON
+from tests.test_config import EPSILON
 
 
 RANDOM_STATE = np.random.RandomState(42)
