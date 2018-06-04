@@ -10,6 +10,7 @@ from spotlight.datasets import movielens
 from spotlight.factorization.implicit import ImplicitFactorizationModel
 from spotlight.sequence.implicit import ImplicitSequenceModel
 
+from test_config import EPSILON
 
 RANDOM_STATE = np.random.RandomState(42)
 CUDA = bool(os.environ.get('SPOTLIGHT_CUDA', False))
@@ -81,13 +82,12 @@ def test_sequence_precision_recall(data_implicit_sequence, k):
     # with respect to the hyper-parameters specified in data_implicit_sequence
     expected_precision = 0.059
     expected_recall = 0.059
-    epsilon = .005
 
     # true_pos/(true_pos + false_pos) == true_pos/(true_pos + false_neg)
     # because num_predictions is set equal to num_targets in sequence_precision_recall_score
     assert precision == recall
-    assert expected_precision - epsilon < precision and precision < expected_precision + epsilon
-    assert expected_recall - epsilon < recall and recall < expected_recall + epsilon
+    assert expected_precision - EPSILON < precision and precision < expected_precision + EPSILON
+    assert expected_recall - EPSILON < recall and recall < expected_recall + EPSILON
 
 
 @pytest.mark.parametrize('k', [

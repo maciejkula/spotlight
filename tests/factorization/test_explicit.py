@@ -10,6 +10,8 @@ from spotlight.factorization.explicit import ExplicitFactorizationModel
 from spotlight.factorization.representations import BilinearNet
 from spotlight.layers import BloomEmbedding
 
+from ..test_config import EPSILON
+
 
 RANDOM_STATE = np.random.RandomState(42)
 CUDA = bool(os.environ.get('SPOTLIGHT_CUDA', False))
@@ -32,7 +34,7 @@ def test_regression():
 
     rmse = rmse_score(model, test)
 
-    assert rmse < 1.0
+    assert rmse - EPSILON < 1.0
 
 
 def test_poisson():
@@ -52,7 +54,7 @@ def test_poisson():
 
     rmse = rmse_score(model, test)
 
-    assert rmse < 1.0
+    assert rmse - EPSILON < 1.0
 
 
 def test_logistic():
@@ -77,7 +79,7 @@ def test_logistic():
 
     rmse = rmse_score(model, test)
 
-    assert rmse < 1.05
+    assert rmse - EPSILON < 1.05
 
 
 def test_check_input():
@@ -140,4 +142,4 @@ def test_bloom(compression_ratio, expected_rmse):
     rmse = rmse_score(model, test)
     print(rmse)
 
-    assert rmse < expected_rmse
+    assert rmse - EPSILON < expected_rmse
