@@ -75,6 +75,8 @@ def test_sequence_precision_recall(data_implicit_sequence, k):
     (train, test, model) = data_implicit_sequence
 
     precision, recall = sequence_precision_recall_score(model, test, k)
+    precision = precision.mean()
+    recall = recall.mean()
 
     # with respect to the hyper-parameters specified in data_implicit_sequence
     expected_precision = 0.059

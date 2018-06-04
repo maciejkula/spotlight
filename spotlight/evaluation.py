@@ -138,9 +138,9 @@ def sequence_precision_recall_score(model, test, k=10, exclude_preceding=False):
         precision_recall = _get_precision_recall(predictions, targets[i], k)
         precision_recalls.append(precision_recall)
 
-    precision_avg = np.array(precision_recalls)[:, 0].mean()
-    recall_avg = np.array(precision_recalls)[:, 1].mean()
-    return precision_avg, recall_avg
+    precision = np.array(precision_recalls)[:, 0]
+    recall = np.array(precision_recalls)[:, 1]
+    return precision, recall
 
 
 def _get_precision_recall(predictions, targets, k):
