@@ -10,10 +10,11 @@ from spotlight.evaluation import mrr_score
 from spotlight.factorization.implicit import ImplicitFactorizationModel
 from spotlight.factorization.representations import BilinearNet
 from spotlight.layers import BloomEmbedding
-from tests.test_config import EPSILON
 
 RANDOM_STATE = np.random.RandomState(42)
 CUDA = bool(os.environ.get('SPOTLIGHT_CUDA', False))
+# Acceptable variation in specific test runs
+EPSILON = .005
 
 
 def test_pointwise():
