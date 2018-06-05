@@ -305,6 +305,47 @@
     <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">mrrs</span><span class="p">)</span></div>
 
 
+<div class="viewcode-block" id="sequence_precision_recall_score"><a class="viewcode-back" href="../../evaluation.html#spotlight.evaluation.sequence_precision_recall_score">[docs]</a><span class="k">def</span> <span class="nf">sequence_precision_recall_score</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="n">test</span><span class="p">,</span> <span class="n">k</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span> <span class="n">exclude_preceding</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Compute sequence precision and recall scores. Each sequence</span>
+<span class="sd">    in test is split into two parts: the first part, containing</span>
+<span class="sd">    all but the last k elements, is used to predict the last k</span>
+<span class="sd">    elements.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+
+<span class="sd">    model: fitted instance of a recommender model</span>
+<span class="sd">        The model to evaluate.</span>
+<span class="sd">    test: :class:`spotlight.interactions.SequenceInteractions`</span>
+<span class="sd">        Test interactions.</span>
+<span class="sd">    exclude_preceding: boolean, optional</span>
+<span class="sd">        When true, items already present in the sequence will</span>
+<span class="sd">        be excluded from evaluation.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+
+<span class="sd">    mrr scores: numpy array of shape (num_users,)</span>
+<span class="sd">        Array of MRR scores for each sequence in test.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">sequences</span> <span class="o">=</span> <span class="n">test</span><span class="o">.</span><span class="n">sequences</span><span class="p">[:,</span> <span class="p">:</span><span class="o">-</span><span class="n">k</span><span class="p">]</span>
+    <span class="n">targets</span> <span class="o">=</span> <span class="n">test</span><span class="o">.</span><span class="n">sequences</span><span class="p">[:,</span> <span class="o">-</span><span class="n">k</span><span class="p">:]</span>
+    <span class="n">precision_recalls</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">sequences</span><span class="p">)):</span>
+        <span class="n">predictions</span> <span class="o">=</span> <span class="o">-</span><span class="n">model</span><span class="o">.</span><span class="n">predict</span><span class="p">(</span><span class="n">sequences</span><span class="p">[</span><span class="n">i</span><span class="p">])</span>
+        <span class="k">if</span> <span class="n">exclude_preceding</span><span class="p">:</span>
+            <span class="n">predictions</span><span class="p">[</span><span class="n">sequences</span><span class="p">[</span><span class="n">i</span><span class="p">]]</span> <span class="o">=</span> <span class="n">FLOAT_MAX</span>
+
+        <span class="n">predictions</span> <span class="o">=</span> <span class="n">predictions</span><span class="o">.</span><span class="n">argsort</span><span class="p">()[:</span><span class="n">k</span><span class="p">]</span>
+        <span class="n">precision_recall</span> <span class="o">=</span> <span class="n">_get_precision_recall</span><span class="p">(</span><span class="n">predictions</span><span class="p">,</span> <span class="n">targets</span><span class="p">[</span><span class="n">i</span><span class="p">],</span> <span class="n">k</span><span class="p">)</span>
+        <span class="n">precision_recalls</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">precision_recall</span><span class="p">)</span>
+
+    <span class="n">precision</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">precision_recalls</span><span class="p">)[:,</span> <span class="mi">0</span><span class="p">]</span>
+    <span class="n">recall</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">precision_recalls</span><span class="p">)[:,</span> <span class="mi">1</span><span class="p">]</span>
+    <span class="k">return</span> <span class="n">precision</span><span class="p">,</span> <span class="n">recall</span></div>
+
+
 <span class="k">def</span> <span class="nf">_get_precision_recall</span><span class="p">(</span><span class="n">predictions</span><span class="p">,</span> <span class="n">targets</span><span class="p">,</span> <span class="n">k</span><span class="p">):</span>
 
     <span class="n">predictions</span> <span class="o">=</span> <span class="n">predictions</span><span class="p">[:</span><span class="n">k</span><span class="p">]</span>
@@ -459,9 +500,7 @@
 
   <script type="text/javascript">
       jQuery(function () {
-          
-          SphinxRtdTheme.Navigation.enableSticky();
-          
+          SphinxRtdTheme.Navigation.enable(true);
       });
   </script> 
 

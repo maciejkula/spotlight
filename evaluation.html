@@ -323,6 +323,35 @@ be excluded from evaluation.</li>
 </table>
 </dd></dl>
 
+<dl class="function">
+<dt id="spotlight.evaluation.sequence_precision_recall_score">
+<code class="descclassname">spotlight.evaluation.</code><code class="descname">sequence_precision_recall_score</code><span class="sig-paren">(</span><em>model</em>, <em>test</em>, <em>k=10</em>, <em>exclude_preceding=False</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/spotlight/evaluation.html#sequence_precision_recall_score"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#spotlight.evaluation.sequence_precision_recall_score" title="Permalink to this definition">¶</a></dt>
+<dd><p>Compute sequence precision and recall scores. Each sequence
+in test is split into two parts: the first part, containing
+all but the last k elements, is used to predict the last k
+elements.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>model</strong> (<em>fitted instance of a recommender model</em>) – The model to evaluate.</li>
+<li><strong>test</strong> (<a class="reference internal" href="interactions.html#spotlight.interactions.SequenceInteractions" title="spotlight.interactions.SequenceInteractions"><code class="xref py py-class docutils literal notranslate"><span class="pre">spotlight.interactions.SequenceInteractions</span></code></a>) – Test interactions.</li>
+<li><strong>exclude_preceding</strong> (<em>boolean</em><em>, </em><em>optional</em>) – When true, items already present in the sequence will
+be excluded from evaluation.</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><strong>mrr scores</strong> – Array of MRR scores for each sequence in test.</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">numpy array of shape (num_users,)</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
 </div>
 
 
@@ -388,9 +417,7 @@ be excluded from evaluation.</li>
 
   <script type="text/javascript">
       jQuery(function () {
-          
-          SphinxRtdTheme.Navigation.enableSticky();
-          
+          SphinxRtdTheme.Navigation.enable(true);
       });
   </script> 
 
