@@ -225,13 +225,13 @@ class ImplicitFactorizationModel(object):
                         batch_user,
                         batch_item,
                     )
-                ) in enumerate(
-                    minibatch(
-                        user_ids_tensor,
-                        item_ids_tensor,
-                        batch_size=self._batch_size
-                    )
-                ):
+            ) in enumerate(
+                minibatch(
+                    user_ids_tensor,
+                    item_ids_tensor,
+                    batch_size=self._batch_size
+                )
+            ):
 
                 positive_prediction = self._net(batch_user, batch_item)
 
@@ -244,9 +244,9 @@ class ImplicitFactorizationModel(object):
                 self._optimizer.zero_grad()
 
                 loss = self._loss_func(
-                        positive_prediction,
-                        negative_prediction,
-                    )
+                    positive_prediction,
+                    negative_prediction,
+                )
                 epoch_loss += loss.item()
 
                 loss.backward()
@@ -294,17 +294,21 @@ class ImplicitFactorizationModel(object):
 
         for epoch_num in range(self._n_iter):
 
-            users, items, sample_weights = shuffle(user_ids,
-                                   item_ids,
-                                   sample_weights,
-                                   random_state=self._random_state)
+            users, items, sample_weights = shuffle(
+                user_ids,
+                item_ids,
+                sample_weights,
+                random_state=self._random_state
+            )
 
             user_ids_tensor = gpu(torch.from_numpy(users),
                                   self._use_cuda)
             item_ids_tensor = gpu(torch.from_numpy(items),
                                   self._use_cuda)
-            sample_weights_tensor = gpu(torch.from_numpy(sample_weights),
-                                  self._use_cuda)
+            sample_weights_tensor = gpu(
+                torch.from_numpy(sample_weights),
+                self._use_cuda
+            )
 
             epoch_loss = 0.0
 
@@ -315,14 +319,14 @@ class ImplicitFactorizationModel(object):
                         batch_item,
                         batch_sample_weights
                     )
-                ) in enumerate(
-                    minibatch(
-                        user_ids_tensor,
-                        item_ids_tensor,
-                        sample_weights_tensor,
-                        batch_size=self._batch_size
-                    )
-                ):
+            ) in enumerate(
+                minibatch(
+                    user_ids_tensor,
+                    item_ids_tensor,
+                    sample_weights_tensor,
+                    batch_size=self._batch_size
+                )
+            ):
 
                 positive_prediction = self._net(batch_user, batch_item)
 
@@ -335,9 +339,10 @@ class ImplicitFactorizationModel(object):
                 self._optimizer.zero_grad()
 
                 loss = self._loss_func(
-                        positive_prediction,
-                        negative_prediction,
-                        sample_weights=batch_sample_weights)
+                    positive_prediction,
+                    negative_prediction,
+                    sample_weights=batch_sample_weights
+                )
                 epoch_loss += loss.item()
 
                 loss.backward()

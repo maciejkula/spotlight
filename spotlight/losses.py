@@ -207,11 +207,11 @@ def adaptive_hinge_loss(
     highest_negative_predictions, _ = torch.max(negative_predictions, 0)
 
     return hinge_loss(
-            positive_predictions,
-            highest_negative_predictions.squeeze(),
-            sample_weights=sample_weights,
-            mask=mask
-        )
+        positive_predictions,
+        highest_negative_predictions.squeeze(),
+        sample_weights=sample_weights,
+        mask=mask
+    )
 
 
 def regression_loss(
@@ -318,14 +318,14 @@ def logistic_loss(
 
     if sample_weights is not None or mask is not None:
         loss = F.binary_cross_entropy_with_logits(
-                    predicted_ratings,
-                    observed_ratings,
-                    size_average=False
-                )
+            predicted_ratings,
+            observed_ratings,
+            size_average=False
+        )
         return base_loss(loss, sample_weights, mask)
 
     return F.binary_cross_entropy_with_logits(
-                    predicted_ratings,
-                    observed_ratings,
-                    size_average=True
-                )
+        predicted_ratings,
+        observed_ratings,
+        size_average=True
+    )
