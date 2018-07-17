@@ -15,7 +15,42 @@ import torch.nn.functional as F
 from spotlight.torch_utils import assert_no_grad
 
 
-def pointwise_loss(positive_predictions, negative_predictions, mask=None):
+def base_loss(loss, sample_weights=None, mask=None):
+    """Sample weight and mask handler for loss functions.
+    If both sample_weights and mask are specified, sample_weights will override
+    as one may zero-out, as well as scale, certain entries via the weights.
+
+    Parameters
+    ----------
+
+    loss: tensor
+        Tensor with element-wise losses from one of the loss functions in this
+        file.
+    sample_weights: tensor, optional
+        Tensor containing weights to scale the loss by.
+    mask: tensor, optional
+        A binary tensor used to zero the loss from some entries
+        of the loss tensor.
+
+    Returns
+    -------
+
+    loss, float
+        The mean value of the loss function.
+    """
+    if sample_weights is not None:
+        loss = loss * sample_weights
+        return loss.sum() / sample_weights.sum()
+
+    if mask is not None:
+        mask = mask.float()
+        loss = loss * mask
+        return loss.sum() / mask.sum()
+
+
+def pointwise_loss(
+        positive_predictions, negative_predictions,
+        sample_weights=None, mask=None):
     """
     Logistic loss function.
 
@@ -26,6 +61,8 @@ def pointwise_loss(positive_predictions, negative_predictions, mask=None):
         Tensor containing predictions for known positive items.
     negative_predictions: tensor
         Tensor containing predictions for sampled negative items.
+    sample_weights: tensor, optional
+        Tensor containing weights to scale the loss by.
     mask: tensor, optional
         A binary tensor used to zero the loss from some entries
         of the loss tensor.
@@ -42,15 +79,15 @@ def pointwise_loss(positive_predictions, negative_predictions, mask=None):
 
     loss = (positives_loss + negatives_loss)
 
-    if mask is not None:
-        mask = mask.float()
-        loss = loss * mask
-        return loss.sum() / mask.sum()
+    if sample_weights is not None or mask is not None:
+        return base_loss(loss, sample_weights, mask)
 
     return loss.mean()
 
 
-def bpr_loss(positive_predictions, negative_predictions, mask=None):
+def bpr_loss(
+        positive_predictions, negative_predictions,
+        sample_weights=None, mask=None):
     """
     Bayesian Personalised Ranking [1]_ pairwise loss function.
 
@@ -61,6 +98,8 @@ def bpr_loss(positive_predictions, negative_predictions, mask=None):
         Tensor containing predictions for known positive items.
     negative_predictions: tensor
         Tensor containing predictions for sampled negative items.
+    sample_weights: tensor, optional
+        Tensor containing weights to scale the loss by.
     mask: tensor, optional
         A binary tensor used to zero the loss from some entries
         of the loss tensor.
@@ -82,15 +121,15 @@ def bpr_loss(positive_predictions, negative_predictions, mask=None):
     loss = (1.0 - F.sigmoid(positive_predictions -
                             negative_predictions))
 
-    if mask is not None:
-        mask = mask.float()
-        loss = loss * mask
-        return loss.sum() / mask.sum()
+    if sample_weights is not None or mask is not None:
+        return base_loss(loss, sample_weights, mask)
 
     return loss.mean()
 
 
-def hinge_loss(positive_predictions, negative_predictions, mask=None):
+def hinge_loss(
+        positive_predictions, negative_predictions,
+        sample_weights=None, mask=None):
     """
     Hinge pairwise loss function.
 
@@ -101,6 +140,8 @@ def hinge_loss(positive_predictions, negative_predictions, mask=None):
         Tensor containing predictions for known positive items.
     negative_predictions: tensor
         Tensor containing predictions for sampled negative items.
+    sample_weights: tensor, optional
+        Tensor containing weights to scale the loss by.
     mask: tensor, optional
         A binary tensor used to zero the loss from some entries
         of the loss tensor.
@@ -116,22 +157,22 @@ def hinge_loss(positive_predictions, negative_predictions, mask=None):
                        positive_predictions +
                        1.0, 0.0)
 
-    if mask is not None:
-        mask = mask.float()
-        loss = loss * mask
-        return loss.sum() / mask.sum()
+    if sample_weights is not None or mask is not None:
+        return base_loss(loss, sample_weights, mask)
 
     return loss.mean()
 
 
-def adaptive_hinge_loss(positive_predictions, negative_predictions, mask=None):
+def adaptive_hinge_loss(
+        positive_predictions, negative_predictions,
+        sample_weights=None, mask=None):
     """
     Adaptive hinge pairwise loss function. Takes a set of predictions
     for implicitly negative items, and selects those that are highest,
-    thus sampling those negatives that are closes to violating the
+    thus sampling those negatives that are closest to violating the
     ranking implicit in the pattern of user interactions.
 
-    Approximates the idea of weighted approximate-rank pairwise loss
+    Approximates the idea of Weighted Approximate-Rank Pairwise (WARP) loss
     introduced in [2]_
 
     Parameters
@@ -143,6 +184,8 @@ def adaptive_hinge_loss(positive_predictions, negative_predictions, mask=None):
         Iterable of tensors containing predictions for sampled negative items.
         More tensors increase the likelihood of finding ranking-violating
         pairs, but risk overfitting.
+    sample_weights: tensor, optional
+        Tensor containing weights to scale the loss by.
     mask: tensor, optional
         A binary tensor used to zero the loss from some entries
         of the loss tensor.
@@ -163,10 +206,17 @@ def adaptive_hinge_loss(positive_predictions, negative_predictions, mask=None):
 
     highest_negative_predictions, _ = torch.max(negative_predictions, 0)
 
-    return hinge_loss(positive_predictions, highest_negative_predictions.squeeze(), mask=mask)
+    return hinge_loss(
+            positive_predictions,
+            highest_negative_predictions.squeeze(),
+            sample_weights=sample_weights,
+            mask=mask
+        )
 
 
-def regression_loss(observed_ratings, predicted_ratings):
+def regression_loss(
+        observed_ratings, predicted_ratings,
+        sample_weights=None, mask=None):
     """
     Regression loss.
 
@@ -177,6 +227,11 @@ def regression_loss(observed_ratings, predicted_ratings):
         Tensor containing observed ratings.
     predicted_ratings: tensor
         Tensor containing rating predictions.
+    sample_weights: tensor, optional
+        Tensor containing weights to scale the loss by.
+    mask: tensor, optional
+        A binary tensor used to zero the loss from some entries
+        of the loss tensor.
 
     Returns
     -------
@@ -186,11 +241,17 @@ def regression_loss(observed_ratings, predicted_ratings):
     """
 
     assert_no_grad(observed_ratings)
+    loss = (observed_ratings - predicted_ratings) ** 2
 
-    return ((observed_ratings - predicted_ratings) ** 2).mean()
+    if sample_weights is not None or mask is not None:
+        return base_loss(loss, sample_weights, mask)
+
+    return loss.mean()
 
 
-def poisson_loss(observed_ratings, predicted_ratings):
+def poisson_loss(
+        observed_ratings, predicted_ratings,
+        sample_weights=None, mask=None):
     """
     Poisson loss.
 
@@ -201,6 +262,11 @@ def poisson_loss(observed_ratings, predicted_ratings):
         Tensor containing observed ratings.
     predicted_ratings: tensor
         Tensor containing rating predictions.
+    sample_weights: tensor, optional
+        Tensor containing weights to scale the loss by.
+    mask: tensor, optional
+        A binary tensor used to zero the loss from some entries
+        of the loss tensor.
 
     Returns
     -------
@@ -210,11 +276,17 @@ def poisson_loss(observed_ratings, predicted_ratings):
     """
 
     assert_no_grad(observed_ratings)
+    loss = predicted_ratings - observed_ratings * torch.log(predicted_ratings)
 
-    return (predicted_ratings - observed_ratings * torch.log(predicted_ratings)).mean()
+    if sample_weights is not None or mask is not None:
+        return base_loss(loss, sample_weights, mask)
+
+    return loss.mean()
 
 
-def logistic_loss(observed_ratings, predicted_ratings):
+def logistic_loss(
+        observed_ratings, predicted_ratings,
+        sample_weights=None, mask=None):
     """
     Logistic loss for explicit data.
 
@@ -226,6 +298,11 @@ def logistic_loss(observed_ratings, predicted_ratings):
         should be +1 or -1 for this loss function.
     predicted_ratings: tensor
         Tensor containing rating predictions.
+    sample_weights: tensor, optional
+        Tensor containing weights to scale the loss by.
+    mask: tensor, optional
+        A binary tensor used to zero the loss from some entries
+        of the loss tensor.
 
     Returns
     -------
@@ -239,6 +316,16 @@ def logistic_loss(observed_ratings, predicted_ratings):
     # Convert target classes from (-1, 1) to (0, 1)
     observed_ratings = torch.clamp(observed_ratings, 0, 1)
 
-    return F.binary_cross_entropy_with_logits(predicted_ratings,
-                                              observed_ratings,
-                                              size_average=True)
+    if sample_weights is not None or mask is not None:
+        loss = F.binary_cross_entropy_with_logits(
+                    predicted_ratings,
+                    observed_ratings,
+                    size_average=False
+                )
+        return base_loss(loss, sample_weights, mask)
+
+    return F.binary_cross_entropy_with_logits(
+                    predicted_ratings,
+                    observed_ratings,
+                    size_average=True
+                )

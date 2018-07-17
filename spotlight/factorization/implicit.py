@@ -198,7 +198,6 @@ class ImplicitFactorizationModel(object):
         verbose: bool
             Output additional information about current epoch and loss.
         """
-
         user_ids = interactions.user_ids.astype(np.int64)
         item_ids = interactions.item_ids.astype(np.int64)
 
@@ -220,11 +219,19 @@ class ImplicitFactorizationModel(object):
 
             epoch_loss = 0.0
 
-            for (minibatch_num,
-                 (batch_user,
-                  batch_item)) in enumerate(minibatch(user_ids_tensor,
-                                                      item_ids_tensor,
-                                                      batch_size=self._batch_size)):
+            for (
+                    minibatch_num,
+                    (
+                        batch_user,
+                        batch_item,
+                    )
+                ) in enumerate(
+                    minibatch(
+                        user_ids_tensor,
+                        item_ids_tensor,
+                        batch_size=self._batch_size
+                    )
+                ):
 
                 positive_prediction = self._net(batch_user, batch_item)
 
@@ -236,7 +243,101 @@ class ImplicitFactorizationModel(object):
 
                 self._optimizer.zero_grad()
 
-                loss = self._loss_func(positive_prediction, negative_prediction)
+                loss = self._loss_func(
+                        positive_prediction,
+                        negative_prediction,
+                    )
+                epoch_loss += loss.item()
+
+                loss.backward()
+                self._optimizer.step()
+
+            epoch_loss /= minibatch_num + 1
+
+            if verbose:
+                print('Epoch {}: loss {}'.format(epoch_num, epoch_loss))
+
+            if np.isnan(epoch_loss) or epoch_loss == 0.0:
+                raise ValueError('Degenerate epoch loss: {}'
+                                 .format(epoch_loss))
+
+    def fit_weighted(self, interactions, verbose=False):
+        """
+        Fit the model using sample weights.
+
+        When called repeatedly, model fitting will resume from
+        the point at which training stopped in the previous fit
+        call.
+
+        Parameters
+        ----------
+
+        interactions: :class:`spotlight.interactions.Interactions`
+            The input dataset.
+
+        verbose: bool
+            Output additional information about current epoch and loss.
+        """
+        if interactions.weights is None:
+            raise ValueError('''Sample weights must be specified in the
+            interactions object. If you don't have sample weights,
+            use the fit method instead''')
+
+        user_ids = interactions.user_ids.astype(np.int64)
+        item_ids = interactions.item_ids.astype(np.int64)
+        sample_weights = interactions.weights.astype(np.float32)
+
+        if not self._initialized:
+            self._initialize(interactions)
+
+        self._check_input(user_ids, item_ids)
+
+        for epoch_num in range(self._n_iter):
+
+            users, items, sample_weights = shuffle(user_ids,
+                                   item_ids,
+                                   sample_weights,
+                                   random_state=self._random_state)
+
+            user_ids_tensor = gpu(torch.from_numpy(users),
+                                  self._use_cuda)
+            item_ids_tensor = gpu(torch.from_numpy(items),
+                                  self._use_cuda)
+            sample_weights_tensor = gpu(torch.from_numpy(sample_weights),
+                                  self._use_cuda)
+
+            epoch_loss = 0.0
+
+            for (
+                    minibatch_num,
+                    (
+                        batch_user,
+                        batch_item,
+                        batch_sample_weights
+                    )
+                ) in enumerate(
+                    minibatch(
+                        user_ids_tensor,
+                        item_ids_tensor,
+                        sample_weights_tensor,
+                        batch_size=self._batch_size
+                    )
+                ):
+
+                positive_prediction = self._net(batch_user, batch_item)
+
+                if self._loss == 'adaptive_hinge':
+                    negative_prediction = self._get_multiple_negative_predictions(
+                        batch_user, n=self._num_negative_samples)
+                else:
+                    negative_prediction = self._get_negative_prediction(batch_user)
+
+                self._optimizer.zero_grad()
+
+                loss = self._loss_func(
+                        positive_prediction,
+                        negative_prediction,
+                        sample_weights=batch_sample_weights)
                 epoch_loss += loss.item()
 
                 loss.backward()
