@@ -198,6 +198,10 @@ class ImplicitFactorizationModel(object):
         verbose: bool
             Output additional information about current epoch and loss.
         """
+        # Call weighted fit method if sample weights are specified
+        if interactions.weights is not None:
+            return _fit_weighted(self, interactions, verbose=False)
+
         user_ids = interactions.user_ids.astype(np.int64)
         item_ids = interactions.item_ids.astype(np.int64)
 
@@ -261,7 +265,7 @@ class ImplicitFactorizationModel(object):
                 raise ValueError('Degenerate epoch loss: {}'
                                  .format(epoch_loss))
 
-    def fit_weighted(self, interactions, verbose=False):
+    def _fit_weighted(self, interactions, verbose=False):
         """
         Fit the model using sample weights.
 
