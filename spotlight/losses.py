@@ -15,7 +15,7 @@ import torch.nn.functional as F
 from spotlight.torch_utils import assert_no_grad
 
 
-def base_loss(loss, sample_weights=None, mask=None):
+def _weighted_loss(loss, sample_weights=None, mask=None):
     """Sample weight and mask handler for loss functions.
     If both sample_weights and mask are specified, sample_weights will override
     as one may zero-out, as well as scale, certain entries via the weights.
@@ -46,6 +46,8 @@ def base_loss(loss, sample_weights=None, mask=None):
         mask = mask.float()
         loss = loss * mask
         return loss.sum() / mask.sum()
+
+    return loss.mean()
 
 
 def pointwise_loss(
@@ -79,10 +81,7 @@ def pointwise_loss(
 
     loss = (positives_loss + negatives_loss)
 
-    if sample_weights is not None or mask is not None:
-        return base_loss(loss, sample_weights, mask)
-
-    return loss.mean()
+    return _weighted_loss(loss, sample_weights, mask)
 
 
 def bpr_loss(
@@ -121,10 +120,8 @@ def bpr_loss(
     loss = (1.0 - F.sigmoid(positive_predictions -
                             negative_predictions))
 
-    if sample_weights is not None or mask is not None:
-        return base_loss(loss, sample_weights, mask)
+    return _weighted_loss(loss, sample_weights, mask)
 
-    return loss.mean()
 
 
 def hinge_loss(
@@ -157,10 +154,7 @@ def hinge_loss(
                        positive_predictions +
                        1.0, 0.0)
 
-    if sample_weights is not None or mask is not None:
-        return base_loss(loss, sample_weights, mask)
-
-    return loss.mean()
+    return _weighted_loss(loss, sample_weights, mask)
 
 
 def adaptive_hinge_loss(
@@ -243,10 +237,7 @@ def regression_loss(
     assert_no_grad(observed_ratings)
     loss = (observed_ratings - predicted_ratings) ** 2
 
-    if sample_weights is not None or mask is not None:
-        return base_loss(loss, sample_weights, mask)
-
-    return loss.mean()
+    return _weighted_loss(loss, sample_weights, mask)
 
 
 def poisson_loss(
@@ -278,10 +269,7 @@ def poisson_loss(
     assert_no_grad(observed_ratings)
     loss = predicted_ratings - observed_ratings * torch.log(predicted_ratings)
 
-    if sample_weights is not None or mask is not None:
-        return base_loss(loss, sample_weights, mask)
-
-    return loss.mean()
+    return _weighted_loss(loss, sample_weights, mask)
 
 
 def logistic_loss(
@@ -322,7 +310,7 @@ def logistic_loss(
             observed_ratings,
             size_average=False
         )
-        return base_loss(loss, sample_weights, mask)
+        return _weighted_loss(loss, sample_weights, mask)
 
     return F.binary_cross_entropy_with_logits(
         predicted_ratings,
