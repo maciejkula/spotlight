@@ -200,7 +200,7 @@ class ImplicitFactorizationModel(object):
         """
         # Call weighted fit method if sample weights are specified
         if interactions.weights is not None:
-            return _fit_weighted(self, interactions, verbose=False)
+            return self._fit_weighted(self, interactions, verbose=False)
 
         user_ids = interactions.user_ids.astype(np.int64)
         item_ids = interactions.item_ids.astype(np.int64)
