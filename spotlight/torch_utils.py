@@ -29,14 +29,14 @@ def minibatch(*tensors, **kwargs):
             yield tensor[i:i + batch_size]
     else:
         for i in range(0, len(tensors[0]), batch_size):
-            yield tuple(x[i:i + batch_size] for x in tensors)
+            yield tuple(x[i:i + batch_size] if x is not None else None for x in tensors)
 
 
 def shuffle(*arrays, **kwargs):
 
     random_state = kwargs.get('random_state')
 
-    if len(set(len(x) for x in arrays)) != 1:
+    if len(set(len(x) for x in arrays if x is not None)) != 1:
         raise ValueError('All inputs to shuffle must have '
                          'the same length.')
 
@@ -49,7 +49,7 @@ def shuffle(*arrays, **kwargs):
     if len(arrays) == 1:
         return arrays[0][shuffle_indices]
     else:
-        return tuple(x[shuffle_indices] for x in arrays)
+        return tuple(x[shuffle_indices] if x is not None else None for x in arrays)
 
 
 def assert_no_grad(variable):

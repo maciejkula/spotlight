@@ -123,7 +123,6 @@ def bpr_loss(
     return _weighted_loss(loss, sample_weights, mask)
 
 
-
 def hinge_loss(
         positive_predictions, negative_predictions,
         sample_weights=None, mask=None):
