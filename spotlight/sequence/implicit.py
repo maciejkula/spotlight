@@ -235,7 +235,7 @@ class ImplicitSequenceModel(object):
                         batch_sequence,
                         batch_weight_sequence
                     )
-                ) in enumerate(
+            ) in enumerate(
                 minibatch(
                     sequences_tensor,
                     weight_sequences_tensor,
@@ -269,10 +269,10 @@ class ImplicitSequenceModel(object):
                 masked_weights = weight_sequence_var * padding_mask
                 masked_weights = masked_weights.type(torch.FloatTensor)
                 loss = self._loss_func(
-                            positive_prediction,
-                            negative_prediction,
-                            sample_weights=masked_weights,
-                        )
+                    positive_prediction,
+                    negative_prediction,
+                    sample_weights=masked_weights,
+                )
                 epoch_loss += loss.item()
 
                 loss.backward()

@@ -168,56 +168,56 @@ class Interactions(object):
         return self.tocoo().tocsr()
 
     def to_sequence(self, max_sequence_length=10, min_sequence_length=None, step_size=None):
-         """
-         Transform to sequence form.
- 
-         User-item interaction pairs are sorted by their timestamps,
-         and sequences of up to max_sequence_length events are arranged
-         into a (zero-padded from the left) matrix with dimensions
-         (num_sequences x max_sequence_length).
- 
-         Valid subsequences of users' interactions are returned. For
-         example, if a user interacted with items [1, 2, 3, 4, 5], the
-         returned interactions matrix at sequence length 5 and step size
-         1 will be be given by:
- 
-         .. code-block:: python
- 
-            [[1, 2, 3, 4, 5],
-             [0, 1, 2, 3, 4],
-             [0, 0, 1, 2, 3],
-             [0, 0, 0, 1, 2],
-             [0, 0, 0, 0, 1]]
- 
-         At step size 2:
- 
-         .. code-block:: python
- 
-            [[1, 2, 3, 4, 5],
-             [0, 0, 1, 2, 3],
-             [0, 0, 0, 0, 1]]
- 
-         Parameters
-         ----------
- 
-         max_sequence_length: int, optional
-             Maximum sequence length. Subsequences shorter than this
-             will be left-padded with zeros.
-         min_sequence_length: int, optional
-             If set, only sequences with at least min_sequence_length
-             non-padding elements will be returned.
-         step-size: int, optional
-             The returned subsequences are the effect of moving a
-             a sliding window over the input. This parameter
-             governs the stride of that window. Increasing it will
-             result in fewer subsequences being returned.
- 
-         Returns
-         -------
- 
-         sequence interactions: :class:`~SequenceInteractions`
-             The resulting sequence interactions.
-         """
+        """
+        Transform to sequence form.
+
+        User-item interaction pairs are sorted by their timestamps,
+        and sequences of up to max_sequence_length events are arranged
+        into a (zero-padded from the left) matrix with dimensions
+        (num_sequences x max_sequence_length).
+
+        Valid subsequences of users' interactions are returned. For
+        example, if a user interacted with items [1, 2, 3, 4, 5], the
+        returned interactions matrix at sequence length 5 and step size
+        1 will be be given by:
+
+        .. code-block:: python
+
+           [[1, 2, 3, 4, 5],
+            [0, 1, 2, 3, 4],
+            [0, 0, 1, 2, 3],
+            [0, 0, 0, 1, 2],
+            [0, 0, 0, 0, 1]]
+
+        At step size 2:
+
+        .. code-block:: python
+
+           [[1, 2, 3, 4, 5],
+            [0, 0, 1, 2, 3],
+            [0, 0, 0, 0, 1]]
+
+        Parameters
+        ----------
+
+        max_sequence_length: int, optional
+            Maximum sequence length. Subsequences shorter than this
+            will be left-padded with zeros.
+        min_sequence_length: int, optional
+            If set, only sequences with at least min_sequence_length
+            non-padding elements will be returned.
+        step-size: int, optional
+            The returned subsequences are the effect of moving a
+            a sliding window over the input. This parameter
+            governs the stride of that window. Increasing it will
+            result in fewer subsequences being returned.
+
+        Returns
+        -------
+
+        sequence interactions: :class:`~SequenceInteractions`
+            The resulting sequence interactions.
+        """
         weighted = self.weights is not None
         if self.timestamps is None:
             raise ValueError('Cannot convert to sequences, '
@@ -250,7 +250,7 @@ class Interactions(object):
         weight_sequences = None
         if weighted:
             weight_sequences = np.zeros((num_subsequences, max_sequence_length),
-                                 dtype=np.int32)
+                                        dtype=np.int32)
         sequence_users = np.empty(num_subsequences,
                                   dtype=np.int32)
         for i, (uid,
