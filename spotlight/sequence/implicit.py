@@ -264,10 +264,14 @@ class ImplicitSequenceModel(object):
 
                 self._optimizer.zero_grad()
 
+                # Merge mask and sample_weights to streamline losses logic
                 padding_mask = (sequence_var != PADDING_IDX)
                 padding_mask = padding_mask.type(torch.LongTensor)
-                masked_weights = weight_sequence_var * padding_mask
-                masked_weights = masked_weights.type(torch.FloatTensor)
+                if weight_sequence_var is not None:
+                    masked_weights = weight_sequence_var * padding_mask
+                    masked_weights = masked_weights.type(torch.FloatTensor)
+                else:
+                    masked_weights = padding_mask.type(torch.FloatTensor)
                 loss = self._loss_func(
                     positive_prediction,
                     negative_prediction,
