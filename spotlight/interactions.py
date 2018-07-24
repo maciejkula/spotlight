@@ -310,7 +310,7 @@ class Interactions(object):
 
         for i, (uid,
                 seq) in enumerate(_generate_sequences(user_ids,
-                                                      weight_sequences,
+                                                      weights,
                                                       indices,
                                                       max_sequence_length,
                                                       step_size)):

@@ -206,79 +206,9 @@ class ImplicitSequenceModel(object):
         """
 
         sequences = interactions.sequences.astype(np.int64)
-
-        if not self._initialized:
-            self._initialize(interactions)
-
-        self._check_input(sequences)
-
-        for epoch_num in range(self._n_iter):
-
-            sequences = shuffle(sequences,
-                                random_state=self._random_state)
-
-            sequences_tensor = gpu(torch.from_numpy(sequences),
-                                   self._use_cuda)
-
-            epoch_loss = 0.0
-
-            for minibatch_num, batch_sequence in enumerate(minibatch(sequences_tensor,
-                                                                     batch_size=self._batch_size)):
-
-                sequence_var = batch_sequence
-
-                user_representation, _ = self._net.user_representation(
-                    sequence_var
-                )
-
-                positive_prediction = self._net(user_representation,
-                                                sequence_var)
-
-                if self._loss == 'adaptive_hinge':
-                    negative_prediction = self._get_multiple_negative_predictions(
-                        sequence_var.size(),
-                        user_representation,
-                        n=self._num_negative_samples)
-                else:
-                    negative_prediction = self._get_negative_prediction(sequence_var.size(),
-                                                                        user_representation)
-
-                self._optimizer.zero_grad()
-
-                loss = self._loss_func(positive_prediction,
-                                       negative_prediction,
-                                       mask=(sequence_var != PADDING_IDX))
-                epoch_loss += loss.item()
-
-                loss.backward()
-
-                self._optimizer.step()
-
-            epoch_loss /= minibatch_num + 1
-
-            if verbose:
-                print('Epoch {}: loss {}'.format(epoch_num, epoch_loss))
-
-            if np.isnan(epoch_loss) or epoch_loss == 0.0:
-                raise ValueError('Degenerate epoch loss: {}'
-                                 .format(epoch_loss))
-
-    def _fit_weighted(self, interactions, verbose=False):
-        """
-        Fit the model.
-
-        When called repeatedly, model fitting will resume from
-        the point at which training stopped in the previous fit
-        call.
-
-        Parameters
-        ----------
-
-        interactions: :class:`spotlight.interactions.SequenceInteractions`
-            The input sequence dataset.
-        """
-
-        sequences = interactions.sequences.astype(np.int64)
+        sample_weight_sequences = None
+        if interactions.weight_sequences is not None:
+            sample_weight_sequences = interactions.weight_sequences.astype(np.int64)
 
         if not self._initialized:
             self._initialize(interactions)
@@ -290,17 +220,21 @@ class ImplicitSequenceModel(object):
             sequences = shuffle(sequences, random_state=self._random_state)
 
             sequences_tensor = gpu(torch.from_numpy(sequences), self._use_cuda)
-            weight_sequences_tensor = gpu(
-                torch.from_numpy(weight_sequences),
-                self._use_cuda
-            )
+            weight_sequences_tensor = None
+            if sample_weight_sequences is not None:
+                weight_sequences_tensor = gpu(
+                    torch.from_numpy(sample_weight_sequences),
+                    self._use_cuda
+                )
 
             epoch_loss = 0.0
 
             for (
                     minibatch_num,
-                    batch_sequence,
-                    batch_weight_sequence
+                    (
+                        batch_sequence,
+                        batch_weight_sequence
+                    )
                 ) in enumerate(
                 minibatch(
                     sequences_tensor,
@@ -330,11 +264,15 @@ class ImplicitSequenceModel(object):
 
                 self._optimizer.zero_grad()
 
-                # TODO examine weight sequence's effect on mask logic
-                loss = self._loss_func(positive_prediction,
-                                       negative_prediction,
-                                       weight_sequence_var,
-                                       mask=(sequence_var != PADDING_IDX))
+                padding_mask = (sequence_var != PADDING_IDX)
+                padding_mask = padding_mask.type(torch.LongTensor)
+                masked_weights = weight_sequence_var * padding_mask
+                masked_weights = masked_weights.type(torch.FloatTensor)
+                loss = self._loss_func(
+                            positive_prediction,
+                            negative_prediction,
+                            sample_weights=masked_weights,
+                        )
                 epoch_loss += loss.item()
 
                 loss.backward()
