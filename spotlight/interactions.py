@@ -168,57 +168,57 @@ class Interactions(object):
         return self.tocoo().tocsr()
 
     def to_sequence(self, max_sequence_length=10, min_sequence_length=None, step_size=None):
-        """
-        Transform to sequence form.
-
-        User-item interaction pairs are sorted by their timestamps,
-        and sequences of up to max_sequence_length events are arranged
-        into a (zero-padded from the left) matrix with dimensions
-        (num_sequences x max_sequence_length).
-
-        Valid subsequences of users' interactions are returned. For
-        example, if a user interacted with items [1, 2, 3, 4, 5], the
-        returned interactions matrix at sequence length 5 and step size
-        1 will be be given by:
-
-        .. code-block:: python
-
-           [[1, 2, 3, 4, 5],
-            [0, 1, 2, 3, 4],
-            [0, 0, 1, 2, 3],
-            [0, 0, 0, 1, 2],
-            [0, 0, 0, 0, 1]]
-
-        At step size 2:
-
-        .. code-block:: python
-
-           [[1, 2, 3, 4, 5],
-            [0, 0, 1, 2, 3],
-            [0, 0, 0, 0, 1]]
-
-        Parameters
-        ----------
-
-        max_sequence_length: int, optional
-            Maximum sequence length. Subsequences shorter than this
-            will be left-padded with zeros.
-        min_sequence_length: int, optional
-            If set, only sequences with at least min_sequence_length
-            non-padding elements will be returned.
-        step-size: int, optional
-            The returned subsequences are the effect of moving a
-            a sliding window over the input. This parameter
-            governs the stride of that window. Increasing it will
-            result in fewer subsequences being returned.
-
-        Returns
-        -------
-
-        sequence interactions: :class:`~SequenceInteractions`
-            The resulting sequence interactions.
-        """
-
+         """
+         Transform to sequence form.
+ 
+         User-item interaction pairs are sorted by their timestamps,
+         and sequences of up to max_sequence_length events are arranged
+         into a (zero-padded from the left) matrix with dimensions
+         (num_sequences x max_sequence_length).
+ 
+         Valid subsequences of users' interactions are returned. For
+         example, if a user interacted with items [1, 2, 3, 4, 5], the
+         returned interactions matrix at sequence length 5 and step size
+         1 will be be given by:
+ 
+         .. code-block:: python
+ 
+            [[1, 2, 3, 4, 5],
+             [0, 1, 2, 3, 4],
+             [0, 0, 1, 2, 3],
+             [0, 0, 0, 1, 2],
+             [0, 0, 0, 0, 1]]
+ 
+         At step size 2:
+ 
+         .. code-block:: python
+ 
+            [[1, 2, 3, 4, 5],
+             [0, 0, 1, 2, 3],
+             [0, 0, 0, 0, 1]]
+ 
+         Parameters
+         ----------
+ 
+         max_sequence_length: int, optional
+             Maximum sequence length. Subsequences shorter than this
+             will be left-padded with zeros.
+         min_sequence_length: int, optional
+             If set, only sequences with at least min_sequence_length
+             non-padding elements will be returned.
+         step-size: int, optional
+             The returned subsequences are the effect of moving a
+             a sliding window over the input. This parameter
+             governs the stride of that window. Increasing it will
+             result in fewer subsequences being returned.
+ 
+         Returns
+         -------
+ 
+         sequence interactions: :class:`~SequenceInteractions`
+             The resulting sequence interactions.
+         """
+        weighted = self.weights is not None
         if self.timestamps is None:
             raise ValueError('Cannot convert to sequences, '
                              'timestamps not available.')
@@ -236,6 +236,8 @@ class Interactions(object):
 
         user_ids = self.user_ids[sort_indices]
         item_ids = self.item_ids[sort_indices]
+        if weighted:
+            weights = self.weights[sort_indices]
 
         user_ids, indices, counts = np.unique(user_ids,
                                               return_index=True,
@@ -245,6 +247,10 @@ class Interactions(object):
 
         sequences = np.zeros((num_subsequences, max_sequence_length),
                              dtype=np.int32)
+        weight_sequences = None
+        if weighted:
+            weight_sequences = np.zeros((num_subsequences, max_sequence_length),
+                                 dtype=np.int32)
         sequence_users = np.empty(num_subsequences,
                                   dtype=np.int32)
         for i, (uid,
@@ -256,71 +262,21 @@ class Interactions(object):
             sequences[i][-len(seq):] = seq
             sequence_users[i] = uid
 
-        if min_sequence_length is not None:
-            long_enough = sequences[:, -min_sequence_length] != 0
-            sequences = sequences[long_enough]
-            sequence_users = sequence_users[long_enough]
-
-        return (SequenceInteractions(sequences,
-                                     user_ids=sequence_users,
-                                     num_items=self.num_items))
-
-    def to_sequence_weighted(self, max_sequence_length=10, min_sequence_length=None, step_size=None):
-        """Ref to_sequence"""
-
-        if self.timestamps is None:
-            raise ValueError('Cannot convert to sequences, '
-                             'timestamps not available.')
-
-        if 0 in self.item_ids:
-            raise ValueError('0 is used as an item id, conflicting '
-                             'with the sequence padding value.')
-
-        if step_size is None:
-            step_size = max_sequence_length
-
-        # Sort first by user id, then by timestamp
-        sort_indices = np.lexsort((self.timestamps,
-                                   self.user_ids))
-
-        user_ids = self.user_ids[sort_indices]
-        item_ids = self.item_ids[sort_indices]
-        weights = self.weights[sort_indices]
-
-        user_ids, indices, counts = np.unique(user_ids,
-                                              return_index=True,
-                                              return_counts=True)
-
-        num_subsequences = int(np.ceil(counts / float(step_size)).sum())
-
-        sequences = np.zeros((num_subsequences, max_sequence_length),
-                             dtype=np.int32)
-        weight_sequences = np.zeros((num_subsequences, max_sequence_length),
-                             dtype=np.int32)
-        sequence_users = np.empty(num_subsequences,
-                                  dtype=np.int32)
-        for i, (uid,
-                seq) in enumerate(_generate_sequences(user_ids,
-                                                      item_ids,
-                                                      indices,
-                                                      max_sequence_length,
-                                                      step_size)):
-            sequences[i][-len(seq):] = seq
-            sequence_users[i] = uid
-
-        for i, (uid,
-                seq) in enumerate(_generate_sequences(user_ids,
-                                                      weights,
-                                                      indices,
-                                                      max_sequence_length,
-                                                      step_size)):
-            weight_sequences[i][-len(seq):] = seq
+        if weighted:
+            for i, (uid,
+                    seq) in enumerate(_generate_sequences(user_ids,
+                                                          weights,
+                                                          indices,
+                                                          max_sequence_length,
+                                                          step_size)):
+                weight_sequences[i][-len(seq):] = seq
 
         if min_sequence_length is not None:
             long_enough = sequences[:, -min_sequence_length] != 0
             sequences = sequences[long_enough]
-            weight_sequences = weight_sequences[long_enough]
             sequence_users = sequence_users[long_enough]
+            if weighted:
+                weight_sequences = weight_sequences[long_enough]
 
         return (SequenceInteractions(sequences,
                                      user_ids=sequence_users,
