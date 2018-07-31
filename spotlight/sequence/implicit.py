@@ -269,9 +269,10 @@ class ImplicitSequenceModel(object):
                 padding_mask = padding_mask.type(torch.LongTensor)
                 if weight_sequence_var is not None:
                     masked_weights = weight_sequence_var * padding_mask
-                    masked_weights = masked_weights.type(torch.FloatTensor)
+                    masked_weights = gpu(masked_weights.type(torch.FloatTensor), self._use_cuda)
                 else:
-                    masked_weights = padding_mask.type(torch.FloatTensor)
+                    masked_weights = gpu(padding_mask.type(torch.FloatTensor), self._use_cuda)
+
                 loss = self._loss_func(
                     positive_prediction,
                     negative_prediction,
