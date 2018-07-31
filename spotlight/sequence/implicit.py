@@ -266,7 +266,7 @@ class ImplicitSequenceModel(object):
 
                 # Merge mask and sample_weights to streamline losses logic
                 padding_mask = (sequence_var != PADDING_IDX)
-                padding_mask = padding_mask.type(torch.LongTensor)
+                padding_mask = gpu(padding_mask.type(torch.LongTensor), self._use_cuda)
                 if weight_sequence_var is not None:
                     masked_weights = weight_sequence_var * padding_mask
                     masked_weights = gpu(masked_weights.type(torch.FloatTensor), self._use_cuda)
