@@ -218,6 +218,11 @@ class ImplicitSequenceModel(object):
         for epoch_num in range(self._n_iter):
 
             sequences = shuffle(sequences, random_state=self._random_state)
+            if interactions.weight_sequences is not None:
+                sample_weight_sequences = shuffle(
+                    sample_weight_sequences,
+                    random_state=self._random_state
+                )
 
             sequences_tensor = gpu(torch.from_numpy(sequences), self._use_cuda)
             weight_sequences_tensor = None
