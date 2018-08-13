@@ -40,6 +40,14 @@ Installation
 
    conda install -c maciejkula -c pytorch spotlight=0.1.5
 
+Or using virtualenv:
+
+.. code-block:: python
+
+   python3 -m venv venv
+   . venv/bin/activate
+   pip install -r requirements.txt
+   python setup.py install
 
 Usage
 ~~~~~
