@@ -69,7 +69,9 @@ def generate_sequential(num_users=100,
                         num_interactions=10000,
                         concentration_parameter=0.1,
                         order=3,
-                        random_state=None):
+                        random_state=None,
+                        weight_type=None
+                        ):
     """
     Generate a dataset of user-item interactions where sequential
     information matters.
@@ -100,6 +102,8 @@ def generate_sequential(num_users=100,
         order of the Markov chain
     random_state: numpy.random.RandomState, optional
         random state used to generate the data
+    weight_type: string, optional
+        Must be: ones, zeros, or high
 
     Returns
     -------
@@ -107,6 +111,22 @@ def generate_sequential(num_users=100,
     Interactions: :class:`spotlight.interactions.Interactions`
         instance of the interactions class
     """
+
+    weights = None
+    weight_types = ['ones', 'zeros', 'high']
+    if weight_type is not None:
+        if weight_type not in weight_types:
+            raise ValueError(
+                "weight_type {} not in {}"\
+                    .format(weight_type, weight_types)
+            )
+        if weight_type == 'ones':
+            weights = np.ones(num_interactions)
+        elif weight_type == 'zeros':
+            weights = np.zeros(num_interactions)
+        elif weight_type == 'high':
+            large_weight = 1E9 
+            weights = large_weight * np.ones(num_interactions)
 
     if random_state is None:
         random_state = np.random.RandomState()
@@ -132,4 +152,6 @@ def generate_sequential(num_users=100,
                         ratings=ratings,
                         timestamps=timestamps,
                         num_users=num_users,
-                        num_items=num_items)
+                        num_items=num_items,
+                        weights = weights
+                        )
