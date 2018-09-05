@@ -203,7 +203,7 @@ def rmse_score(model, test):
     return np.sqrt(((test.ratings - predictions) ** 2).mean())
 
 
-def intra_distance_score(model, test, train, k=10):
+def intra_distance_score(model, train, user_ids=None ,k=10):
     """
     Compute IntraDistance@k diversity of a set of recommended items which is defined
     as the average pairwise distance of the items in the set.
@@ -243,10 +243,11 @@ def intra_distance_score(model, test, train, k=10):
     """
 
     distances = []
-    test = test.tocsr()
-    mat = train.tocoo().T.tocsr()
+    mat = train.tocsr().T
+    if user_ids is None:
+        user_ids = mat.row
     lengths = mat.getnnz(axis=1)
-    for user_id, row in enumerate(test):
+    for user_id, _ in enumerate(user_ids):
         predictions = -model.predict(user_id)
         rec_list = predictions.argsort()[:k]
         distance = [
