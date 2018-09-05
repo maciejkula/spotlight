@@ -14,11 +14,16 @@ export PATH="$HOME/miniconda/bin:$PATH"
 rm ~/miniconda.sh
 
 # Set up the right Python version
-conda install -y -q python=$PYTHON_VERSION
+echo "Installing Python $PYTHON_VERSION"
+conda create -y -n conda_env python=$PYTHON_VERSION
+source activate conda_env
 
 # Install dependencies
+echo "Installing dependencies."
 conda install -y -q numpy scipy requests h5py scikit-learn pytest flake8
-conda install -y -q -c pytorch pytorch-cpu=0.3.1
+echo "Installing PyTorch."
+conda install -y -q -c pytorch pytorch=0.4.0
 
 # Pushing docs
+echo "Installing Sphinx."
 conda install -y -q sphinx sphinx_rtd_theme

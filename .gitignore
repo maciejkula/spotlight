@@ -1,9 +1,21 @@
 .idea
 *~
 *#*
+
+#compiled python
 *.pyc
-*egg*
+
+# cache files
 *.cache
-*build*
+.pytest_cache
 **/.ipynb_checkpoints/*
+
+# packaging
+*egg*
+*build*
+
+# OS
 .DS_Store
+
+# IDE
+tags

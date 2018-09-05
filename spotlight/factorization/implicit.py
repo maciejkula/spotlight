@@ -8,8 +8,6 @@ import torch
 
 import torch.optim as optim
 
-from torch.autograd import Variable
-
 from spotlight.helpers import _repr_model
 from spotlight.factorization._components import _predict_process_ids
 from spotlight.losses import (adaptive_hinge_loss,
@@ -228,20 +226,18 @@ class ImplicitFactorizationModel(object):
                                                       item_ids_tensor,
                                                       batch_size=self._batch_size)):
 
-                user_var = Variable(batch_user)
-                item_var = Variable(batch_item)
-                positive_prediction = self._net(user_var, item_var)
+                positive_prediction = self._net(batch_user, batch_item)
 
                 if self._loss == 'adaptive_hinge':
                     negative_prediction = self._get_multiple_negative_predictions(
-                        user_var, n=self._num_negative_samples)
+                        batch_user, n=self._num_negative_samples)
                 else:
-                    negative_prediction = self._get_negative_prediction(user_var)
+                    negative_prediction = self._get_negative_prediction(batch_user)
 
                 self._optimizer.zero_grad()
 
                 loss = self._loss_func(positive_prediction, negative_prediction)
-                epoch_loss += loss.data[0]
+                epoch_loss += loss.item()
 
                 loss.backward()
                 self._optimizer.step()
@@ -261,9 +257,8 @@ class ImplicitFactorizationModel(object):
             self._num_items,
             len(user_ids),
             random_state=self._random_state)
-        negative_var = Variable(
-            gpu(torch.from_numpy(negative_items), self._use_cuda)
-        )
+        negative_var = gpu(torch.from_numpy(negative_items), self._use_cuda)
+
         negative_prediction = self._net(user_ids, negative_var)
 
         return negative_prediction
@@ -273,9 +268,9 @@ class ImplicitFactorizationModel(object):
         batch_size = user_ids.size(0)
 
         negative_prediction = self._get_negative_prediction(user_ids
-                                                            .resize(batch_size, 1)
+                                                            .view(batch_size, 1)
                                                             .expand(batch_size, n)
-                                                            .resize(batch_size * n))
+                                                            .reshape(batch_size * n))
 
         return negative_prediction.view(n, len(user_ids))
 
@@ -313,4 +308,4 @@ class ImplicitFactorizationModel(object):
 
         out = self._net(user_ids, item_ids)
 
-        return cpu(out.data).numpy().flatten()
+        return cpu(out).detach().numpy().flatten()

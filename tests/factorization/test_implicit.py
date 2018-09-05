@@ -13,6 +13,8 @@ from spotlight.layers import BloomEmbedding
 
 RANDOM_STATE = np.random.RandomState(42)
 CUDA = bool(os.environ.get('SPOTLIGHT_CUDA', False))
+# Acceptable variation in specific test runs
+EPSILON = .005
 
 
 def test_pointwise():
@@ -32,7 +34,7 @@ def test_pointwise():
 
     mrr = mrr_score(model, test, train=train).mean()
 
-    assert mrr > 0.05
+    assert mrr + EPSILON > 0.05
 
 
 def test_bpr():
@@ -52,7 +54,7 @@ def test_bpr():
 
     mrr = mrr_score(model, test, train=train).mean()
 
-    assert mrr > 0.07
+    assert mrr + EPSILON > 0.07
 
 
 def test_bpr_custom_optimizer():
@@ -79,7 +81,7 @@ def test_bpr_custom_optimizer():
 
     mrr = mrr_score(model, test, train=train).mean()
 
-    assert mrr > 0.05
+    assert mrr + EPSILON > 0.05
 
 
 def test_hinge():
@@ -99,7 +101,7 @@ def test_hinge():
 
     mrr = mrr_score(model, test, train=train).mean()
 
-    assert mrr > 0.07
+    assert mrr + EPSILON > 0.07
 
 
 def test_adaptive_hinge():
@@ -119,7 +121,7 @@ def test_adaptive_hinge():
 
     mrr = mrr_score(model, test, train=train).mean()
 
-    assert mrr > 0.07
+    assert mrr + EPSILON > 0.07
 
 
 @pytest.mark.parametrize('compression_ratio, expected_mrr', [
@@ -159,4 +161,4 @@ def test_bpr_bloom(compression_ratio, expected_mrr):
 
     mrr = mrr_score(model, test, train=train).mean()
 
-    assert mrr > expected_mrr
+    assert mrr + EPSILON > expected_mrr
