@@ -117,15 +117,15 @@ def generate_sequential(num_users=100,
     if weight_type is not None:
         if weight_type not in weight_types:
             raise ValueError(
-                "weight_type {} not in {}"\
-                    .format(weight_type, weight_types)
+                "weight_type {} not in {}"
+                .format(weight_type, weight_types)
             )
         if weight_type == 'ones':
             weights = np.ones(num_interactions)
         elif weight_type == 'zeros':
             weights = np.zeros(num_interactions)
         elif weight_type == 'high':
-            large_weight = 1E9 
+            large_weight = 1E9
             weights = large_weight * np.ones(num_interactions)
 
     if random_state is None:
@@ -153,5 +153,5 @@ def generate_sequential(num_users=100,
                         timestamps=timestamps,
                         num_users=num_users,
                         num_items=num_items,
-                        weights = weights
+                        weights=weights
                         )

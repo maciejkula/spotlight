@@ -7,9 +7,8 @@ import pytest
 from spotlight.cross_validation import user_based_train_test_split
 from spotlight.datasets import synthetic
 from spotlight.evaluation import sequence_mrr_score
-from spotlight.layers import BloomEmbedding
 from spotlight.sequence.implicit import ImplicitSequenceModel
-from spotlight.sequence.representations import CNNNet, LSTMNet, PoolNet
+from spotlight.sequence.representations import CNNNet
 
 
 RANDOM_SEED = 42
@@ -87,7 +86,8 @@ def _gen_model(max_sequence_length, weight_type):
     )
     return model, train, test
 
-@pytest.mark.parametrize('max_sequence_length', [(5),(10),(20)])
+
+@pytest.mark.parametrize('max_sequence_length', [(5), (10), (20)])
 def test_zero_weights(max_sequence_length):
 
     model, train, test = _gen_model(max_sequence_length, 'zeros')
@@ -101,7 +101,7 @@ def test_zero_weights(max_sequence_length):
 
     mrr = _evaluate(model, test)
 
-    random_mrr = 1.0/max_sequence_length
+    random_mrr = 1.0 / max_sequence_length
 
     assert mrr.mean() <= random_mrr
 
@@ -115,10 +115,11 @@ def test_high_weights(max_sequence_length):
 
     mrr = _evaluate(model, test)
 
-    random_mrr = 1.0/max_sequence_length
+    random_mrr = 1.0 / max_sequence_length
 
     # high weights appear to have no overall effect on the model's divergence
     assert mrr.mean() >= random_mrr
+
 
 @pytest.mark.parametrize('max_sequence_length', [(10)])
 def test_ones_weights(max_sequence_length):
@@ -129,7 +130,7 @@ def test_ones_weights(max_sequence_length):
 
     mrr = _evaluate(model, test)
 
-    random_mrr = 1.0/max_sequence_length
+    random_mrr = 1.0 / max_sequence_length
 
     # high weights appear to have no overall effect on the model's divergence
     assert mrr.mean() >= random_mrr
