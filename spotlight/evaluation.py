@@ -268,8 +268,7 @@ def intra_distance_score(model, train, user_ids, k=10):
 
     model: fitted instance of a recommender model
         The model to evaluate.
-    test: :class:`spotlight.interactions.Interactions`
-        Test interactions.
+    user_ids: List of user ids to be tested.
     train: :class:`spotlight.interactions.Interactions`, optional
         Train interactions. If supplied, scores of known
         interactions will not affect the computed metrics.
