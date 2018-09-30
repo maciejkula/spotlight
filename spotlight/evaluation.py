@@ -286,6 +286,7 @@ def intra_distance_score(model, train, user_ids, k=10):
 
     train = train.tocsr()
     train_t = train.T
+    lengths = train_t.getnnz(axis=1)
 
     for user_id, _ in enumerate(user_ids):
         distance = []
@@ -295,7 +296,6 @@ def intra_distance_score(model, train, user_ids, k=10):
         if train is not None:
             predictions[train[user_id].indices] = FLOAT_MAX
 
-        lengths = train_t.getnnz(axis=1)
         predictions = -model.predict(user_id)
         rec_list = predictions.argsort()[:k]
 
