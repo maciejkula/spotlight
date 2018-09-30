@@ -4,7 +4,8 @@ import numpy as np
 
 import pytest
 
-from spotlight.evaluation import precision_recall_score, sequence_precision_recall_score, intra_distance_score
+from spotlight.evaluation import precision_recall_score, \
+    sequence_precision_recall_score, intra_distance_score
 from spotlight.cross_validation import random_train_test_split, user_based_train_test_split
 from spotlight.datasets import movielens
 from spotlight.factorization.implicit import ImplicitFactorizationModel
