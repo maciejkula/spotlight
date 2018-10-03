@@ -33,7 +33,7 @@ and prototyping of new recommender models.
 
 See the full `documentation <https://maciejkula.github.io/spotlight/>`_ for details.
 
-Installation
+Installation->
 ~~~~~~~~~~~~
 
 .. code-block:: python
