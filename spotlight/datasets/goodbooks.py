@@ -25,7 +25,7 @@ def _get_dataset():
     with h5py.File(path, 'r') as data:
         return (data['ratings'][:, 0],
                 data['ratings'][:, 1],
-                data['ratings'][:, 2],
+                data['ratings'][:, 2].astype(np.float32),
                 np.arange(len(data['ratings']), dtype=np.int32))
 
 
