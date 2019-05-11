@@ -19,7 +19,7 @@ from spotlight.sequence.representations import (PADDING_IDX, CNNNet,
                                                 MixtureLSTMNet,
                                                 PoolNet)
 from spotlight.sampling import sample_items
-from spotlight.torch_utils import DeviceModel, cpu, gpu, minibatch, set_seed, shuffle
+from spotlight.torch_utils import cpu, gpu, minibatch, set_seed, shuffle
 
 
 class ImplicitSequenceModel(object):
