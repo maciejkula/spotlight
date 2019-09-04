@@ -17,13 +17,20 @@
   
 
   
+  <script type="text/javascript" src="_static/js/modernizr.min.js"></script>
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+        <script type="text/javascript" src="_static/jquery.js"></script>
+        <script type="text/javascript" src="_static/underscore.js"></script>
+        <script type="text/javascript" src="_static/doctools.js"></script>
+        <script type="text/javascript" src="_static/language_data.js"></script>
+    
+    <script type="text/javascript" src="_static/js/theme.js"></script>
 
-  
-  
     
 
   
-
   <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
   <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
   <link rel="stylesheet" href="_static/css/spotlight_theme.css" type="text/css" />
@@ -31,21 +38,16 @@
     <link rel="search" title="Search" href="search.html" />
     <link rel="next" title="Sampling" href="sampling.html" />
     <link rel="prev" title="Loss functions" href="losses.html" /> 
-
-  
-  <script src="_static/js/modernizr.min.js"></script>
-
 </head>
 
 <body class="wy-body-for-nav">
 
    
   <div class="wy-grid-for-nav">
-
     
     <nav data-toggle="wy-nav-shift" class="wy-nav-side">
       <div class="wy-side-scroll">
-        <div class="wy-side-nav-search">
+        <div class="wy-side-nav-search" >
           
 
           
@@ -117,13 +119,17 @@
 </ul>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="changelog.html">Changelog</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="changelog.html#v0-1-5-2018-05-20">v0.1.5 (2018-05-20)</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="changelog.html#unreleased-unreleased">Unreleased (unreleased)</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="changelog.html#other">Other</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="changelog.html#v0-1-5-2018-05-20">v0.1.5 (2018-05-20)</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="changelog.html#id1">Other</a></li>
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="changelog.html#v0-1-4-2018-02-18">v0.1.4 (2018-02-18)</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="changelog.html#fixed">Fixed</a></li>
-<li class="toctree-l3"><a class="reference internal" href="changelog.html#id1">Other</a></li>
+<li class="toctree-l3"><a class="reference internal" href="changelog.html#id2">Other</a></li>
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="changelog.html#v0-1-3-2017-12-14">v0.1.3 (2017-12-14)</a><ul>
@@ -132,9 +138,9 @@
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="changelog.html#v0-1-2-2017-09-10">v0.1.2 (2017-09-10)</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="changelog.html#id2">Added</a></li>
-<li class="toctree-l3"><a class="reference internal" href="changelog.html#id3">Changed</a></li>
-<li class="toctree-l3"><a class="reference internal" href="changelog.html#id4">Fixed</a></li>
+<li class="toctree-l3"><a class="reference internal" href="changelog.html#id3">Added</a></li>
+<li class="toctree-l3"><a class="reference internal" href="changelog.html#id4">Changed</a></li>
+<li class="toctree-l3"><a class="reference internal" href="changelog.html#id5">Fixed</a></li>
 </ul>
 </li>
 </ul>
@@ -207,148 +213,128 @@
 <span id="evaluation"></span><h1>Evaluation<a class="headerlink" href="#module-spotlight.evaluation" title="Permalink to this headline">¶</a></h1>
 <dl class="function">
 <dt id="spotlight.evaluation.mrr_score">
-<code class="descclassname">spotlight.evaluation.</code><code class="descname">mrr_score</code><span class="sig-paren">(</span><em>model</em>, <em>test</em>, <em>train=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/spotlight/evaluation.html#mrr_score"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#spotlight.evaluation.mrr_score" title="Permalink to this definition">¶</a></dt>
+<code class="sig-prename descclassname">spotlight.evaluation.</code><code class="sig-name descname">mrr_score</code><span class="sig-paren">(</span><em class="sig-param">model</em>, <em class="sig-param">test</em>, <em class="sig-param">train=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/spotlight/evaluation.html#mrr_score"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#spotlight.evaluation.mrr_score" title="Permalink to this definition">¶</a></dt>
 <dd><p>Compute mean reciprocal rank (MRR) scores. One score
 is given for every user with interactions in the test
 set, representing the mean reciprocal rank of all their
 test items.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>model</strong> (<em>fitted instance of a recommender model</em>) – The model to evaluate.</li>
-<li><strong>test</strong> (<a class="reference internal" href="interactions.html#spotlight.interactions.Interactions" title="spotlight.interactions.Interactions"><code class="xref py py-class docutils literal notranslate"><span class="pre">spotlight.interactions.Interactions</span></code></a>) – Test interactions.</li>
-<li><strong>train</strong> (<a class="reference internal" href="interactions.html#spotlight.interactions.Interactions" title="spotlight.interactions.Interactions"><code class="xref py py-class docutils literal notranslate"><span class="pre">spotlight.interactions.Interactions</span></code></a>, optional) – Train interactions. If supplied, scores of known
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>model</strong> (<em>fitted instance of a recommender model</em>) – The model to evaluate.</p></li>
+<li><p><strong>test</strong> (<a class="reference internal" href="interactions.html#spotlight.interactions.Interactions" title="spotlight.interactions.Interactions"><code class="xref py py-class docutils literal notranslate"><span class="pre">spotlight.interactions.Interactions</span></code></a>) – Test interactions.</p></li>
+<li><p><strong>train</strong> (<a class="reference internal" href="interactions.html#spotlight.interactions.Interactions" title="spotlight.interactions.Interactions"><code class="xref py py-class docutils literal notranslate"><span class="pre">spotlight.interactions.Interactions</span></code></a>, optional) – Train interactions. If supplied, scores of known
 interactions will be set to very low values and so not
-affect the MRR.</li>
+affect the MRR.</p></li>
 </ul>
-</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><strong>mrr scores</strong> – Array of MRR scores for each user in test.</p>
-</td>
-</tr>
-<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">numpy array of shape (num_users,)</p>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><strong>mrr scores</strong> – Array of MRR scores for each user in test.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>numpy array of shape (num_users,)</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="function">
 <dt id="spotlight.evaluation.precision_recall_score">
-<code class="descclassname">spotlight.evaluation.</code><code class="descname">precision_recall_score</code><span class="sig-paren">(</span><em>model</em>, <em>test</em>, <em>train=None</em>, <em>k=10</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/spotlight/evaluation.html#precision_recall_score"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#spotlight.evaluation.precision_recall_score" title="Permalink to this definition">¶</a></dt>
+<code class="sig-prename descclassname">spotlight.evaluation.</code><code class="sig-name descname">precision_recall_score</code><span class="sig-paren">(</span><em class="sig-param">model</em>, <em class="sig-param">test</em>, <em class="sig-param">train=None</em>, <em class="sig-param">k=10</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/spotlight/evaluation.html#precision_recall_score"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#spotlight.evaluation.precision_recall_score" title="Permalink to this definition">¶</a></dt>
 <dd><p>Compute Precision&#64;k and Recall&#64;k scores. One score
 is given for every user with interactions in the test
 set, representing the Precision&#64;k and Recall&#64;k of all their
 test items.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>model</strong> (<em>fitted instance of a recommender model</em>) – The model to evaluate.</li>
-<li><strong>test</strong> (<a class="reference internal" href="interactions.html#spotlight.interactions.Interactions" title="spotlight.interactions.Interactions"><code class="xref py py-class docutils literal notranslate"><span class="pre">spotlight.interactions.Interactions</span></code></a>) – Test interactions.</li>
-<li><strong>train</strong> (<a class="reference internal" href="interactions.html#spotlight.interactions.Interactions" title="spotlight.interactions.Interactions"><code class="xref py py-class docutils literal notranslate"><span class="pre">spotlight.interactions.Interactions</span></code></a>, optional) – Train interactions. If supplied, scores of known
-interactions will not affect the computed metrics.</li>
-<li><strong>k</strong> (<em>int</em><em> or </em><em>array of int</em><em>,</em>) – The maximum number of predicted items</li>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>model</strong> (<em>fitted instance of a recommender model</em>) – The model to evaluate.</p></li>
+<li><p><strong>test</strong> (<a class="reference internal" href="interactions.html#spotlight.interactions.Interactions" title="spotlight.interactions.Interactions"><code class="xref py py-class docutils literal notranslate"><span class="pre">spotlight.interactions.Interactions</span></code></a>) – Test interactions.</p></li>
+<li><p><strong>train</strong> (<a class="reference internal" href="interactions.html#spotlight.interactions.Interactions" title="spotlight.interactions.Interactions"><code class="xref py py-class docutils literal notranslate"><span class="pre">spotlight.interactions.Interactions</span></code></a>, optional) – Train interactions. If supplied, scores of known
+interactions will not affect the computed metrics.</p></li>
+<li><p><strong>k</strong> (<em>int</em><em> or </em><em>array of int</em><em>,</em>) – The maximum number of predicted items</p></li>
 </ul>
-</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><strong>(Precision&#64;k, Recall&#64;k)</strong> – A tuple of Precisions&#64;k and Recalls&#64;k for each user in test.
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><strong>(Precision&#64;k, Recall&#64;k)</strong> – A tuple of Precisions&#64;k and Recalls&#64;k for each user in test.
 If k is a scalar, will return a tuple of vectors. If k is an
 array, will return a tuple of arrays, where each row corresponds
 to a user and each column corresponds to a value of k.</p>
-</td>
-</tr>
-<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">numpy array of shape (num_users, len(k))</p>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>numpy array of shape (num_users, len(k))</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="function">
 <dt id="spotlight.evaluation.rmse_score">
-<code class="descclassname">spotlight.evaluation.</code><code class="descname">rmse_score</code><span class="sig-paren">(</span><em>model</em>, <em>test</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/spotlight/evaluation.html#rmse_score"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#spotlight.evaluation.rmse_score" title="Permalink to this definition">¶</a></dt>
+<code class="sig-prename descclassname">spotlight.evaluation.</code><code class="sig-name descname">rmse_score</code><span class="sig-paren">(</span><em class="sig-param">model</em>, <em class="sig-param">test</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/spotlight/evaluation.html#rmse_score"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#spotlight.evaluation.rmse_score" title="Permalink to this definition">¶</a></dt>
 <dd><p>Compute RMSE score for test interactions.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>model</strong> (<em>fitted instance of a recommender model</em>) – The model to evaluate.</li>
-<li><strong>test</strong> (<a class="reference internal" href="interactions.html#spotlight.interactions.Interactions" title="spotlight.interactions.Interactions"><code class="xref py py-class docutils literal notranslate"><span class="pre">spotlight.interactions.Interactions</span></code></a>) – Test interactions.</li>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>model</strong> (<em>fitted instance of a recommender model</em>) – The model to evaluate.</p></li>
+<li><p><strong>test</strong> (<a class="reference internal" href="interactions.html#spotlight.interactions.Interactions" title="spotlight.interactions.Interactions"><code class="xref py py-class docutils literal notranslate"><span class="pre">spotlight.interactions.Interactions</span></code></a>) – Test interactions.</p></li>
 </ul>
-</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><strong>rmse_score</strong> – The RMSE score.</p>
-</td>
-</tr>
-<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">float</p>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><strong>rmse_score</strong> – The RMSE score.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>float</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="function">
 <dt id="spotlight.evaluation.sequence_mrr_score">
-<code class="descclassname">spotlight.evaluation.</code><code class="descname">sequence_mrr_score</code><span class="sig-paren">(</span><em>model</em>, <em>test</em>, <em>exclude_preceding=False</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/spotlight/evaluation.html#sequence_mrr_score"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#spotlight.evaluation.sequence_mrr_score" title="Permalink to this definition">¶</a></dt>
+<code class="sig-prename descclassname">spotlight.evaluation.</code><code class="sig-name descname">sequence_mrr_score</code><span class="sig-paren">(</span><em class="sig-param">model</em>, <em class="sig-param">test</em>, <em class="sig-param">exclude_preceding=False</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/spotlight/evaluation.html#sequence_mrr_score"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#spotlight.evaluation.sequence_mrr_score" title="Permalink to this definition">¶</a></dt>
 <dd><p>Compute mean reciprocal rank (MRR) scores. Each sequence
 in test is split into two parts: the first part, containing
 all but the last elements, is used to predict the last element.</p>
 <p>The reciprocal rank of the last element is returned for each
 sequence.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>model</strong> (<em>fitted instance of a recommender model</em>) – The model to evaluate.</li>
-<li><strong>test</strong> (<a class="reference internal" href="interactions.html#spotlight.interactions.SequenceInteractions" title="spotlight.interactions.SequenceInteractions"><code class="xref py py-class docutils literal notranslate"><span class="pre">spotlight.interactions.SequenceInteractions</span></code></a>) – Test interactions.</li>
-<li><strong>exclude_preceding</strong> (<em>boolean</em><em>, </em><em>optional</em>) – When true, items already present in the sequence will
-be excluded from evaluation.</li>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>model</strong> (<em>fitted instance of a recommender model</em>) – The model to evaluate.</p></li>
+<li><p><strong>test</strong> (<a class="reference internal" href="interactions.html#spotlight.interactions.SequenceInteractions" title="spotlight.interactions.SequenceInteractions"><code class="xref py py-class docutils literal notranslate"><span class="pre">spotlight.interactions.SequenceInteractions</span></code></a>) – Test interactions.</p></li>
+<li><p><strong>exclude_preceding</strong> (<em>boolean</em><em>, </em><em>optional</em>) – When true, items already present in the sequence will
+be excluded from evaluation.</p></li>
 </ul>
-</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><strong>mrr scores</strong> – Array of MRR scores for each sequence in test.</p>
-</td>
-</tr>
-<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">numpy array of shape (num_users,)</p>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><strong>mrr scores</strong> – Array of MRR scores for each sequence in test.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>numpy array of shape (num_users,)</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="function">
 <dt id="spotlight.evaluation.sequence_precision_recall_score">
-<code class="descclassname">spotlight.evaluation.</code><code class="descname">sequence_precision_recall_score</code><span class="sig-paren">(</span><em>model</em>, <em>test</em>, <em>k=10</em>, <em>exclude_preceding=False</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/spotlight/evaluation.html#sequence_precision_recall_score"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#spotlight.evaluation.sequence_precision_recall_score" title="Permalink to this definition">¶</a></dt>
+<code class="sig-prename descclassname">spotlight.evaluation.</code><code class="sig-name descname">sequence_precision_recall_score</code><span class="sig-paren">(</span><em class="sig-param">model</em>, <em class="sig-param">test</em>, <em class="sig-param">k=10</em>, <em class="sig-param">exclude_preceding=False</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/spotlight/evaluation.html#sequence_precision_recall_score"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#spotlight.evaluation.sequence_precision_recall_score" title="Permalink to this definition">¶</a></dt>
 <dd><p>Compute sequence precision and recall scores. Each sequence
 in test is split into two parts: the first part, containing
 all but the last k elements, is used to predict the last k
 elements.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>model</strong> (<em>fitted instance of a recommender model</em>) – The model to evaluate.</li>
-<li><strong>test</strong> (<a class="reference internal" href="interactions.html#spotlight.interactions.SequenceInteractions" title="spotlight.interactions.SequenceInteractions"><code class="xref py py-class docutils literal notranslate"><span class="pre">spotlight.interactions.SequenceInteractions</span></code></a>) – Test interactions.</li>
-<li><strong>exclude_preceding</strong> (<em>boolean</em><em>, </em><em>optional</em>) – When true, items already present in the sequence will
-be excluded from evaluation.</li>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>model</strong> (<em>fitted instance of a recommender model</em>) – The model to evaluate.</p></li>
+<li><p><strong>test</strong> (<a class="reference internal" href="interactions.html#spotlight.interactions.SequenceInteractions" title="spotlight.interactions.SequenceInteractions"><code class="xref py py-class docutils literal notranslate"><span class="pre">spotlight.interactions.SequenceInteractions</span></code></a>) – Test interactions.</p></li>
+<li><p><strong>exclude_preceding</strong> (<em>boolean</em><em>, </em><em>optional</em>) – When true, items already present in the sequence will
+be excluded from evaluation.</p></li>
 </ul>
-</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><strong>mrr scores</strong> – Array of MRR scores for each sequence in test.</p>
-</td>
-</tr>
-<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">numpy array of shape (num_users,)</p>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><strong>mrr scores</strong> – Array of MRR scores for each sequence in test.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>numpy array of shape (num_users,)</p>
+</dd>
+</dl>
 </dd></dl>
 
 </div>
@@ -364,7 +350,7 @@ be excluded from evaluation.</li>
         <a href="sampling.html" class="btn btn-neutral float-right" title="Sampling" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
       
       
-        <a href="losses.html" class="btn btn-neutral" title="Loss functions" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+        <a href="losses.html" class="btn btn-neutral float-left" title="Loss functions" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
       
     </div>
   
@@ -390,26 +376,16 @@ be excluded from evaluation.</li>
   
 
 
-  
-
-    
-    
-      <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
-        <script type="text/javascript" src="_static/jquery.js"></script>
-        <script type="text/javascript" src="_static/underscore.js"></script>
-        <script type="text/javascript" src="_static/doctools.js"></script>
-        <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
-    
-
-  
-
-  <script type="text/javascript" src="_static/js/theme.js"></script>
-
   <script type="text/javascript">
       jQuery(function () {
           SphinxRtdTheme.Navigation.enable(true);
       });
-  </script> 
+  </script>
+
+  
+  
+    
+   
 
 </body>
 </html>

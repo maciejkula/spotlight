@@ -17,13 +17,20 @@
   
 
   
+  <script type="text/javascript" src="../_static/js/modernizr.min.js"></script>
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+        <script type="text/javascript" src="../_static/jquery.js"></script>
+        <script type="text/javascript" src="../_static/underscore.js"></script>
+        <script type="text/javascript" src="../_static/doctools.js"></script>
+        <script type="text/javascript" src="../_static/language_data.js"></script>
+    
+    <script type="text/javascript" src="../_static/js/theme.js"></script>
 
-  
-  
     
 
   
-
   <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
   <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
   <link rel="stylesheet" href="../_static/css/spotlight_theme.css" type="text/css" />
@@ -31,21 +38,16 @@
     <link rel="search" title="Search" href="../search.html" />
     <link rel="next" title="Sequence representations" href="representations.html" />
     <link rel="prev" title="Sequence" href="sequence.html" /> 
-
-  
-  <script src="../_static/js/modernizr.min.js"></script>
-
 </head>
 
 <body class="wy-body-for-nav">
 
    
   <div class="wy-grid-for-nav">
-
     
     <nav data-toggle="wy-nav-shift" class="wy-nav-side">
       <div class="wy-side-scroll">
-        <div class="wy-side-nav-search">
+        <div class="wy-side-nav-search" >
           
 
           
@@ -117,13 +119,17 @@
 </ul>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../changelog.html">Changelog</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="../changelog.html#v0-1-5-2018-05-20">v0.1.5 (2018-05-20)</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../changelog.html#unreleased-unreleased">Unreleased (unreleased)</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="../changelog.html#other">Other</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../changelog.html#v0-1-5-2018-05-20">v0.1.5 (2018-05-20)</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../changelog.html#id1">Other</a></li>
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="../changelog.html#v0-1-4-2018-02-18">v0.1.4 (2018-02-18)</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="../changelog.html#fixed">Fixed</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../changelog.html#id1">Other</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../changelog.html#id2">Other</a></li>
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="../changelog.html#v0-1-3-2017-12-14">v0.1.3 (2017-12-14)</a><ul>
@@ -132,9 +138,9 @@
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="../changelog.html#v0-1-2-2017-09-10">v0.1.2 (2017-09-10)</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="../changelog.html#id2">Added</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../changelog.html#id3">Changed</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../changelog.html#id4">Fixed</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../changelog.html#id3">Added</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../changelog.html#id4">Changed</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../changelog.html#id5">Fixed</a></li>
 </ul>
 </li>
 </ul>
@@ -211,37 +217,33 @@
 a user has interacted with.</p>
 <dl class="class">
 <dt id="spotlight.sequence.implicit.ImplicitSequenceModel">
-<em class="property">class </em><code class="descclassname">spotlight.sequence.implicit.</code><code class="descname">ImplicitSequenceModel</code><span class="sig-paren">(</span><em>loss='pointwise'</em>, <em>representation='pooling'</em>, <em>embedding_dim=32</em>, <em>n_iter=10</em>, <em>batch_size=256</em>, <em>l2=0.0</em>, <em>learning_rate=0.01</em>, <em>optimizer_func=None</em>, <em>use_cuda=False</em>, <em>sparse=False</em>, <em>random_state=None</em>, <em>num_negative_samples=5</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/spotlight/sequence/implicit.html#ImplicitSequenceModel"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#spotlight.sequence.implicit.ImplicitSequenceModel" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="sig-prename descclassname">spotlight.sequence.implicit.</code><code class="sig-name descname">ImplicitSequenceModel</code><span class="sig-paren">(</span><em class="sig-param">loss='pointwise'</em>, <em class="sig-param">representation='pooling'</em>, <em class="sig-param">embedding_dim=32</em>, <em class="sig-param">n_iter=10</em>, <em class="sig-param">batch_size=256</em>, <em class="sig-param">l2=0.0</em>, <em class="sig-param">learning_rate=0.01</em>, <em class="sig-param">optimizer_func=None</em>, <em class="sig-param">use_cuda=False</em>, <em class="sig-param">sparse=False</em>, <em class="sig-param">random_state=None</em>, <em class="sig-param">num_negative_samples=5</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/spotlight/sequence/implicit.html#ImplicitSequenceModel"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#spotlight.sequence.implicit.ImplicitSequenceModel" title="Permalink to this definition">¶</a></dt>
 <dd><p>Model for sequential recommendations using implicit feedback.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>loss</strong> (<em>string</em><em>, </em><em>optional</em>) – The loss function for approximating a softmax with negative sampling.
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>loss</strong> (<em>string</em><em>, </em><em>optional</em>) – The loss function for approximating a softmax with negative sampling.
 One of ‘pointwise’, ‘bpr’, ‘hinge’, ‘adaptive_hinge’, corresponding
-to losses from <a class="reference internal" href="../losses.html#module-spotlight.losses" title="spotlight.losses"><code class="xref py py-class docutils literal notranslate"><span class="pre">spotlight.losses</span></code></a>.</li>
-<li><strong>representation</strong> (string or instance of <a class="reference internal" href="representations.html#module-spotlight.sequence.representations" title="spotlight.sequence.representations"><code class="xref py py-class docutils literal notranslate"><span class="pre">spotlight.sequence.representations</span></code></a>, optional) – Sequence representation to use. If string, it must be one
+to losses from <a class="reference internal" href="../losses.html#module-spotlight.losses" title="spotlight.losses"><code class="xref py py-class docutils literal notranslate"><span class="pre">spotlight.losses</span></code></a>.</p></li>
+<li><p><strong>representation</strong> (string or instance of <a class="reference internal" href="representations.html#module-spotlight.sequence.representations" title="spotlight.sequence.representations"><code class="xref py py-class docutils literal notranslate"><span class="pre">spotlight.sequence.representations</span></code></a>, optional) – Sequence representation to use. If string, it must be one
 of ‘pooling’, ‘cnn’, ‘lstm’, ‘mixture’; otherwise must be one of the
-representations from <a class="reference internal" href="representations.html#module-spotlight.sequence.representations" title="spotlight.sequence.representations"><code class="xref py py-class docutils literal notranslate"><span class="pre">spotlight.sequence.representations</span></code></a></li>
-<li><strong>embedding_dim</strong> (<em>int</em><em>, </em><em>optional</em>) – Number of embedding dimensions to use for representing items.
-Overridden if representation is an instance of a representation class.</li>
-<li><strong>n_iter</strong> (<em>int</em><em>, </em><em>optional</em>) – Number of iterations to run.</li>
-<li><strong>batch_size</strong> (<em>int</em><em>, </em><em>optional</em>) – Minibatch size.</li>
-<li><strong>l2</strong> (<em>float</em><em>, </em><em>optional</em>) – L2 loss penalty.</li>
-<li><strong>learning_rate</strong> (<em>float</em><em>, </em><em>optional</em>) – Initial learning rate.</li>
-<li><strong>optimizer_func</strong> (<em>function</em><em>, </em><em>optional</em>) – Function that takes in module parameters as the first argument and
+representations from <a class="reference internal" href="representations.html#module-spotlight.sequence.representations" title="spotlight.sequence.representations"><code class="xref py py-class docutils literal notranslate"><span class="pre">spotlight.sequence.representations</span></code></a></p></li>
+<li><p><strong>embedding_dim</strong> (<em>int</em><em>, </em><em>optional</em>) – Number of embedding dimensions to use for representing items.
+Overridden if representation is an instance of a representation class.</p></li>
+<li><p><strong>n_iter</strong> (<em>int</em><em>, </em><em>optional</em>) – Number of iterations to run.</p></li>
+<li><p><strong>batch_size</strong> (<em>int</em><em>, </em><em>optional</em>) – Minibatch size.</p></li>
+<li><p><strong>l2</strong> (<em>float</em><em>, </em><em>optional</em>) – L2 loss penalty.</p></li>
+<li><p><strong>learning_rate</strong> (<em>float</em><em>, </em><em>optional</em>) – Initial learning rate.</p></li>
+<li><p><strong>optimizer_func</strong> (<em>function</em><em>, </em><em>optional</em>) – Function that takes in module parameters as the first argument and
 returns an instance of a PyTorch optimizer. Overrides l2 and learning
-rate if supplied. If no optimizer supplied, then use ADAM by default.</li>
-<li><strong>use_cuda</strong> (<em>boolean</em><em>, </em><em>optional</em>) – Run the model on a GPU.</li>
-<li><strong>sparse</strong> (<em>boolean</em><em>, </em><em>optional</em>) – Use sparse gradients for embedding layers.</li>
-<li><strong>random_state</strong> (<em>instance of numpy.random.RandomState</em><em>, </em><em>optional</em>) – Random state to use when fitting.</li>
-<li><strong>num_negative_samples</strong> (<em>int</em><em>, </em><em>optional</em>) – Number of negative samples to generate for adaptive hinge loss.</li>
+rate if supplied. If no optimizer supplied, then use ADAM by default.</p></li>
+<li><p><strong>use_cuda</strong> (<em>boolean</em><em>, </em><em>optional</em>) – Run the model on a GPU.</p></li>
+<li><p><strong>sparse</strong> (<em>boolean</em><em>, </em><em>optional</em>) – Use sparse gradients for embedding layers.</p></li>
+<li><p><strong>random_state</strong> (<em>instance of numpy.random.RandomState</em><em>, </em><em>optional</em>) – Random state to use when fitting.</p></li>
+<li><p><strong>num_negative_samples</strong> (<em>int</em><em>, </em><em>optional</em>) – Number of negative samples to generate for adaptive hinge loss.</p></li>
 </ul>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+</dl>
 <p class="rubric">Notes</p>
 <p>During fitting, the model computes the loss for each timestep of the
 supplied sequence. For example, suppose the following sequences are
@@ -258,46 +260,39 @@ the <code class="docutils literal notranslate"><span class="pre">step_size</span
 <a class="reference internal" href="../interactions.html#spotlight.interactions.Interactions.to_sequence" title="spotlight.interactions.Interactions.to_sequence"><code class="xref py py-func docutils literal notranslate"><span class="pre">spotlight.interactions.Interactions.to_sequence()</span></code></a>.</p>
 <dl class="method">
 <dt id="spotlight.sequence.implicit.ImplicitSequenceModel.fit">
-<code class="descname">fit</code><span class="sig-paren">(</span><em>interactions</em>, <em>verbose=False</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/spotlight/sequence/implicit.html#ImplicitSequenceModel.fit"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#spotlight.sequence.implicit.ImplicitSequenceModel.fit" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">fit</code><span class="sig-paren">(</span><em class="sig-param">interactions</em>, <em class="sig-param">verbose=False</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/spotlight/sequence/implicit.html#ImplicitSequenceModel.fit"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#spotlight.sequence.implicit.ImplicitSequenceModel.fit" title="Permalink to this definition">¶</a></dt>
 <dd><p>Fit the model.</p>
 <p>When called repeatedly, model fitting will resume from
 the point at which training stopped in the previous fit
 call.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>interactions</strong> (<a class="reference internal" href="../interactions.html#spotlight.interactions.SequenceInteractions" title="spotlight.interactions.SequenceInteractions"><code class="xref py py-class docutils literal notranslate"><span class="pre">spotlight.interactions.SequenceInteractions</span></code></a>) – The input sequence dataset.</td>
-</tr>
-</tbody>
-</table>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>interactions</strong> (<a class="reference internal" href="../interactions.html#spotlight.interactions.SequenceInteractions" title="spotlight.interactions.SequenceInteractions"><code class="xref py py-class docutils literal notranslate"><span class="pre">spotlight.interactions.SequenceInteractions</span></code></a>) – The input sequence dataset.</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="method">
 <dt id="spotlight.sequence.implicit.ImplicitSequenceModel.predict">
-<code class="descname">predict</code><span class="sig-paren">(</span><em>sequences</em>, <em>item_ids=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/spotlight/sequence/implicit.html#ImplicitSequenceModel.predict"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#spotlight.sequence.implicit.ImplicitSequenceModel.predict" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">predict</code><span class="sig-paren">(</span><em class="sig-param">sequences</em>, <em class="sig-param">item_ids=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/spotlight/sequence/implicit.html#ImplicitSequenceModel.predict"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#spotlight.sequence.implicit.ImplicitSequenceModel.predict" title="Permalink to this definition">¶</a></dt>
 <dd><p>Make predictions: given a sequence of interactions, predict
 the next item in the sequence.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>sequences</strong> (<em>array</em><em>, </em><em>(</em><em>1 x max_sequence_length</em><em>)</em>) – Array containing the indices of the items in the sequence.</li>
-<li><strong>item_ids</strong> (<em>array</em><em> (</em><em>num_items x 1</em><em>)</em><em>, </em><em>optional</em>) – Array containing the item ids for which prediction scores
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>sequences</strong> (<em>array</em><em>, </em><em>(</em><em>1 x max_sequence_length</em><em>)</em>) – Array containing the indices of the items in the sequence.</p></li>
+<li><p><strong>item_ids</strong> (<em>array</em><em> (</em><em>num_items x 1</em><em>)</em><em>, </em><em>optional</em>) – Array containing the item ids for which prediction scores
 are desired. If not supplied, predictions for all items
-will be computed.</li>
+will be computed.</p></li>
 </ul>
-</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><strong>predictions</strong> – Predicted scores for all items in item_ids.</p>
-</td>
-</tr>
-<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">array</p>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><strong>predictions</strong> – Predicted scores for all items in item_ids.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>array</p>
+</dd>
+</dl>
 </dd></dl>
 
 </dd></dl>
@@ -315,7 +310,7 @@ will be computed.</li>
         <a href="representations.html" class="btn btn-neutral float-right" title="Sequence representations" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
       
       
-        <a href="sequence.html" class="btn btn-neutral" title="Sequence" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+        <a href="sequence.html" class="btn btn-neutral float-left" title="Sequence" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
       
     </div>
   
@@ -341,26 +336,16 @@ will be computed.</li>
   
 
 
-  
-
-    
-    
-      <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
-        <script type="text/javascript" src="../_static/jquery.js"></script>
-        <script type="text/javascript" src="../_static/underscore.js"></script>
-        <script type="text/javascript" src="../_static/doctools.js"></script>
-        <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
-    
-
-  
-
-  <script type="text/javascript" src="../_static/js/theme.js"></script>
-
   <script type="text/javascript">
       jQuery(function () {
           SphinxRtdTheme.Navigation.enable(true);
       });
-  </script> 
+  </script>
+
+  
+  
+    
+   
 
 </body>
 </html>

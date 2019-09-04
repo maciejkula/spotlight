@@ -17,13 +17,20 @@
   
 
   
+  <script type="text/javascript" src="_static/js/modernizr.min.js"></script>
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+        <script type="text/javascript" src="_static/jquery.js"></script>
+        <script type="text/javascript" src="_static/underscore.js"></script>
+        <script type="text/javascript" src="_static/doctools.js"></script>
+        <script type="text/javascript" src="_static/language_data.js"></script>
+    
+    <script type="text/javascript" src="_static/js/theme.js"></script>
 
-  
-  
     
 
   
-
   <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
   <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
   <link rel="stylesheet" href="_static/css/spotlight_theme.css" type="text/css" />
@@ -31,21 +38,16 @@
     <link rel="search" title="Search" href="search.html" />
     <link rel="next" title="Evaluation" href="evaluation.html" />
     <link rel="prev" title="Layers" href="layers.html" /> 
-
-  
-  <script src="_static/js/modernizr.min.js"></script>
-
 </head>
 
 <body class="wy-body-for-nav">
 
    
   <div class="wy-grid-for-nav">
-
     
     <nav data-toggle="wy-nav-shift" class="wy-nav-side">
       <div class="wy-side-scroll">
-        <div class="wy-side-nav-search">
+        <div class="wy-side-nav-search" >
           
 
           
@@ -117,13 +119,17 @@
 </ul>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="changelog.html">Changelog</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="changelog.html#v0-1-5-2018-05-20">v0.1.5 (2018-05-20)</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="changelog.html#unreleased-unreleased">Unreleased (unreleased)</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="changelog.html#other">Other</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="changelog.html#v0-1-5-2018-05-20">v0.1.5 (2018-05-20)</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="changelog.html#id1">Other</a></li>
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="changelog.html#v0-1-4-2018-02-18">v0.1.4 (2018-02-18)</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="changelog.html#fixed">Fixed</a></li>
-<li class="toctree-l3"><a class="reference internal" href="changelog.html#id1">Other</a></li>
+<li class="toctree-l3"><a class="reference internal" href="changelog.html#id2">Other</a></li>
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="changelog.html#v0-1-3-2017-12-14">v0.1.3 (2017-12-14)</a><ul>
@@ -132,9 +138,9 @@
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="changelog.html#v0-1-2-2017-09-10">v0.1.2 (2017-09-10)</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="changelog.html#id2">Added</a></li>
-<li class="toctree-l3"><a class="reference internal" href="changelog.html#id3">Changed</a></li>
-<li class="toctree-l3"><a class="reference internal" href="changelog.html#id4">Fixed</a></li>
+<li class="toctree-l3"><a class="reference internal" href="changelog.html#id3">Added</a></li>
+<li class="toctree-l3"><a class="reference internal" href="changelog.html#id4">Changed</a></li>
+<li class="toctree-l3"><a class="reference internal" href="changelog.html#id5">Fixed</a></li>
 </ul>
 </li>
 </ul>
@@ -212,204 +218,174 @@ implicit feedback models trained through negative sampling.</p>
 models.</p>
 <dl class="function">
 <dt id="spotlight.losses.adaptive_hinge_loss">
-<code class="descclassname">spotlight.losses.</code><code class="descname">adaptive_hinge_loss</code><span class="sig-paren">(</span><em>positive_predictions</em>, <em>negative_predictions</em>, <em>mask=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/spotlight/losses.html#adaptive_hinge_loss"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#spotlight.losses.adaptive_hinge_loss" title="Permalink to this definition">¶</a></dt>
+<code class="sig-prename descclassname">spotlight.losses.</code><code class="sig-name descname">adaptive_hinge_loss</code><span class="sig-paren">(</span><em class="sig-param">positive_predictions</em>, <em class="sig-param">negative_predictions</em>, <em class="sig-param">mask=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/spotlight/losses.html#adaptive_hinge_loss"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#spotlight.losses.adaptive_hinge_loss" title="Permalink to this definition">¶</a></dt>
 <dd><p>Adaptive hinge pairwise loss function. Takes a set of predictions
 for implicitly negative items, and selects those that are highest,
 thus sampling those negatives that are closes to violating the
 ranking implicit in the pattern of user interactions.</p>
 <p>Approximates the idea of weighted approximate-rank pairwise loss
-introduced in <a class="footnote-reference" href="#id2" id="id1">[2]</a></p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>positive_predictions</strong> (<em>tensor</em>) – Tensor containing predictions for known positive items.</li>
-<li><strong>negative_predictions</strong> (<em>tensor</em>) – Iterable of tensors containing predictions for sampled negative items.
+introduced in <a class="footnote-reference brackets" href="#id2" id="id1">2</a></p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>positive_predictions</strong> (<em>tensor</em>) – Tensor containing predictions for known positive items.</p></li>
+<li><p><strong>negative_predictions</strong> (<em>tensor</em>) – Iterable of tensors containing predictions for sampled negative items.
 More tensors increase the likelihood of finding ranking-violating
-pairs, but risk overfitting.</li>
-<li><strong>mask</strong> (<em>tensor</em><em>, </em><em>optional</em>) – A binary tensor used to zero the loss from some entries
-of the loss tensor.</li>
+pairs, but risk overfitting.</p></li>
+<li><p><strong>mask</strong> (<em>tensor</em><em>, </em><em>optional</em>) – A binary tensor used to zero the loss from some entries
+of the loss tensor.</p></li>
 </ul>
-</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">The mean value of the loss function.</p>
-</td>
-</tr>
-<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">loss, float</p>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>The mean value of the loss function.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>loss, float</p>
+</dd>
+</dl>
 <p class="rubric">References</p>
-<table class="docutils footnote" frame="void" id="id2" rules="none">
-<colgroup><col class="label" /><col /></colgroup>
-<tbody valign="top">
-<tr><td class="label"><a class="fn-backref" href="#id1">[2]</a></td><td>Weston, Jason, Samy Bengio, and Nicolas Usunier. “Wsabie:
+<dl class="footnote brackets">
+<dt class="label" id="id2"><span class="brackets"><a class="fn-backref" href="#id1">2</a></span></dt>
+<dd><p>Weston, Jason, Samy Bengio, and Nicolas Usunier. “Wsabie:
 Scaling up to large vocabulary image annotation.” IJCAI.
-Vol. 11. 2011.</td></tr>
-</tbody>
-</table>
+Vol. 11. 2011.</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="function">
 <dt id="spotlight.losses.bpr_loss">
-<code class="descclassname">spotlight.losses.</code><code class="descname">bpr_loss</code><span class="sig-paren">(</span><em>positive_predictions</em>, <em>negative_predictions</em>, <em>mask=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/spotlight/losses.html#bpr_loss"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#spotlight.losses.bpr_loss" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bayesian Personalised Ranking <a class="footnote-reference" href="#id4" id="id3">[1]</a> pairwise loss function.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>positive_predictions</strong> (<em>tensor</em>) – Tensor containing predictions for known positive items.</li>
-<li><strong>negative_predictions</strong> (<em>tensor</em>) – Tensor containing predictions for sampled negative items.</li>
-<li><strong>mask</strong> (<em>tensor</em><em>, </em><em>optional</em>) – A binary tensor used to zero the loss from some entries
-of the loss tensor.</li>
+<code class="sig-prename descclassname">spotlight.losses.</code><code class="sig-name descname">bpr_loss</code><span class="sig-paren">(</span><em class="sig-param">positive_predictions</em>, <em class="sig-param">negative_predictions</em>, <em class="sig-param">mask=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/spotlight/losses.html#bpr_loss"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#spotlight.losses.bpr_loss" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bayesian Personalised Ranking <a class="footnote-reference brackets" href="#id4" id="id3">1</a> pairwise loss function.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>positive_predictions</strong> (<em>tensor</em>) – Tensor containing predictions for known positive items.</p></li>
+<li><p><strong>negative_predictions</strong> (<em>tensor</em>) – Tensor containing predictions for sampled negative items.</p></li>
+<li><p><strong>mask</strong> (<em>tensor</em><em>, </em><em>optional</em>) – A binary tensor used to zero the loss from some entries
+of the loss tensor.</p></li>
 </ul>
-</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">The mean value of the loss function.</p>
-</td>
-</tr>
-<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">loss, float</p>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>The mean value of the loss function.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>loss, float</p>
+</dd>
+</dl>
 <p class="rubric">References</p>
-<table class="docutils footnote" frame="void" id="id4" rules="none">
-<colgroup><col class="label" /><col /></colgroup>
-<tbody valign="top">
-<tr><td class="label"><a class="fn-backref" href="#id3">[1]</a></td><td>Rendle, Steffen, et al. “BPR: Bayesian personalized ranking from
+<dl class="footnote brackets">
+<dt class="label" id="id4"><span class="brackets"><a class="fn-backref" href="#id3">1</a></span></dt>
+<dd><p>Rendle, Steffen, et al. “BPR: Bayesian personalized ranking from
 implicit feedback.” Proceedings of the twenty-fifth conference on
-uncertainty in artificial intelligence. AUAI Press, 2009.</td></tr>
-</tbody>
-</table>
+uncertainty in artificial intelligence. AUAI Press, 2009.</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="function">
 <dt id="spotlight.losses.hinge_loss">
-<code class="descclassname">spotlight.losses.</code><code class="descname">hinge_loss</code><span class="sig-paren">(</span><em>positive_predictions</em>, <em>negative_predictions</em>, <em>mask=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/spotlight/losses.html#hinge_loss"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#spotlight.losses.hinge_loss" title="Permalink to this definition">¶</a></dt>
+<code class="sig-prename descclassname">spotlight.losses.</code><code class="sig-name descname">hinge_loss</code><span class="sig-paren">(</span><em class="sig-param">positive_predictions</em>, <em class="sig-param">negative_predictions</em>, <em class="sig-param">mask=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/spotlight/losses.html#hinge_loss"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#spotlight.losses.hinge_loss" title="Permalink to this definition">¶</a></dt>
 <dd><p>Hinge pairwise loss function.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>positive_predictions</strong> (<em>tensor</em>) – Tensor containing predictions for known positive items.</li>
-<li><strong>negative_predictions</strong> (<em>tensor</em>) – Tensor containing predictions for sampled negative items.</li>
-<li><strong>mask</strong> (<em>tensor</em><em>, </em><em>optional</em>) – A binary tensor used to zero the loss from some entries
-of the loss tensor.</li>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>positive_predictions</strong> (<em>tensor</em>) – Tensor containing predictions for known positive items.</p></li>
+<li><p><strong>negative_predictions</strong> (<em>tensor</em>) – Tensor containing predictions for sampled negative items.</p></li>
+<li><p><strong>mask</strong> (<em>tensor</em><em>, </em><em>optional</em>) – A binary tensor used to zero the loss from some entries
+of the loss tensor.</p></li>
 </ul>
-</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">The mean value of the loss function.</p>
-</td>
-</tr>
-<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">loss, float</p>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>The mean value of the loss function.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>loss, float</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="function">
 <dt id="spotlight.losses.logistic_loss">
-<code class="descclassname">spotlight.losses.</code><code class="descname">logistic_loss</code><span class="sig-paren">(</span><em>observed_ratings</em>, <em>predicted_ratings</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/spotlight/losses.html#logistic_loss"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#spotlight.losses.logistic_loss" title="Permalink to this definition">¶</a></dt>
+<code class="sig-prename descclassname">spotlight.losses.</code><code class="sig-name descname">logistic_loss</code><span class="sig-paren">(</span><em class="sig-param">observed_ratings</em>, <em class="sig-param">predicted_ratings</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/spotlight/losses.html#logistic_loss"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#spotlight.losses.logistic_loss" title="Permalink to this definition">¶</a></dt>
 <dd><p>Logistic loss for explicit data.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>observed_ratings</strong> (<em>tensor</em>) – Tensor containing observed ratings which
-should be +1 or -1 for this loss function.</li>
-<li><strong>predicted_ratings</strong> (<em>tensor</em>) – Tensor containing rating predictions.</li>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>observed_ratings</strong> (<em>tensor</em>) – Tensor containing observed ratings which
+should be +1 or -1 for this loss function.</p></li>
+<li><p><strong>predicted_ratings</strong> (<em>tensor</em>) – Tensor containing rating predictions.</p></li>
 </ul>
-</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">The mean value of the loss function.</p>
-</td>
-</tr>
-<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">loss, float</p>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>The mean value of the loss function.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>loss, float</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="function">
 <dt id="spotlight.losses.pointwise_loss">
-<code class="descclassname">spotlight.losses.</code><code class="descname">pointwise_loss</code><span class="sig-paren">(</span><em>positive_predictions</em>, <em>negative_predictions</em>, <em>mask=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/spotlight/losses.html#pointwise_loss"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#spotlight.losses.pointwise_loss" title="Permalink to this definition">¶</a></dt>
+<code class="sig-prename descclassname">spotlight.losses.</code><code class="sig-name descname">pointwise_loss</code><span class="sig-paren">(</span><em class="sig-param">positive_predictions</em>, <em class="sig-param">negative_predictions</em>, <em class="sig-param">mask=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/spotlight/losses.html#pointwise_loss"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#spotlight.losses.pointwise_loss" title="Permalink to this definition">¶</a></dt>
 <dd><p>Logistic loss function.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>positive_predictions</strong> (<em>tensor</em>) – Tensor containing predictions for known positive items.</li>
-<li><strong>negative_predictions</strong> (<em>tensor</em>) – Tensor containing predictions for sampled negative items.</li>
-<li><strong>mask</strong> (<em>tensor</em><em>, </em><em>optional</em>) – A binary tensor used to zero the loss from some entries
-of the loss tensor.</li>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>positive_predictions</strong> (<em>tensor</em>) – Tensor containing predictions for known positive items.</p></li>
+<li><p><strong>negative_predictions</strong> (<em>tensor</em>) – Tensor containing predictions for sampled negative items.</p></li>
+<li><p><strong>mask</strong> (<em>tensor</em><em>, </em><em>optional</em>) – A binary tensor used to zero the loss from some entries
+of the loss tensor.</p></li>
 </ul>
-</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">The mean value of the loss function.</p>
-</td>
-</tr>
-<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">loss, float</p>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>The mean value of the loss function.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>loss, float</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="function">
 <dt id="spotlight.losses.poisson_loss">
-<code class="descclassname">spotlight.losses.</code><code class="descname">poisson_loss</code><span class="sig-paren">(</span><em>observed_ratings</em>, <em>predicted_ratings</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/spotlight/losses.html#poisson_loss"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#spotlight.losses.poisson_loss" title="Permalink to this definition">¶</a></dt>
+<code class="sig-prename descclassname">spotlight.losses.</code><code class="sig-name descname">poisson_loss</code><span class="sig-paren">(</span><em class="sig-param">observed_ratings</em>, <em class="sig-param">predicted_ratings</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/spotlight/losses.html#poisson_loss"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#spotlight.losses.poisson_loss" title="Permalink to this definition">¶</a></dt>
 <dd><p>Poisson loss.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>observed_ratings</strong> (<em>tensor</em>) – Tensor containing observed ratings.</li>
-<li><strong>predicted_ratings</strong> (<em>tensor</em>) – Tensor containing rating predictions.</li>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>observed_ratings</strong> (<em>tensor</em>) – Tensor containing observed ratings.</p></li>
+<li><p><strong>predicted_ratings</strong> (<em>tensor</em>) – Tensor containing rating predictions.</p></li>
 </ul>
-</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">The mean value of the loss function.</p>
-</td>
-</tr>
-<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">loss, float</p>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>The mean value of the loss function.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>loss, float</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="function">
 <dt id="spotlight.losses.regression_loss">
-<code class="descclassname">spotlight.losses.</code><code class="descname">regression_loss</code><span class="sig-paren">(</span><em>observed_ratings</em>, <em>predicted_ratings</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/spotlight/losses.html#regression_loss"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#spotlight.losses.regression_loss" title="Permalink to this definition">¶</a></dt>
+<code class="sig-prename descclassname">spotlight.losses.</code><code class="sig-name descname">regression_loss</code><span class="sig-paren">(</span><em class="sig-param">observed_ratings</em>, <em class="sig-param">predicted_ratings</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/spotlight/losses.html#regression_loss"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#spotlight.losses.regression_loss" title="Permalink to this definition">¶</a></dt>
 <dd><p>Regression loss.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>observed_ratings</strong> (<em>tensor</em>) – Tensor containing observed ratings.</li>
-<li><strong>predicted_ratings</strong> (<em>tensor</em>) – Tensor containing rating predictions.</li>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>observed_ratings</strong> (<em>tensor</em>) – Tensor containing observed ratings.</p></li>
+<li><p><strong>predicted_ratings</strong> (<em>tensor</em>) – Tensor containing rating predictions.</p></li>
 </ul>
-</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">The mean value of the loss function.</p>
-</td>
-</tr>
-<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">loss, float</p>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>The mean value of the loss function.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>loss, float</p>
+</dd>
+</dl>
 </dd></dl>
 
 </div>
@@ -425,7 +401,7 @@ of the loss tensor.</li>
         <a href="evaluation.html" class="btn btn-neutral float-right" title="Evaluation" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
       
       
-        <a href="layers.html" class="btn btn-neutral" title="Layers" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+        <a href="layers.html" class="btn btn-neutral float-left" title="Layers" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
       
     </div>
   
@@ -451,26 +427,16 @@ of the loss tensor.</li>
   
 
 
-  
-
-    
-    
-      <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
-        <script type="text/javascript" src="_static/jquery.js"></script>
-        <script type="text/javascript" src="_static/underscore.js"></script>
-        <script type="text/javascript" src="_static/doctools.js"></script>
-        <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
-    
-
-  
-
-  <script type="text/javascript" src="_static/js/theme.js"></script>
-
   <script type="text/javascript">
       jQuery(function () {
           SphinxRtdTheme.Navigation.enable(true);
       });
-  </script> 
+  </script>
+
+  
+  
+    
+   
 
 </body>
 </html>

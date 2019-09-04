@@ -17,34 +17,36 @@
   
 
   
+  <script type="text/javascript" src="_static/js/modernizr.min.js"></script>
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+        <script type="text/javascript" src="_static/jquery.js"></script>
+        <script type="text/javascript" src="_static/underscore.js"></script>
+        <script type="text/javascript" src="_static/doctools.js"></script>
+        <script type="text/javascript" src="_static/language_data.js"></script>
+    
+    <script type="text/javascript" src="_static/js/theme.js"></script>
 
-  
-  
     
 
   
-
   <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
   <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
   <link rel="stylesheet" href="_static/css/spotlight_theme.css" type="text/css" />
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
     <link rel="next" title="Interactions" href="interactions.html" /> 
-
-  
-  <script src="_static/js/modernizr.min.js"></script>
-
 </head>
 
 <body class="wy-body-for-nav">
 
    
   <div class="wy-grid-for-nav">
-
     
     <nav data-toggle="wy-nav-shift" class="wy-nav-side">
       <div class="wy-side-scroll">
-        <div class="wy-side-nav-search">
+        <div class="wy-side-nav-search" >
           
 
           
@@ -116,13 +118,17 @@
 </ul>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="changelog.html">Changelog</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="changelog.html#v0-1-5-2018-05-20">v0.1.5 (2018-05-20)</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="changelog.html#unreleased-unreleased">Unreleased (unreleased)</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="changelog.html#other">Other</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="changelog.html#v0-1-5-2018-05-20">v0.1.5 (2018-05-20)</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="changelog.html#id1">Other</a></li>
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="changelog.html#v0-1-4-2018-02-18">v0.1.4 (2018-02-18)</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="changelog.html#fixed">Fixed</a></li>
-<li class="toctree-l3"><a class="reference internal" href="changelog.html#id1">Other</a></li>
+<li class="toctree-l3"><a class="reference internal" href="changelog.html#id2">Other</a></li>
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="changelog.html#v0-1-3-2017-12-14">v0.1.3 (2017-12-14)</a><ul>
@@ -131,9 +137,9 @@
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="changelog.html#v0-1-2-2017-09-10">v0.1.2 (2017-09-10)</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="changelog.html#id2">Added</a></li>
-<li class="toctree-l3"><a class="reference internal" href="changelog.html#id3">Changed</a></li>
-<li class="toctree-l3"><a class="reference internal" href="changelog.html#id4">Fixed</a></li>
+<li class="toctree-l3"><a class="reference internal" href="changelog.html#id3">Added</a></li>
+<li class="toctree-l3"><a class="reference internal" href="changelog.html#id4">Changed</a></li>
+<li class="toctree-l3"><a class="reference internal" href="changelog.html#id5">Fixed</a></li>
 </ul>
 </li>
 </ul>
@@ -231,10 +237,10 @@ and prototyping of new recommender models.</p>
 <div class="section" id="factorization-models">
 <h2>Factorization models<a class="headerlink" href="#factorization-models" title="Permalink to this headline">¶</a></h2>
 <p>To fit an explicit feedback model on the MovieLens dataset:</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">spotlight.cross_validation</span> <span class="kn">import</span> <span class="n">random_train_test_split</span>
-<span class="kn">from</span> <span class="nn">spotlight.datasets.movielens</span> <span class="kn">import</span> <span class="n">get_movielens_dataset</span>
-<span class="kn">from</span> <span class="nn">spotlight.evaluation</span> <span class="kn">import</span> <span class="n">rmse_score</span>
-<span class="kn">from</span> <span class="nn">spotlight.factorization.explicit</span> <span class="kn">import</span> <span class="n">ExplicitFactorizationModel</span>
+<div class="highlight-python3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">spotlight.cross_validation</span> <span class="k">import</span> <span class="n">random_train_test_split</span>
+<span class="kn">from</span> <span class="nn">spotlight.datasets.movielens</span> <span class="k">import</span> <span class="n">get_movielens_dataset</span>
+<span class="kn">from</span> <span class="nn">spotlight.evaluation</span> <span class="k">import</span> <span class="n">rmse_score</span>
+<span class="kn">from</span> <span class="nn">spotlight.factorization.explicit</span> <span class="k">import</span> <span class="n">ExplicitFactorizationModel</span>
 
 <span class="n">dataset</span> <span class="o">=</span> <span class="n">get_movielens_dataset</span><span class="p">(</span><span class="n">variant</span><span class="o">=</span><span class="s1">&#39;100K&#39;</span><span class="p">)</span>
 
@@ -247,10 +253,10 @@ and prototyping of new recommender models.</p>
 </pre></div>
 </div>
 <p>To fit an implicit ranking model with a BPR pairwise loss on the MovieLens dataset:</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">spotlight.cross_validation</span> <span class="kn">import</span> <span class="n">random_train_test_split</span>
-<span class="kn">from</span> <span class="nn">spotlight.datasets.movielens</span> <span class="kn">import</span> <span class="n">get_movielens_dataset</span>
-<span class="kn">from</span> <span class="nn">spotlight.evaluation</span> <span class="kn">import</span> <span class="n">mrr_score</span>
-<span class="kn">from</span> <span class="nn">spotlight.factorization.implicit</span> <span class="kn">import</span> <span class="n">ImplicitFactorizationModel</span>
+<div class="highlight-python3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">spotlight.cross_validation</span> <span class="k">import</span> <span class="n">random_train_test_split</span>
+<span class="kn">from</span> <span class="nn">spotlight.datasets.movielens</span> <span class="k">import</span> <span class="n">get_movielens_dataset</span>
+<span class="kn">from</span> <span class="nn">spotlight.evaluation</span> <span class="k">import</span> <span class="n">mrr_score</span>
+<span class="kn">from</span> <span class="nn">spotlight.factorization.implicit</span> <span class="k">import</span> <span class="n">ImplicitFactorizationModel</span>
 
 <span class="n">dataset</span> <span class="o">=</span> <span class="n">get_movielens_dataset</span><span class="p">(</span><span class="n">variant</span><span class="o">=</span><span class="s1">&#39;100K&#39;</span><span class="p">)</span>
 
@@ -271,14 +277,14 @@ has interacted with in the past, what will be the next item they will interact
 with? Spotlight provides a range of models and utilities for fitting next item
 recommendation models, including</p>
 <ul class="simple">
-<li>pooling models, as in <a class="reference external" href="https://pdfs.semanticscholar.org/bcdb/4da4a05f0e7bc17d1600f3a91a338cd7ffd3.pdf">YouTube recommendations</a>,</li>
-<li>LSTM models, as in <a class="reference external" href="https://arxiv.org/pdf/1511.06939">Session-based recommendations…</a>, and</li>
-<li>causal convolution models, as in <a class="reference external" href="https://arxiv.org/pdf/1609.03499">WaveNet</a>.</li>
+<li><p>pooling models, as in <a class="reference external" href="https://pdfs.semanticscholar.org/bcdb/4da4a05f0e7bc17d1600f3a91a338cd7ffd3.pdf">YouTube recommendations</a>,</p></li>
+<li><p>LSTM models, as in <a class="reference external" href="https://arxiv.org/pdf/1511.06939">Session-based recommendations…</a>, and</p></li>
+<li><p>causal convolution models, as in <a class="reference external" href="https://arxiv.org/pdf/1609.03499">WaveNet</a>.</p></li>
 </ul>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">spotlight.cross_validation</span> <span class="kn">import</span> <span class="n">user_based_train_test_split</span>
-<span class="kn">from</span> <span class="nn">spotlight.datasets.synthetic</span> <span class="kn">import</span> <span class="n">generate_sequential</span>
-<span class="kn">from</span> <span class="nn">spotlight.evaluation</span> <span class="kn">import</span> <span class="n">sequence_mrr_score</span>
-<span class="kn">from</span> <span class="nn">spotlight.sequence.implicit</span> <span class="kn">import</span> <span class="n">ImplicitSequenceModel</span>
+<div class="highlight-python3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">spotlight.cross_validation</span> <span class="k">import</span> <span class="n">user_based_train_test_split</span>
+<span class="kn">from</span> <span class="nn">spotlight.datasets.synthetic</span> <span class="k">import</span> <span class="n">generate_sequential</span>
+<span class="kn">from</span> <span class="nn">spotlight.evaluation</span> <span class="k">import</span> <span class="n">sequence_mrr_score</span>
+<span class="kn">from</span> <span class="nn">spotlight.sequence.implicit</span> <span class="k">import</span> <span class="n">ImplicitSequenceModel</span>
 
 <span class="n">dataset</span> <span class="o">=</span> <span class="n">generate_sequential</span><span class="p">(</span><span class="n">num_users</span><span class="o">=</span><span class="mi">100</span><span class="p">,</span>
                               <span class="n">num_items</span><span class="o">=</span><span class="mi">1000</span><span class="p">,</span>
@@ -306,7 +312,7 @@ recommendation models, including</p>
 It also incorporates utilities for creating synthetic datasets. For example, <cite>generate_sequential</cite>
 generates a Markov-chain-derived interaction dataset, where the next item a user chooses is
 a function of their previous interactions:</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">spotlight.datasets.synthetic</span> <span class="kn">import</span> <span class="n">generate_sequential</span>
+<div class="highlight-python3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">spotlight.datasets.synthetic</span> <span class="k">import</span> <span class="n">generate_sequential</span>
 
 <span class="c1"># Concentration parameter governs how predictable the chain is;</span>
 <span class="c1"># order determins the order of the Markov chain.</span>
@@ -322,14 +328,23 @@ a function of their previous interactions:</p>
 <div class="section" id="examples">
 <h1>Examples<a class="headerlink" href="#examples" title="Permalink to this headline">¶</a></h1>
 <ol class="arabic simple">
-<li><a class="reference external" href="https://github.com/maciejkula/spotlight/tree/master/examples/movielens_explicit">Rating prediction on the Movielens dataset</a>.</li>
-<li><a class="reference external" href="https://github.com/maciejkula/spotlight/tree/master/examples/movielens_sequence">Using causal convolutions for sequence recommendations</a>.</li>
-<li><a class="reference external" href="https://github.com/maciejkula/spotlight/tree/master/examples/bloom_embeddings">Bloom embedding layers</a>.</li>
+<li><p><a class="reference external" href="https://github.com/maciejkula/spotlight/tree/master/examples/movielens_explicit">Rating prediction on the Movielens dataset</a>.</p></li>
+<li><p><a class="reference external" href="https://github.com/maciejkula/spotlight/tree/master/examples/movielens_sequence">Using causal convolutions for sequence recommendations</a>.</p></li>
+<li><p><a class="reference external" href="https://github.com/maciejkula/spotlight/tree/master/examples/bloom_embeddings">Bloom embedding layers</a>.</p></li>
 </ol>
 </div>
 <div class="section" id="how-to-cite">
 <h1>How to cite<a class="headerlink" href="#how-to-cite" title="Permalink to this headline">¶</a></h1>
 <p>Please cite Spotlight if it helps your research. You can use the following BibTeX entry:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="nd">@misc</span><span class="p">{</span><span class="n">kula2017spotlight</span><span class="p">,</span>
+  <span class="n">title</span><span class="o">=</span><span class="p">{</span><span class="n">Spotlight</span><span class="p">},</span>
+  <span class="n">author</span><span class="o">=</span><span class="p">{</span><span class="n">Kula</span><span class="p">,</span> <span class="n">Maciej</span><span class="p">},</span>
+  <span class="n">year</span><span class="o">=</span><span class="p">{</span><span class="mi">2017</span><span class="p">},</span>
+  <span class="n">publisher</span><span class="o">=</span><span class="p">{</span><span class="n">GitHub</span><span class="p">},</span>
+  <span class="n">howpublished</span><span class="o">=</span><span class="p">{</span>\<span class="n">url</span><span class="p">{</span><span class="n">https</span><span class="p">:</span><span class="o">//</span><span class="n">github</span><span class="o">.</span><span class="n">com</span><span class="o">/</span><span class="n">maciejkula</span><span class="o">/</span><span class="n">spotlight</span><span class="p">}},</span>
+<span class="p">}</span>
+</pre></div>
+</div>
 </div>
 <div class="section" id="contributing">
 <h1>Contributing<a class="headerlink" href="#contributing" title="Permalink to this headline">¶</a></h1>
@@ -374,6 +389,7 @@ a function of their previous interactions:</p>
 <div class="toctree-wrapper compound">
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="changelog.html">Changelog</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="changelog.html#unreleased-unreleased">Unreleased (unreleased)</a></li>
 <li class="toctree-l2"><a class="reference internal" href="changelog.html#v0-1-5-2018-05-20">v0.1.5 (2018-05-20)</a></li>
 <li class="toctree-l2"><a class="reference internal" href="changelog.html#v0-1-4-2018-02-18">v0.1.4 (2018-02-18)</a></li>
 <li class="toctree-l2"><a class="reference internal" href="changelog.html#v0-1-3-2017-12-14">v0.1.3 (2017-12-14)</a></li>
@@ -386,9 +402,9 @@ a function of their previous interactions:</p>
 <div class="section" id="indices-and-tables">
 <h2>Indices and tables<a class="headerlink" href="#indices-and-tables" title="Permalink to this headline">¶</a></h2>
 <ul class="simple">
-<li><a class="reference internal" href="genindex.html"><span class="std std-ref">Index</span></a></li>
-<li><a class="reference internal" href="py-modindex.html"><span class="std std-ref">Module Index</span></a></li>
-<li><a class="reference internal" href="search.html"><span class="std std-ref">Search Page</span></a></li>
+<li><p><a class="reference internal" href="genindex.html"><span class="std std-ref">Index</span></a></p></li>
+<li><p><a class="reference internal" href="py-modindex.html"><span class="std std-ref">Module Index</span></a></p></li>
+<li><p><a class="reference internal" href="search.html"><span class="std std-ref">Search Page</span></a></p></li>
 </ul>
 </div>
 </div>
@@ -428,26 +444,16 @@ a function of their previous interactions:</p>
   
 
 
-  
-
-    
-    
-      <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
-        <script type="text/javascript" src="_static/jquery.js"></script>
-        <script type="text/javascript" src="_static/underscore.js"></script>
-        <script type="text/javascript" src="_static/doctools.js"></script>
-        <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
-    
-
-  
-
-  <script type="text/javascript" src="_static/js/theme.js"></script>
-
   <script type="text/javascript">
       jQuery(function () {
           SphinxRtdTheme.Navigation.enable(true);
       });
-  </script> 
+  </script>
+
+  
+  
+    
+   
 
 </body>
 </html>
