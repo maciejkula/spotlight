@@ -37,8 +37,8 @@ def pointwise_loss(positive_predictions, negative_predictions, mask=None):
         The mean value of the loss function.
     """
 
-    positives_loss = (1.0 - F.sigmoid(positive_predictions))
-    negatives_loss = F.sigmoid(negative_predictions)
+    positives_loss = (1.0 - torch.sigmoid(positive_predictions))
+    negatives_loss = torch.sigmoid(negative_predictions)
 
     loss = (positives_loss + negatives_loss)
 
@@ -79,8 +79,8 @@ def bpr_loss(positive_predictions, negative_predictions, mask=None):
        uncertainty in artificial intelligence. AUAI Press, 2009.
     """
 
-    loss = (1.0 - F.sigmoid(positive_predictions -
-                            negative_predictions))
+    loss = (1.0 - torch.sigmoid(positive_predictions -
+                                negative_predictions))
 
     if mask is not None:
         mask = mask.float()

@@ -2,6 +2,14 @@
 Changelog
 =========
 
+Unreleased (unreleased)
+-----------------------
+
+Other
+~~~~~
+
+* Bump to PyTorch v1.1.0.
+
 v0.1.5 (2018-05-20)
 -------------------
 
