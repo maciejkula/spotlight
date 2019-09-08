@@ -2,10 +2,10 @@ build: false
 
 environment:
   global:
-      REQUIREMENTS: "numpy scipy requests h5py scikit-learn pytest flake8 pytorch-cpu=1.10"
+      REQUIREMENTS: "numpy scipy requests h5py scikit-learn pytest flake8 pytorch-cpu=1.1.0"
 
   matrix:
-    - PYTHON_VERSION: 3.6
+    - PYTHON_VERSION: 3.7
       MINICONDA: C:\Miniconda3-x64
 
 
