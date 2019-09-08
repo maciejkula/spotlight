@@ -2,7 +2,7 @@
 Changelog
 =========
 
-Unreleased (unreleased)
+v0.1.6 (2018-05-20)
 -----------------------
 
 Other
