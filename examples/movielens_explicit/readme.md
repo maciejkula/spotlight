@@ -9,7 +9,7 @@ The basic idea is very simple:
 1. Start with user-item-rating triplets, conveying the information that user _i_ gave some item _j_ rating _r_.
 2. Represent both users and items as high-dimensional vectors of numbers. For example, a user could be represented by `[0.3, -1.2, 0.5]` and an item by `[1.0, -0.3, -0.6]`.
 3. The representations should be chosen so that, when we multiplied together (via [dot products](https://en.wikipedia.org/wiki/Dot_product)), we can recover the original ratings.
-4. The utility of the model then is derived from the fact that if we multiply the user vector of a user with the item vector of some item they _have not_ rated, we hope to obtain a predicition for the rating they would have given to it had they seen it.
+4. The utility of the model then is derived from the fact that if we multiply the user vector of a user with the item vector of some item they _have not_ rated, we hope to obtain a prediction for the rating they would have given to it had they seen it.
 
 <img src="static/matrix_factorization.png" alt="Matrix factorization" style="width: 600px;"/>
 
