@@ -105,7 +105,7 @@ WARP-like adaptive hinge) losses. As with other Spotlight sequence
 models, the loss is computed for all the time steps of the sequence in
 one pass: for all timesteps :math:`t` in the sequence, a prediction
 using elements up to :math:`t-1` is made, and the loss is averaged along
-both the time and the minibatch axis. This leads to siginficant training
+both the time and the minibatch axis. This leads to significant training
 speed-ups relative to only computing the loss for the last element in
 the sequence.
 
