@@ -213,11 +213,11 @@
 
 <span class="kn">import</span> <span class="nn">torch</span>
 
-<span class="kn">from</span> <span class="nn">torch.backends</span> <span class="k">import</span> <span class="n">cudnn</span>
+<span class="kn">from</span> <span class="nn">torch.backends</span> <span class="kn">import</span> <span class="n">cudnn</span>
 <span class="kn">import</span> <span class="nn">torch.nn</span> <span class="k">as</span> <span class="nn">nn</span>
 <span class="kn">import</span> <span class="nn">torch.nn.functional</span> <span class="k">as</span> <span class="nn">F</span>
 
-<span class="kn">from</span> <span class="nn">spotlight.layers</span> <span class="k">import</span> <span class="n">ScaledEmbedding</span><span class="p">,</span> <span class="n">ZeroEmbedding</span>
+<span class="kn">from</span> <span class="nn">spotlight.layers</span> <span class="kn">import</span> <span class="n">ScaledEmbedding</span><span class="p">,</span> <span class="n">ZeroEmbedding</span>
 
 
 <span class="n">PADDING_IDX</span> <span class="o">=</span> <span class="mi">0</span>
@@ -264,7 +264,7 @@
 
 <span class="sd">    &quot;&quot;&quot;</span>
 
-    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">num_items</span><span class="p">,</span> <span class="n">embedding_dim</span><span class="o">=</span><span class="mi">32</span><span class="p">,</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">num_items</span><span class="p">,</span> <span class="n">embedding_dim</span><span class="o">=</span><span class="mi">32</span><span class="p">,</span>
                  <span class="n">item_embedding_layer</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">sparse</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
 
         <span class="nb">super</span><span class="p">(</span><span class="n">PoolNet</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
@@ -381,7 +381,7 @@
 <span class="sd">       recurrent neural networks.&quot; arXiv preprint arXiv:1511.06939 (2015).</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
-    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">num_items</span><span class="p">,</span> <span class="n">embedding_dim</span><span class="o">=</span><span class="mi">32</span><span class="p">,</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">num_items</span><span class="p">,</span> <span class="n">embedding_dim</span><span class="o">=</span><span class="mi">32</span><span class="p">,</span>
                  <span class="n">item_embedding_layer</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">sparse</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
 
         <span class="nb">super</span><span class="p">(</span><span class="n">LSTMNet</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
@@ -526,7 +526,7 @@
 <span class="sd">       arXiv preprint arXiv:1610.10099 (2016).</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
-    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">num_items</span><span class="p">,</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">num_items</span><span class="p">,</span>
                  <span class="n">embedding_dim</span><span class="o">=</span><span class="mi">32</span><span class="p">,</span>
                  <span class="n">kernel_width</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span>
                  <span class="n">dilation</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
@@ -694,7 +694,7 @@
 <span class="sd">       Users with Diverse Interests&quot; https://github.com/maciejkula/mixture (2017)</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
-    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">num_items</span><span class="p">,</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">num_items</span><span class="p">,</span>
                  <span class="n">embedding_dim</span><span class="o">=</span><span class="mi">32</span><span class="p">,</span>
                  <span class="n">num_mixtures</span><span class="o">=</span><span class="mi">4</span><span class="p">,</span>
                  <span class="n">item_embedding_layer</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>

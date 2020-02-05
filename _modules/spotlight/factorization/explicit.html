@@ -216,14 +216,14 @@
 
 <span class="kn">import</span> <span class="nn">torch.optim</span> <span class="k">as</span> <span class="nn">optim</span>
 
-<span class="kn">from</span> <span class="nn">spotlight.helpers</span> <span class="k">import</span> <span class="n">_repr_model</span>
-<span class="kn">from</span> <span class="nn">spotlight.factorization._components</span> <span class="k">import</span> <span class="n">_predict_process_ids</span>
-<span class="kn">from</span> <span class="nn">spotlight.factorization.representations</span> <span class="k">import</span> <span class="n">BilinearNet</span>
-<span class="kn">from</span> <span class="nn">spotlight.losses</span> <span class="k">import</span> <span class="p">(</span><span class="n">poisson_loss</span><span class="p">,</span>
+<span class="kn">from</span> <span class="nn">spotlight.helpers</span> <span class="kn">import</span> <span class="n">_repr_model</span>
+<span class="kn">from</span> <span class="nn">spotlight.factorization._components</span> <span class="kn">import</span> <span class="n">_predict_process_ids</span>
+<span class="kn">from</span> <span class="nn">spotlight.factorization.representations</span> <span class="kn">import</span> <span class="n">BilinearNet</span>
+<span class="kn">from</span> <span class="nn">spotlight.losses</span> <span class="kn">import</span> <span class="p">(</span><span class="n">poisson_loss</span><span class="p">,</span>
                               <span class="n">regression_loss</span><span class="p">,</span>
                               <span class="n">logistic_loss</span><span class="p">)</span>
 
-<span class="kn">from</span> <span class="nn">spotlight.torch_utils</span> <span class="k">import</span> <span class="n">cpu</span><span class="p">,</span> <span class="n">gpu</span><span class="p">,</span> <span class="n">minibatch</span><span class="p">,</span> <span class="n">set_seed</span><span class="p">,</span> <span class="n">shuffle</span>
+<span class="kn">from</span> <span class="nn">spotlight.torch_utils</span> <span class="kn">import</span> <span class="n">cpu</span><span class="p">,</span> <span class="n">gpu</span><span class="p">,</span> <span class="n">minibatch</span><span class="p">,</span> <span class="n">set_seed</span><span class="p">,</span> <span class="n">shuffle</span>
 
 
 <div class="viewcode-block" id="ExplicitFactorizationModel"><a class="viewcode-back" href="../../../factorization/explicit.html#spotlight.factorization.explicit.ExplicitFactorizationModel">[docs]</a><span class="k">class</span> <span class="nc">ExplicitFactorizationModel</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
@@ -273,7 +273,7 @@
 <span class="sd">        Random state to use when fitting.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
-    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span>
                  <span class="n">loss</span><span class="o">=</span><span class="s1">&#39;regression&#39;</span><span class="p">,</span>
                  <span class="n">embedding_dim</span><span class="o">=</span><span class="mi">32</span><span class="p">,</span>
                  <span class="n">n_iter</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span>
@@ -311,7 +311,7 @@
         <span class="n">set_seed</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_random_state</span><span class="o">.</span><span class="n">randint</span><span class="p">(</span><span class="o">-</span><span class="mi">10</span><span class="o">**</span><span class="mi">8</span><span class="p">,</span> <span class="mi">10</span><span class="o">**</span><span class="mi">8</span><span class="p">),</span>
                  <span class="n">cuda</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_use_cuda</span><span class="p">)</span>
 
-    <span class="k">def</span> <span class="nf">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 
         <span class="k">return</span> <span class="n">_repr_model</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
 
