@@ -14,7 +14,7 @@ def _sliding_window(tensor, window_size, step_size=1):
         yield tensor[max(i - window_size, 0):i]
 
 
-def _generate_sequences(user_ids, item_ids,
+def _generate_sequences(user_ids, sequence_elements,
                         indices,
                         max_sequence_length,
                         step_size):
@@ -28,7 +28,7 @@ def _generate_sequences(user_ids, item_ids,
         else:
             stop_idx = indices[i + 1]
 
-        for seq in _sliding_window(item_ids[start_idx:stop_idx],
+        for seq in _sliding_window(sequence_elements[start_idx:stop_idx],
                                    max_sequence_length,
                                    step_size):
 
@@ -63,7 +63,7 @@ class Interactions(object):
     timestamps: array of np.int32, optional
         array of timestamps
     weights: array of np.float32, optional
-        array of weights
+        array of sample importance weights
     num_users: int, optional
         Number of distinct users in the dataset.
         Must be larger than the maximum user id
@@ -85,7 +85,7 @@ class Interactions(object):
     timestamps: array of np.int32, optional
         array of timestamps
     weights: array of np.float32, optional
-        array of weights
+        array of sample importance weights
     num_users: int, optional
         Number of distinct users in the dataset.
     num_items: int, optional
@@ -218,7 +218,7 @@ class Interactions(object):
         sequence interactions: :class:`~SequenceInteractions`
             The resulting sequence interactions.
         """
-
+        weighted = self.weights is not None
         if self.timestamps is None:
             raise ValueError('Cannot convert to sequences, '
                              'timestamps not available.')
@@ -236,6 +236,8 @@ class Interactions(object):
 
         user_ids = self.user_ids[sort_indices]
         item_ids = self.item_ids[sort_indices]
+        if weighted:
+            weights = self.weights[sort_indices]
 
         user_ids, indices, counts = np.unique(user_ids,
                                               return_index=True,
@@ -245,6 +247,10 @@ class Interactions(object):
 
         sequences = np.zeros((num_subsequences, max_sequence_length),
                              dtype=np.int32)
+        weight_sequences = None
+        if weighted:
+            weight_sequences = np.zeros((num_subsequences, max_sequence_length),
+                                        dtype=np.int32)
         sequence_users = np.empty(num_subsequences,
                                   dtype=np.int32)
         for i, (uid,
@@ -256,13 +262,25 @@ class Interactions(object):
             sequences[i][-len(seq):] = seq
             sequence_users[i] = uid
 
+        if weighted:
+            for i, (uid,
+                    seq) in enumerate(_generate_sequences(user_ids,
+                                                          weights,
+                                                          indices,
+                                                          max_sequence_length,
+                                                          step_size)):
+                weight_sequences[i][-len(seq):] = seq
+
         if min_sequence_length is not None:
             long_enough = sequences[:, -min_sequence_length] != 0
             sequences = sequences[long_enough]
             sequence_users = sequence_users[long_enough]
+            if weighted:
+                weight_sequences = weight_sequences[long_enough]
 
         return (SequenceInteractions(sequences,
                                      user_ids=sequence_users,
+                                     weight_sequences=weight_sequences,
                                      num_items=self.num_items))
 
 
@@ -276,6 +294,11 @@ class SequenceInteractions(object):
     sequences: array of np.int32 of shape (num_sequences x max_sequence_length)
         The interactions sequence matrix, as produced by
         :func:`~Interactions.to_sequence`
+    user_ids: array of np.int32, optional
+        user_id represented by a sequence of item_ids.
+    weight_sequences: array of np.int32 of shape
+        (num_sequences x max_sequence_length), optional.
+        Sequence of sample weights.
     num_items: int, optional
         The number of distinct items in the data
 
@@ -287,11 +310,11 @@ class SequenceInteractions(object):
         :func:`~Interactions.to_sequence`
     """
 
-    def __init__(self,
-                 sequences,
-                 user_ids=None, num_items=None):
+    def __init__(self, sequences,
+                 user_ids=None, weight_sequences=None, num_items=None):
 
         self.sequences = sequences
+        self.weight_sequences = weight_sequences
         self.user_ids = user_ids
         self.max_sequence_length = sequences.shape[1]
 

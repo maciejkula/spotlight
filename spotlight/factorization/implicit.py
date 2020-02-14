@@ -183,7 +183,7 @@ class ImplicitFactorizationModel(object):
 
     def fit(self, interactions, verbose=False):
         """
-        Fit the model.
+        Fit the model using sample weights.
 
         When called repeatedly, model fitting will resume from
         the point at which training stopped in the previous fit
@@ -198,9 +198,11 @@ class ImplicitFactorizationModel(object):
         verbose: bool
             Output additional information about current epoch and loss.
         """
-
         user_ids = interactions.user_ids.astype(np.int64)
         item_ids = interactions.item_ids.astype(np.int64)
+        sample_weights = None
+        if interactions.weights is not None:
+            sample_weights = interactions.weights.astype(np.float32)
 
         if not self._initialized:
             self._initialize(interactions)
@@ -209,22 +211,41 @@ class ImplicitFactorizationModel(object):
 
         for epoch_num in range(self._n_iter):
 
-            users, items = shuffle(user_ids,
-                                   item_ids,
-                                   random_state=self._random_state)
+            users, items, sample_weights = shuffle(
+                user_ids,
+                item_ids,
+                sample_weights,
+                random_state=self._random_state
+            )
 
             user_ids_tensor = gpu(torch.from_numpy(users),
                                   self._use_cuda)
             item_ids_tensor = gpu(torch.from_numpy(items),
                                   self._use_cuda)
+            sample_weights_tensor = None
+            if sample_weights is not None:
+                sample_weights_tensor = gpu(
+                    torch.from_numpy(sample_weights),
+                    self._use_cuda
+                )
 
             epoch_loss = 0.0
 
-            for (minibatch_num,
-                 (batch_user,
-                  batch_item)) in enumerate(minibatch(user_ids_tensor,
-                                                      item_ids_tensor,
-                                                      batch_size=self._batch_size)):
+            for (
+                    minibatch_num,
+                    (
+                        batch_user,
+                        batch_item,
+                        batch_sample_weights
+                    )
+            ) in enumerate(
+                minibatch(
+                    user_ids_tensor,
+                    item_ids_tensor,
+                    sample_weights_tensor,
+                    batch_size=self._batch_size
+                )
+            ):
 
                 positive_prediction = self._net(batch_user, batch_item)
 
@@ -236,7 +257,11 @@ class ImplicitFactorizationModel(object):
 
                 self._optimizer.zero_grad()
 
-                loss = self._loss_func(positive_prediction, negative_prediction)
+                loss = self._loss_func(
+                    positive_prediction,
+                    negative_prediction,
+                    sample_weights=batch_sample_weights
+                )
                 epoch_loss += loss.item()
 
                 loss.backward()

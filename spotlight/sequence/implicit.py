@@ -206,6 +206,9 @@ class ImplicitSequenceModel(object):
         """
 
         sequences = interactions.sequences.astype(np.int64)
+        sample_weight_sequences = None
+        if interactions.weight_sequences is not None:
+            sample_weight_sequences = interactions.weight_sequences.astype(np.int64)
 
         if not self._initialized:
             self._initialize(interactions)
@@ -214,18 +217,39 @@ class ImplicitSequenceModel(object):
 
         for epoch_num in range(self._n_iter):
 
-            sequences = shuffle(sequences,
-                                random_state=self._random_state)
+            sequences = shuffle(sequences, random_state=self._random_state)
+            if interactions.weight_sequences is not None:
+                sample_weight_sequences = shuffle(
+                    sample_weight_sequences,
+                    random_state=self._random_state
+                )
 
-            sequences_tensor = gpu(torch.from_numpy(sequences),
-                                   self._use_cuda)
+            sequences_tensor = gpu(torch.from_numpy(sequences), self._use_cuda)
+            weight_sequences_tensor = None
+            if sample_weight_sequences is not None:
+                weight_sequences_tensor = gpu(
+                    torch.from_numpy(sample_weight_sequences),
+                    self._use_cuda
+                )
 
             epoch_loss = 0.0
 
-            for minibatch_num, batch_sequence in enumerate(minibatch(sequences_tensor,
-                                                                     batch_size=self._batch_size)):
+            for (
+                    minibatch_num,
+                    (
+                        batch_sequence,
+                        batch_weight_sequence
+                    )
+            ) in enumerate(
+                minibatch(
+                    sequences_tensor,
+                    weight_sequences_tensor,
+                    batch_size=self._batch_size
+                )
+            ):
 
                 sequence_var = batch_sequence
+                weight_sequence_var = batch_weight_sequence
 
                 user_representation, _ = self._net.user_representation(
                     sequence_var
@@ -245,9 +269,20 @@ class ImplicitSequenceModel(object):
 
                 self._optimizer.zero_grad()
 
-                loss = self._loss_func(positive_prediction,
-                                       negative_prediction,
-                                       mask=(sequence_var != PADDING_IDX))
+                # Merge mask and sample_weights to streamline losses logic
+                padding_mask = (sequence_var != PADDING_IDX)
+                padding_mask = gpu(padding_mask.type(torch.LongTensor), self._use_cuda)
+                if weight_sequence_var is not None:
+                    masked_weights = weight_sequence_var * padding_mask
+                    masked_weights = gpu(masked_weights.type(torch.FloatTensor), self._use_cuda)
+                else:
+                    masked_weights = gpu(padding_mask.type(torch.FloatTensor), self._use_cuda)
+
+                loss = self._loss_func(
+                    positive_prediction,
+                    negative_prediction,
+                    sample_weights=masked_weights,
+                )
                 epoch_loss += loss.item()
 
                 loss.backward()
