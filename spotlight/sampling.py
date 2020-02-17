@@ -3,6 +3,7 @@ Module containing functions for negative item sampling.
 """
 
 import numpy as np
+from sklearn.utils import check_random_state
 
 
 def sample_items(num_items, shape, random_state=None):
@@ -27,10 +28,7 @@ def sample_items(num_items, shape, random_state=None):
     items: np.array of shape [shape]
         Sampled item ids.
     """
-
-    if random_state is None:
-        random_state = np.random.RandomState()
-
+    random_state = check_random_state(random_state)
     items = random_state.randint(0, num_items, shape, dtype=np.int64)
 
     return items

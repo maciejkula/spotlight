@@ -4,7 +4,7 @@ Module with functionality for splitting and shuffling datasets.
 
 import numpy as np
 
-from sklearn.utils import murmurhash3_32
+from sklearn.utils import murmurhash3_32, check_random_state
 
 from spotlight.interactions import Interactions
 
@@ -36,10 +36,7 @@ def shuffle_interactions(interactions,
     interactions: :class:`spotlight.interactions.Interactions`
         The shuffled interactions.
     """
-
-    if random_state is None:
-        random_state = np.random.RandomState()
-
+    random_state = check_random_state(random_state)
     shuffle_indices = np.arange(len(interactions.user_ids))
     random_state.shuffle(shuffle_indices)
 
