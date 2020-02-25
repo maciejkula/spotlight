@@ -247,6 +247,15 @@ class ExplicitFactorizationModel(object):
         Make predictions: given a user id, compute the recommendation
         scores for items.
 
+        Valid inputs to this method are either:
+        - a single user id and an array of item ids (or None): the result will
+          be an array of scores for that user for all item ids in the item ids
+          array (or all items if None)
+        - an array of user ids and an array of item ids: the result will be an
+          array of scores, where the i-th element gives the prediction score
+          for the i-th user from the user ids array and the i-th item from the
+          item ids array. The two input arrays have to be the same length.
+
         Parameters
         ----------
 
