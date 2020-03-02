@@ -4,7 +4,8 @@ import numpy as np
 
 import pytest
 
-from spotlight.evaluation import precision_recall_score, sequence_precision_recall_score
+from spotlight.evaluation import precision_recall_score, \
+    sequence_precision_recall_score, intra_distance_score
 from spotlight.cross_validation import random_train_test_split, user_based_train_test_split
 from spotlight.datasets import movielens
 from spotlight.factorization.implicit import ImplicitFactorizationModel
@@ -111,3 +112,16 @@ def test_precision_recall(data_implicit_factorization, k):
         assert len(precision.shape) == 1
     else:
         assert precision.shape[1] == len(k)
+
+
+def test_intra_distance(data_implicit_factorization):
+
+    (train, test, model) = data_implicit_factorization
+
+    k = 5
+    user_ids = list(set(test.user_ids))
+    distances = intra_distance_score(model, train, user_ids, k=k)
+
+    assert len(distances) == len(user_ids)
+    for distance in distances:
+        assert len(distance) == k * (k - 1) / 2 or len(distance) == 0

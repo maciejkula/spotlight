@@ -242,3 +242,73 @@ def rmse_score(model, test):
     predictions = model.predict(test.user_ids, test.item_ids)
 
     return np.sqrt(((test.ratings - predictions) ** 2).mean())
+
+
+def intra_distance_score(model, train, user_ids, k=10):
+    """
+    Compute IntraDistance@k diversity of a set of recommended items which is defined
+    as the average pairwise distance of the items in the set.
+
+    In early definitions, it's called average dissimilarity [2]
+    It's best known as average intra-list distance [1]
+
+    .. [1] Castells, P., Hurley, N.J. and Vargas, S., 2015.
+        Novelty and diversity in recommender systems.
+        In Recommender Systems Handbook (pp. 881-918). Springer, Boston, MA.
+
+    .. [2] Hurley, N. and Zhang, M., 2011.
+        Novelty and diversity in top-n recommendation--analysis and evaluation.
+        ACM Transactions on Internet Technology (TOIT), 10(4), p.14.
+
+    Distance between items i,j is calculated as;
+    1 - intersection(i,j) / length(i) * length(j)
+
+    Parameters
+    ----------
+
+    model: fitted instance of a recommender model
+        The model to evaluate.
+    user_ids: List of user ids to be tested.
+    train: :class:`spotlight.interactions.Interactions`, optional
+        Train interactions. If supplied, scores of known
+        interactions will not affect the computed metrics.
+    k: int or array of int,
+        The maximum number of predicted items
+    Returns
+    -------
+
+    (IntraDistance@k): numpy array of shape (len(users), len(k * (k-1) / 2)
+        A list of distances between each item in recommendation
+        list with length k for each test user.
+    """
+
+    distances = []
+
+    train = train.tocsr()
+    train_t = train.T
+    lengths = train_t.getnnz(axis=1)
+
+    for user_id, _ in enumerate(user_ids):
+        distance = []
+
+        predictions = -model.predict(user_id)
+
+        if train is not None:
+            predictions[train[user_id].indices] = FLOAT_MAX
+
+        predictions = -model.predict(user_id)
+        rec_list = predictions.argsort()[:k]
+
+        for i, first_item in enumerate(rec_list):
+            for second_item in rec_list[(i + 1):]:
+                distance.append(_get_distance(train_t, lengths, first_item, second_item))
+
+        distances.append(distance)
+    return np.array(distances)
+
+
+def _get_distance(mat, lengths, first_item, second_item):
+    numerator = np.in1d(mat[first_item].indices, mat[second_item].indices, assume_unique=True).sum()
+    denominator = lengths[first_item] * lengths[second_item]
+    similarity = numerator / denominator
+    return 1 - similarity
