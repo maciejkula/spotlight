@@ -40,8 +40,7 @@ class ScaledEmbedding(nn.Embedding):
 class ZeroEmbedding(nn.Embedding):
     """
     Embedding layer that initialises its values
-    to using a normal variable scaled by the inverse
-    of the embedding dimension.
+    to zero.
 
     Used for biases.
     """
