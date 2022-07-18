@@ -97,7 +97,7 @@ def test_check_input():
                                        use_cuda=CUDA)
     model.fit(train)
 
-    # Modify data to make imcompatible with original model.
+    # Modify data to make incompatible with original model.
     train.user_ids[0] = train.user_ids.max() + 1
     with pytest.raises(ValueError):
         model.fit(train)
