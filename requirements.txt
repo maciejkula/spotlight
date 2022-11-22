@@ -1,2 +1,5 @@
 requests
 pandas
+tabulate
+matplotlib
+seaborn

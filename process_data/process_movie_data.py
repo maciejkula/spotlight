@@ -2,7 +2,7 @@
 ## This script will download, merge and process data, and outputs ready-to-train movielens data in gzip format.
 import requests, tempfile, os, zipfile, gzip, shutil
 import pandas as pd
-
+from config import DATA_PATH
 
 class MovieLens:
     """
@@ -96,3 +96,126 @@ class MovieLens:
     def remove_temp(path):
         ### removes a path and children underneath
         shutil.rmtree(path=path)
+
+
+import matplotlib.pyplot as plt
+from matplotlib.backends.backend_pdf import PdfPages
+import seaborn as sns
+
+class VisualizeData:
+    """
+    This class will visualize the characteristics of input data
+    output is a pdf file with all the figures
+    data_file: csv file
+    out_pdf: output path for the pdf file. default data folder
+    """
+
+    data_folder = DATA_PATH
+
+    def __init__(self, data_file:str, out_pdf:str=None):
+        ###Files
+        self.data_file = data_file
+        self.out_pdf = out_pdf if out_pdf is not None else os.path.join(self.data_folder, "data_summary.pdf")
+
+        ### declare pandas dataframe
+        self.dataframe:pd.DataFrame = None
+
+        ####Plotted variables, either matplot or seaborn plots
+        self.plot_desc = None
+        self.plot_nans = None
+        self.plot_skew = None
+        self.plot_kurt = None
+        self.plot_corr = None
+
+        ### Add to a dictionary that collects what to be plotted
+        self.plot_variables = {}
+
+    def process(self):
+        self.read_data()
+        self.plot_numeric_data(keys=["rating", "timestamp"])
+        self.plot_category_counts()
+        self.plot_data_distribution()
+        self.plot_null()
+        self.plot_corr_matrix()
+        self.save_to_pdf()
+    def read_data(self):
+        """
+        reads the data from 'data_file' and converts it into a pandas dataframe
+        """
+        if self.data_file.endswith(".gz") or self.data_file.endswith(".gzip"):
+            self.dataframe = pd.read_csv(self.data_file, compression="gzip", sep=",")
+        else:
+            self.dataframe = pd.read_csv(self.data_file, sep=",")
+
+    def plot_data_distribution(self):
+        ### get data description
+        #data_desc = self.dataframe.describe().reset_index()
+        data_desc = self.dataframe.loc[:, ["rating", "timestamp", "userId", "movieId", "imdbId", 'tmdbId']]
+        skew = {}
+        kurt = {}
+        for i in data_desc:  # to skip columns for plotting
+            skew[i] = data_desc[i].skew()
+            kurt[i] = data_desc[i].kurt()
+
+        fig_skew = plt.figure()
+        plt.plot(list(kurt.keys()), list(kurt.values()))
+        #plt.xticks(rotation=45, horizontalalignment='right')
+        plt.title("Skew Plot")
+        self.plot_variables["skew_plot"] = fig_skew
+
+        fig_kurt = plt.figure()
+        plt.plot(list(skew.keys()), list(skew.values()))
+        #plt.xticks(rotation=45, horizontalalignment='right')
+        plt.title("Kurt Plot")
+        self.plot_variables["kurt_plot"] = fig_kurt
+
+
+
+
+    def plot_corr_matrix(self):
+        corrmat = self.dataframe.corr()
+        # %%
+        fig = plt.figure()
+        sns.heatmap(corrmat, vmax=1, annot=True, linewidths=.5)
+        plt.xticks(rotation=30, horizontalalignment='right')
+        plt.yticks(rotation=30, horizontalalignment='right')
+        plt.title("Correlation Heatmap")
+
+        ### Add variable dictionary
+        self.plot_variables["correlation_matrix"] = fig
+
+    def plot_null(self):
+        ### Identify null_df
+        ##TODO: @Thorstan can implement code here
+
+        null_df = self.dataframe.apply(lambda x: sum(x.isnull())).to_frame(name="count")
+        fig = plt.figure()
+        plt.bar(null_df.index, null_df['count'])
+        plt.title("NaN Values")
+        plt.xticks(null_df.index, null_df.index, rotation=45, horizontalalignment='right')
+        plt.xlabel("column names")
+        plt.ylabel("count")
+        plt.margins(0.1)
+        ### Add to a dictionary that collects what to be plotted
+        self.plot_variables["NaN"] = fig
+
+    def plot_numeric_data(self, keys=None):
+        for clm in keys:
+            fig = plt.figure()
+            self.dataframe.loc[:, [clm]].boxplot()
+            plt.title(f"{clm} Values")
+            self.plot_variables[clm] = fig
+
+    def plot_category_counts(self): ##TODO: @Alessia can implement code here
+        pass
+
+    def save_to_pdf(self):
+        # Create the PdfPages object to which we will save the pages:
+        # Gets the figures from the "self.plot_variable" dictionary
+        # Prints each figure to a pdf.
+        with PdfPages(self.out_pdf) as pdf:
+            if self.plot_variables is not None:
+                for var_name, var_plot in self.plot_variables.items():
+                    pdf.savefig(var_plot)
+
+VisualizeData(data_file=os.path.join(DATA_PATH, "merged_ml_demo_data.csv.gz")).process()
