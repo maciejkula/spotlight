@@ -75,7 +75,7 @@ class MovieLens:
             links_data, on="movieId", how="outer" #3
         )
 
-        merged_data.to_csv(self.data_merged, quoting=False, index=False)
+        merged_data.to_csv(self.data_merged, index=False)
 
     def process_data(self):
         pass
@@ -112,31 +112,26 @@ class VisualizeData:
 
     data_folder = DATA_PATH
 
-    def __init__(self, data_file:str, out_pdf:str=None):
+    def __init__(self, data_file:str, out_pdf:str=None, numeric_data_keys=None):
         ###Files
         self.data_file = data_file
         self.out_pdf = out_pdf if out_pdf is not None else os.path.join(self.data_folder, "data_summary.pdf")
+        self.numeric_data_keys = numeric_data_keys
 
         ### declare pandas dataframe
         self.dataframe:pd.DataFrame = None
 
-        ####Plotted variables, either matplot or seaborn plots
-        self.plot_desc = None
-        self.plot_nans = None
-        self.plot_skew = None
-        self.plot_kurt = None
-        self.plot_corr = None
 
         ### Add to a dictionary that collects what to be plotted
         self.plot_variables = {}
 
     def process(self):
         self.read_data()
-        self.plot_numeric_data(keys=["rating", "timestamp"])
+        self.plot_numeric_data(keys=self.numeric_data_keys)
         self.plot_category_counts()
-        self.plot_data_distribution()
+        self.plot_data_distribution(keys=self.numeric_data_keys)
         self.plot_null()
-        self.plot_corr_matrix()
+        self.plot_corr_matrix(keys=self.numeric_data_keys)
         self.save_to_pdf()
     def read_data(self):
         """
@@ -147,13 +142,13 @@ class VisualizeData:
         else:
             self.dataframe = pd.read_csv(self.data_file, sep=",")
 
-    def plot_data_distribution(self):
+    def plot_data_distribution(self, keys):
         ### get data description
         #data_desc = self.dataframe.describe().reset_index()
-        data_desc = self.dataframe.loc[:, ["rating", "timestamp", "userId", "movieId", "imdbId", 'tmdbId']]
+        data_desc = self.dataframe.loc[:, keys]
         skew = {}
         kurt = {}
-        for i in data_desc:  # to skip columns for plotting
+        for i in data_desc:
             skew[i] = data_desc[i].skew()
             kurt[i] = data_desc[i].kurt()
 
@@ -169,12 +164,8 @@ class VisualizeData:
         plt.title("Kurt Plot")
         self.plot_variables["kurt_plot"] = fig_kurt
 
-
-
-
-    def plot_corr_matrix(self):
-        corrmat = self.dataframe.corr()
-        # %%
+    def plot_corr_matrix(self, keys=None):
+        corrmat = self.dataframe.corr() if keys is None else self.dataframe.loc[:, keys].corr()
         fig = plt.figure()
         sns.heatmap(corrmat, vmax=1, annot=True, linewidths=.5)
         plt.xticks(rotation=30, horizontalalignment='right')
@@ -186,8 +177,6 @@ class VisualizeData:
 
     def plot_null(self):
         ### Identify null_df
-        ##TODO: @Thorstan can implement code here
-
         null_df = self.dataframe.apply(lambda x: sum(x.isnull())).to_frame(name="count")
         fig = plt.figure()
         plt.bar(null_df.index, null_df['count'])
@@ -217,5 +206,3 @@ class VisualizeData:
             if self.plot_variables is not None:
                 for var_name, var_plot in self.plot_variables.items():
                     pdf.savefig(var_plot)
-
-VisualizeData(data_file=os.path.join(DATA_PATH, "merged_ml_demo_data.csv.gz")).process()
