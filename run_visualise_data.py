@@ -5,7 +5,7 @@ def execute(args):
     import os
 
     VisualizeData(
-        data_file=os.path.join(DATA_PATH, "merged_ml_demo_data.csv.gz") if args.infile is None else args.infile,
+        data_file=os.path.join(DATA_PATH, "ml-data.csv.gz") if args.infile is None else args.infile,
         out_pdf=args.outpath if args.outpath is not None else os.path.join(DATA_PATH, "data_summary.pdf"),
         numeric_data_keys=args.num_col if args.num_col is not None else ["rating", "timestamp"]
     ).process()
