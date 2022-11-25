@@ -195,8 +195,33 @@ class VisualizeData:
             plt.title(f"{clm} Values")
             self.plot_variables[clm] = fig
 
-    def plot_category_counts(self): ##TODO: @Alessia can implement code here
-        pass
+    def plot_category_counts(self):
+        category_counts_dict = self.get_genre_counts()
+        fig = plt.figure()
+        plt.bar(category_counts_dict.keys(), category_counts_dict.values())
+        plt.xticks(rotation=35, horizontalalignment='right')
+        plt.title("Genre Counts")
+        plt.xlabel("Genres")
+        plt.ylabel("counts")
+        plt.margins(0.1)
+        ### Add to a dictionary that collects what to be plotted
+        self.plot_variables["genre_counts"] = fig
+
+    def get_genre_counts(self, keys=None):
+        keys = keys if keys is not None else ["movieId", "genres"]
+        movie_genres = self.dataframe.loc[:, keys].drop_duplicates().dropna(axis=0)
+        genres = movie_genres["genres"].apply(lambda x: x.strip().split("|"))
+
+        genre_count_dict = {}
+
+        for genre_list in genres:
+            for genre in genre_list:
+                if genre in genre_count_dict:
+                    genre_count_dict[genre] += 1
+                    continue
+                genre_count_dict[genre] = 1
+
+        return genre_count_dict
 
     def save_to_pdf(self):
         # Create the PdfPages object to which we will save the pages:
