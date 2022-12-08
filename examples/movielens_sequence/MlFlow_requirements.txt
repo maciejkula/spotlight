@@ -1,0 +1,15 @@
+Some version issues with mlflow:
+
+The normal installation of mlflow did not work. There were some issues with the path at first. 
+When I finally fixed those issues, there were some issues caused by the version of waitress and mlflow.
+This resulted in an error when executing the command "mlflow ui".
+The following procedure fixed the issue
+- uninstall waitress "pip uninstall waitress"
+- uninstall mlflow "pip uninstall mlflow"
+- install mlflow again with the following command (found on https://github.com/mlflow/mlflow/issues/4175):
+	"pip install mlflow==1.23.0"
+
+Some more issues might appear when visualising the mlflow ui:
+- Do NOT USE a jupyter notebook cell to call !mlflow ui. This would prevent any other cell from being executed.
+- Furthermore, the location of the newly created folder mlruns is very important.
+	For me, I can only visualise the mlflow ui with the following command 'mlflow ui --backend-store-uri file:///<full path of mlrun folder>'
