@@ -1,0 +1,15 @@
+artifact_uri: ./mlruns/0/faa309748067450ab11ab1dc23980ea3/artifacts
+end_time: 1670591652685
+entry_point_name: ''
+experiment_id: '0'
+lifecycle_stage: active
+name: ''
+run_id: faa309748067450ab11ab1dc23980ea3
+run_uuid: faa309748067450ab11ab1dc23980ea3
+source_name: ''
+source_type: 4
+source_version: ''
+start_time: 1670591649823
+status: 3
+tags: []
+user_id: Uni

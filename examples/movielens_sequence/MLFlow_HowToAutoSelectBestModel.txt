@@ -1,0 +1,16 @@
+MLFLOW documentation summary: How can we automatically save the best model
+
+One can access the experiments not only via the UI, but also via mlflow.client:
+
+The search_run, search_experiments, search_model_versions etc. functions have a parameter "order_by".
+This parameter can be used to order by the metricS of choice.
+This should be especially useful with search_run, order by mean_mmr_inverse, then order by mean_mrr.
+It is possible to decide whether I wan to order ascending or decending!
+
+Test and adapt the following pseudo-code:
+
+from mlflow import MlflowClient
+client=MlflowClient()
+runs = client.search_runs(experiment_id, order_by="metrics.meanmrr_inv ASC"
+
+choose run [0].
