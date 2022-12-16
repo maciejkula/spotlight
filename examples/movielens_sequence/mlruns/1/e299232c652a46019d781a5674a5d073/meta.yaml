@@ -1,0 +1,15 @@
+artifact_uri: ./mlruns/1/e299232c652a46019d781a5674a5d073/artifacts
+end_time: 1671110818140
+entry_point_name: ''
+experiment_id: '1'
+lifecycle_stage: active
+name: ''
+run_id: e299232c652a46019d781a5674a5d073
+run_uuid: e299232c652a46019d781a5674a5d073
+source_name: ''
+source_type: 4
+source_version: ''
+start_time: 1671110811882
+status: 3
+tags: []
+user_id: Uni

@@ -14,3 +14,14 @@ client=MlflowClient()
 runs = client.search_runs(experiment_id, order_by="metrics.meanmrr_inv ASC"
 
 choose run [0].
+
+This pseudo-code does not work, because runs is a wrapped list, where indexing does not work.
+However, the following works:
+
+from mlflow.tracking import MlflowClient
+client = MlflowClient()
+runs = client.search_runs(experiment_id, order_by=["metrics.mean_invmrr ASC"])	## note that we use mlflow.search_runs
+df = mlflow.search_runs([experiment_id], order_by=["metrics.mean_invmrr ASC"])  ## instead of client.search_runs
+run = client.get_run(best_run_id)
+run	# returns the best run!
+best_run_id = df.loc[0,'run_id']

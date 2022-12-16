@@ -1,0 +1,6 @@
+dataset_name:100K
+loss:bpr
+model_type:pooling
+n_iter:100
+test_mrr:0.05153224957182383
+average_first_relevant_movie:[18. 29. 52. ...  4. 16.  3.]
