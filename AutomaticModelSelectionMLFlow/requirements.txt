@@ -1,0 +1,8 @@
+torch
+requests
+numpy
+scipy
+pandas
+scikit-learn
+mlflow==1.23.0
+h5py

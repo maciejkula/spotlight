@@ -1,0 +1,14 @@
+This video explains how to install a package with pip, but directly from github.
+This is necessary, because the author of spotlight wants us to use conda to install.
+Without setting up conda, either via miniconda or via anaconde, this is the quickest approach.
+https://www.youtube.com/watch?v=r-wwMk5faXo
+
+
+### How to create the docker image
+- open the command window (e.g. CMD)
+- navigate to the path where this file is located: cd <path>
+- run: docker build . -t sequencemodels
+
+How to run the docker image:
+- open the command window (e.g. CMD)
+- run: docker run sequencemodels
