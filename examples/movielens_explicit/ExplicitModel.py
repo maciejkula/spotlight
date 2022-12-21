@@ -36,7 +36,8 @@ test_rmse = rmse_score(model, test)
 print('Train RMSE {:.3f}, test RMSE {:.3f}'.format(train_rmse, test_rmse))
 
 outdict={}
-with open("movies.csv",'r') as fh:
+import os
+with open(os.path.join(os.path.dirname(__file__), 'movies.csv'),'r') as fh:
     for line in fh:
         if line.startswith('mov'): continue
         pline=line.strip().split(',')
