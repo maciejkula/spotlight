@@ -78,7 +78,7 @@ except:
 
 sequmods = ['pooling','cnn','lstm']
 loss='bpr'
-iters = [1,5,10,20,30,40,50,60,70,80,90,100]
+iters = [1]#,5,10,20,30,40,50,60,70,80,90,100]
 for repres in sequmods:
     for n_iter in iters:
         with mlflow.start_run(experiment_id=experiment_id):
@@ -125,3 +125,4 @@ best_model = ImplicitSequenceModel(n_iter=n_iter,
                                   loss=loss)
 best_model.fit(dataset)
 torch.save(best_model, "./saved_model.pt")
+print("The code has been executed succesfully!")
