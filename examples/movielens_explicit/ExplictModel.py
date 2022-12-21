@@ -35,7 +35,7 @@ test_rmse = rmse_score(model, test)
 
 print('Train RMSE {:.3f}, test RMSE {:.3f}'.format(train_rmse, test_rmse))
 
-dataset_path= "/Users/hannah/Desktop/Agile Data Science/ml-latest/movies.csv"
+dataset_path= "movies.csv"
 
 outdict={}
 with open(dataset_path,'r') as fh:
