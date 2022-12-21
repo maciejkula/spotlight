@@ -35,10 +35,8 @@ test_rmse = rmse_score(model, test)
 
 print('Train RMSE {:.3f}, test RMSE {:.3f}'.format(train_rmse, test_rmse))
 
-dataset_path= "movies.csv"
-
 outdict={}
-with open(dataset_path,'r') as fh:
+with open("movies.csv",'r') as fh:
     for line in fh:
         if line.startswith('mov'): continue
         pline=line.strip().split(',')
@@ -55,4 +53,4 @@ def recommend_movies(user_id, dataset, model, n_movies=5):
 
     return [outdict[str(v)] for v in list(movie_id)]
 
-recommend_movies(1, dataset.item_ids, model)
+print(recommend_movies(1, dataset.item_ids, model))
